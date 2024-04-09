@@ -1,0 +1,35 @@
+meta {
+  name: Get Rotational Group Platforms
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/rotationalgroups
+  body: none
+  auth: none
+}
+
+query {
+  ~search: MYSQL
+}
+
+vars:pre-request {
+  pasPlatformName: GenericWebApp
+}
+
+assert {
+  res.status: eq 200
+  res.body.Total: isNumber
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows Vault Admins to retrieve basic information about all existing group platforms.
+}

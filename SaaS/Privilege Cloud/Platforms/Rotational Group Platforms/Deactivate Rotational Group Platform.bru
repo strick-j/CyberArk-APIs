@@ -1,0 +1,29 @@
+meta {
+  name: Deactivate Rotational Group Platform
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/rotationalgroups/{{pasRotationalGroupPlatformId}}/activate
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasRotationalGroupPlatformId: 118
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows Vault Admins to deactivate a group platform.
+}

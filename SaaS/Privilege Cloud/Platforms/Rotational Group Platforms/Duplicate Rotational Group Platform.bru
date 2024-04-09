@@ -1,0 +1,39 @@
+meta {
+  name: Duplicate Rotational Group Platform
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/rotationalgroups/{{pasRotationalGroupPlatformId}}/duplicate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "Name": "Duplicate Rotational Group Platform",
+      "Description": "Example Duplicated Rotational Group Platform"
+  }
+}
+
+vars:pre-request {
+  pasRotationalGroupPlatformId: 117
+}
+
+assert {
+  res.status: eq 200
+  res.status.ID: isNumber
+  res.status.PlatformID: isString
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows Vault Admins to duplicate group platforms.
+}
