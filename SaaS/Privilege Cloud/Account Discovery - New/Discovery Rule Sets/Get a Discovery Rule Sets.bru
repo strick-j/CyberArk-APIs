@@ -1,0 +1,27 @@
+meta {
+  name: Get a Discovery Rule Sets
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{pasRuleSetId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.totalCount: isNumber
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns information about a specific discovery rule set.
+}

@@ -1,0 +1,119 @@
+meta {
+  name: Add a Discovery Rule Set
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bru Rule Set Example",
+    "trigger": {
+      "type": "ACCOUNT_DISCOVERED",
+      "conditions": [
+        {
+          "property": "type",
+          "operator": "EQUALS",
+          "value": "windows"
+        },
+        {
+          "property": "hostname",
+          "operator": "STARTS_WITH",
+          "value": "bru"
+        }
+      ]
+    },
+    "rules": [
+      {
+        "name": "Rule 1",
+        "conditions": [
+          {
+            "property": "subType",
+            "operator": "EQUALS",
+            "value": "loosely"
+          },
+          {
+            "property": "isPrivileged",
+            "operator": "EQUALS",
+            "value": "false"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": [
+            {
+              "type": "RESET",
+              "parameters": {
+                "reset": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Rule 2",
+        "conditions": [
+          {
+            "property": "source",
+            "operator": "EQUALS",
+            "value": "discovery management"
+          },
+          {
+            "property": "network",
+            "operator": "STARTS_WITH",
+            "value": "bru"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": []
+        }
+      }
+    ],
+    "status": "DRAFT"
+  }
+}
+
+vars:pre-request {
+  pasPlatformName: BRU-API-TEST-PLATFORM
+  pasSafeName: BRU-API-TEST-SAFE
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Save Discovered Rule Set Id in collection for use in subsequent steps
+  if (res.body.id) {
+    bru.setVar("pasRuleSetId", res.body.id)
+  }
+}
+
+docs {
+  This method adds a new discovery rule set that defines an action for specific discovered accounts.
+  
+  Any account that matches the rule set conditions is automatically handled according to the action that is defined in the rule set.
+  
+  Currently, the rule set onboards the matched account. At the time of onboarding, the matching accounts are added to the defined safe and platform.
+}

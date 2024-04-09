@@ -1,0 +1,41 @@
+meta {
+  name: Get All Discovery Rule Sets
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 0
+  ~limit: 50
+  ~sort: id - asc
+  ~search: example
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.totalCount: isNumber
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Save Discovered Rule Set Id in collection for use in subsequent steps
+  if (res.body.items[0]) {
+    bru.setVar("pasRuleSetId", res.body.items[0].id)
+  }
+}
+
+docs {
+  This method returns information about all the defined discovery rule sets.
+}

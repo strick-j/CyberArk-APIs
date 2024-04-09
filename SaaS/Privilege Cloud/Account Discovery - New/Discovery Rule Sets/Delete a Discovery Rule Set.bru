@@ -1,0 +1,32 @@
+meta {
+  name: Delete a Discovery Rule Set
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{pasRuleSetId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Save Discovered Rule Set Id in collection for use in subsequent steps
+  if (res.body.id) {
+    bru.setVar("pasRuleSetId", res.body.id)
+  }
+}
+
+docs {
+  This method deletes one of the discovery rule sets.
+}
