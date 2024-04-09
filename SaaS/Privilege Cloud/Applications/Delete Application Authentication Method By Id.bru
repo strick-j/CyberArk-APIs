@@ -5,26 +5,13 @@ meta {
 }
 
 delete {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{aamAppId}}/Authentications/{{aamAuthMethodId}}
-  body: json
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{pasAppId}}/Authentications/{{pasAppAuthId}}
+  body: none
   auth: none
 }
 
-body:json {
-  {
-    "authentication":
-    {
-      "AuthType":"path", // <path|osuser|hash|machineAddress>
-      "AuthValue": "C:\\Users\\example\\documents", // "<Path string>|<OSUser Name>|<Hash Value>|<Machine Address|CIDR>",
-      "IsFolder": true, // <true|false>
-      "AllowInternalScripts": true // <true|false>
-    }
-  }
-}
-
 vars:pre-request {
-  aamAppId: SNow
-  aamAuthMethodId: 3
+  pasAppId: BRUNO-APP
 }
 
 assert {

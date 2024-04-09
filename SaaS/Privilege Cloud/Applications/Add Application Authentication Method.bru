@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{aamAppId}}/Authentications
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{pasAppId}}/Authentications
   body: json
   auth: none
 }
@@ -23,7 +23,7 @@ body:json {
 }
 
 vars:pre-request {
-  aamAppId: SNow
+  pasAppId: BRUNO-APP
 }
 
 assert {

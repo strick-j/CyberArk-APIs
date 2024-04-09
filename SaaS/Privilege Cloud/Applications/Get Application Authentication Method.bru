@@ -1,0 +1,39 @@
+meta {
+  name: Get Application Authentication Method
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{pasAppId}}/Authentications
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasAppId: BRUNO-APP
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Save Application Auth Id in Session Collection
+  if (res.body.authentication[0]) {
+    bru.setVar("pasAppAuthId", res.body.authentication[0].authID)
+  }
+}
+
+docs {
+  This method returns information about all the authentications methods of a specific application.
+  
+  The user who runs this web service requires Audit Users permissions in Privilege Cloud.
+}

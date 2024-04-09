@@ -1,10 +1,10 @@
 meta {
-  name: Delete Application By Id
+  name: Get Application Details
   type: http
-  seq: 8
+  seq: 4
 }
 
-delete {
+get {
   url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{pasAppId}}
   body: none
   auth: none
@@ -16,6 +16,10 @@ vars:pre-request {
 
 assert {
   res.status: eq 200
+  res.body: isJson
+  res.body.application.AppID: isString
+  res.body.application.Disabled: isBoolean
+  res.body.application.AccessPermittedFrom: isNumber
 }
 
 script:pre-request {
@@ -25,12 +29,7 @@ script:pre-request {
 }
 
 docs {
-  This method deletes a specific application.
+  This method returns information about a specific application.
   
-  The user requires the following permission in the Vault:
-  Manage Users
-  
-  
-  
-  
+  The user who runs this web service requires Audit Users permissions in Privilege Cloud.
 }
