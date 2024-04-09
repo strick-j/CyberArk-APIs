@@ -1,0 +1,38 @@
+meta {
+  name: Duplicate Group Platform
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/groups/{{pasGroupPlatformId}}/duplicate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "Name": "Duplicate Group Platform",
+      "Description": "Example Duplicated Group Platform"
+  }
+}
+
+vars:pre-request {
+  pasGroupPlatformId: 33
+}
+
+assert {
+  res.status: eq 200
+  res.status.ID: isNumber
+  res.status.PlatformID: isString
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows Vault Admins to duplicate group platforms.
+}

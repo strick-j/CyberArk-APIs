@@ -1,0 +1,36 @@
+meta {
+  name: Delete Group Platform
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/groups/{{pasGroupPlatformId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "Name": "Duplicate Group Platform",
+      "Description": "Example Duplicated Group Platform"
+  }
+}
+
+vars:pre-request {
+  pasGroupPlatformId: 115
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows Vault Admins to delete a group platform.
+}
