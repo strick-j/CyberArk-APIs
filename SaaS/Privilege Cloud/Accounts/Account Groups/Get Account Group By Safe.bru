@@ -1,0 +1,29 @@
+meta {
+  name: Get Account Group By Safe
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accountgroups?safe={{pasSafeName}}
+  body: none
+  auth: none
+}
+
+query {
+  safe: {{pasSafeName}}
+}
+
+vars:pre-request {
+  pasSafeName: ExampleSafe
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
