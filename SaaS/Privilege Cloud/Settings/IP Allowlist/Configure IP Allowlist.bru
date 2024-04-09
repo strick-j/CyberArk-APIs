@@ -1,0 +1,46 @@
+meta {
+  name: Configure IP Allowlist
+  type: http
+  seq: 2
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/advanced-settings/ip-allowlist
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customerPublicIPs": [
+      "3.141.170.10/32",
+      "3.141.170.11/32"
+    ]
+  }
+}
+
+assert {
+  res.status: eq 202
+  res.body: isJson
+  res.body.status: eq IN_PROGRESS
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method is used to manage the list of allowed IP addresses from your machines to the Privilege Cloud Saas environment.
+  
+  Overview:
+  Configuration erases everything that was previously configured. In order to keep your current configuration, add the existing IP addresses to the list. An empty list will remove all the current IP addresses.
+  
+  Configuration can take up to 10 minutes. You cannot trigger a new process when there is a process running. To verify, run the Get IP allowlist API and check that the updateInProgress parameter result is false.
+  
+  Required User Permissions:
+  - Privilege Cloud Administrator
+  - Privilege Cloud Administrator Basic
+  - Privilege Cloud Administrator Lite
+}

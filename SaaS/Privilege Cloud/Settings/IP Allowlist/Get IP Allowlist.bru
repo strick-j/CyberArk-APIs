@@ -1,0 +1,32 @@
+meta {
+  name: Get IP Allowlist
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/advanced-settings/ip-allowlist
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.updateInProgress: isBoolean 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of allowed IP addresses that enables communication from Privilege Cloud customer-side components (CPM, PSM, PSM for SSH, CP, CCP, Secure Tunnel) with the Privilege Cloud SaaS environment.
+  
+  Required User Permissions:
+  - Privilege Cloud Administrator
+  - Privilege Cloud Administrator Basic
+  - Privilege Cloud Administrator Lite
+}
