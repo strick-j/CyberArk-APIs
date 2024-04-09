@@ -12,9 +12,9 @@ put {
 
 body:json {
   {
-    "safeName": "Example1234",
-    "safeNumber": 210,
-    "description": "Desc2",
+    "safeName": "BRU-TEST-SAFE-ACTION",
+    "safeNumber": "{{pasSafeNumber}}",
+    "description": "New Description",
     "location": "{{pasFolder}}",
     "creator": {
       "id": "3638b514-5d70-4264-b7b6-15b1767b8702",
@@ -28,17 +28,25 @@ body:json {
 }
 
 vars:pre-request {
-  pasSafeUrlId: Example123
+  pasSafeUrlId: BRU-TEST-SAFE-ACTION
   pasFolder: 
   pasCPMName: CONNECTOR1
 }
 
 assert {
   res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method updates a single Safe in the Vault.
+  
+  The user who runs this web service must have Manage Safes permissions in the Vault and View Safe Members permissions in the Safe.
+  
 }

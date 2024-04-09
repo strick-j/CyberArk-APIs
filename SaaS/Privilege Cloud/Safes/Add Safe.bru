@@ -24,17 +24,29 @@ body:json {
 }
 
 vars:pre-request {
-  pasSafeName: Example123
+  pasSafeName: BRU-TEST-SAFE-ACTION
   pasFolder: 
   pasCPMName: CONNECTOR1
 }
 
 assert {
   res.status: eq 201
+  res.body: isJson
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+script:post-response {
+  bru.setVar('pasSafeNumber',res.body.safeNumber);
+}
+
+docs {
+  This method adds a new Safe to the Vault.
+  
+  The user who runs this web service requires Add Safes permissions in the Vault.
+  
 }

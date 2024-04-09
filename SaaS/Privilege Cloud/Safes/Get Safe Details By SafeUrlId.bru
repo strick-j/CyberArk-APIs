@@ -18,15 +18,22 @@ query {
 }
 
 vars:pre-request {
-  pasSafeUrlId: VaultInternal
+  pasSafeUrlId: BRU-API-TEST-SAFE
 }
 
 assert {
   res.status: eq 200
+  res.body: isJson
+  res.body.safeNumber: isNumber
+  res.body.safeName: isString
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method returns information about a specific Safe in the Vault.
 }

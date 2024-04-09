@@ -24,7 +24,7 @@ body:json {
 }
 
 vars:pre-request {
-  pasSafeUrlId: Example123
+  pasSafeUrlId: BRU-TEST-SAFE-ACTION
 }
 
 assert {
@@ -35,4 +35,10 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method deletes a Safe from the Vault.
+  
+  The user who runs this web service requires Manage Safe permissions on the required Safe.
 }
