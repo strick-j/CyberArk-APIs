@@ -16,6 +16,7 @@ query {
 
 assert {
   res.status: eq 200
+  res.body: isJson 
 }
 
 script:pre-request {
