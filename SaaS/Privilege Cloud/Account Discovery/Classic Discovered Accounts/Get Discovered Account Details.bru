@@ -1,0 +1,32 @@
+meta {
+  name: Get Discovered Account Details
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/discoveredaccounts/{{pasClassicDiscoveredAccountId}}
+  body: none
+  auth: none
+}
+
+query {
+  ~name: 
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of all the discovered accounts from the Pending Accounts list.
+  
+  The user who runs this web service must belong to the Vault Admins group.
+}

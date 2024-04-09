@@ -1,0 +1,41 @@
+meta {
+  name: Add Discovered Accounts
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/discoveredaccounts
+  body: json
+  auth: none
+}
+
+query {
+  ~name: 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method adds newly discovered accounts and their dependencies.
+  
+  The user who runs this web service requires the following users and permissions:
+  
+  To add pending accounts:
+    User: Owner of PasswordManager_Pending Safe
+    Permissions:
+      - Add account
+      - List files
+      - Update account properties
+  
+  To onboard the account:
+    User: Owner of the target Safe of the onboarding rule.
+    Permissions:
+      - Add account
+      - Update account properties
+      - Initiate CPM account management operations
+}

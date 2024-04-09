@@ -1,0 +1,29 @@
+meta {
+  name: Delete Discovered Accounts
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/discoveredaccounts/
+  body: none
+  auth: none
+}
+
+query {
+  ~name: 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method deletes all discovered accounts and related dependencies from the Pending Accounts list.
+  
+  Note: When thousands of accounts are deleted, it may take a few minutes to complete the process.
+  
+  The user who runs this web service must belong to the Vault Admins group.
+}
