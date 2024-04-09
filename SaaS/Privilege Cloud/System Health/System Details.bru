@@ -16,10 +16,18 @@ vars:pre-request {
 
 assert {
   res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method returns details about specific components and all their installed instances, and system health information for each one.
+  
+  Valid ComponentsID values: PVWA/SessionManagement/CPM/AIM
+  
 }

@@ -10,16 +10,17 @@ get {
   auth: none
 }
 
-vars:pre-request {
-  pasComponentsId: cpm
-}
-
 assert {
   res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method returns consolidated information about the Vault, PVWA, CPM, PSM/PSMP, and AIM, including all clients that are relevant to each specific component
 }
