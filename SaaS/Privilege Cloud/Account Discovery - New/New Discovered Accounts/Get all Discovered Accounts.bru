@@ -22,10 +22,18 @@ query {
 
 assert {
   res.status: eq 200
+  res.body: isJson 
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Save Discovered Accounts Id in collection for use in subsequent steps
+  if (res.body.items[0]) {
+    bru.setVar("pasDiscoveredAccountId", res.body.items[0].id)
+  }
 }

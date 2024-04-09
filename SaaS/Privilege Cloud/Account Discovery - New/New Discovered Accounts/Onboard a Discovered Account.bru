@@ -1,0 +1,48 @@
+meta {
+  name: Onboard a Discovered Account
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{pasDiscoveredAccountId}}/onboard
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "coreAttributes": {
+      "safeName":"{{pasSafeName}}",
+      "platformId":"{{pasPlatformId}}"
+    },
+    "additionalProperties":{},
+    "secret":"password123!@#",
+    "resetSecret":false
+  }
+}
+
+vars:pre-request {
+  pasSafeName: BRU-API-TEST-SAFE
+  pasPlatformId: BRU-API-TEST-PLATFORM
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method adds a specific account from the list of discovered accounts for local endpoint Windows and MacOS accounts to the Discovered Accounts list.
+  
+  Required permissions:
+  
+  To run this API, the user must be assigned to the following role:
+    - Privilege Cloud Discovery Source
+}

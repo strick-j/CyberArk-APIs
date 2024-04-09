@@ -1,7 +1,7 @@
 meta {
   name: Get a Discovered Account
   type: http
-  seq: 3
+  seq: 2
 }
 
 get {
@@ -14,12 +14,9 @@ query {
   extendedDetails: false
 }
 
-vars:pre-request {
-  pasDiscoveredAccountId: fd440b92-e747-404a-ae1f-31c5fefa7f2c
-}
-
 assert {
   res.status: eq 200
+  res.body: isJson 
 }
 
 script:pre-request {

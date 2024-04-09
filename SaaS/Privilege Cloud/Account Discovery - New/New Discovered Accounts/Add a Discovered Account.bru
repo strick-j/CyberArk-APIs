@@ -1,0 +1,54 @@
+meta {
+  name: Add a Discovered Account
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "type": "windows",
+    "subType": "loosely",
+    "identifiers": {
+      "address": "test-computer.cyberark.com",
+      "username": "account1"
+    },
+    "isPrivileged": true,
+    "source": "EPM",
+    "customProperties": {
+      "groups": [
+        "administrators",
+        "users"
+      ],
+      "enabled": true,
+      "osVersion": "Windows 10 Pro",
+      "description": "Admin user2",
+      "displayName": "Administrator2"
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method adds a specific account from the list of discovered accounts for local endpoint Windows and MacOS accounts to the Discovered Accounts list.
+  
+  Required permissions:
+  
+  To run this API, the user must be assigned to the following role:
+    - Privilege Cloud Discovery Source
+}
