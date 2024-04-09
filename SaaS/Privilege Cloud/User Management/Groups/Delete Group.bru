@@ -1,0 +1,33 @@
+meta {
+  name: Delete Group
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups/{{pasGroupId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "groupName": "unique-group-name",
+      "description": "The users in this group all have the same authorizations",
+      "location": "{{pasFolder}}"
+  }
+}
+
+vars:pre-request {
+  pasGroupId: 
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

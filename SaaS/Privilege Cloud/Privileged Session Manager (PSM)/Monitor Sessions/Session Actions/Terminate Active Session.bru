@@ -1,0 +1,21 @@
+meta {
+  name: Terminate Active Session
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/livesessions/{{pasLiveSessionId}}/terminate
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasLiveSessionId: 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

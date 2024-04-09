@@ -1,0 +1,43 @@
+meta {
+  name: Add Onboarding Rule
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/automaticonboardingrules
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "TargetPlatformId": "{{pasPlatformName}}",
+    "TargetSafeName": "{{pasSafeName}}",
+    "IsAdminIDFilter": false,
+    "MachineTypeFilter": "Server", // <any|workstation|server>
+    "SystemTypeFilter": "Windows", // <Windows|Unix>
+    "UserNameFilter": "Administrator", // User name up to 512 Characters
+    "UserNameMethod": "Equals", // <Begins|Ends|Equals>
+    "AddressFilter": "192.168", // Addres or DNS Name up to 255 Characters
+    "AddressMethod": "Begins", // <Begins|Ends|Equals>
+    "AccountCategoryFilter": "Privileged", // <Any|Privileged|Non-privileged>
+    "RuleName": "ExampleRule", // Uqique Name 255 Characters
+    "RuleDescription": "Example Rule Description"
+  }
+}
+
+vars:pre-request {
+  pasPlatformName: PIN-SNOW-UTAH
+  pasSafeName: Example123
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

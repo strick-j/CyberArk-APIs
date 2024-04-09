@@ -1,0 +1,48 @@
+meta {
+  name: Delete Application By Id
+  type: http
+  seq: 6
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{aamAppId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "authentication":
+    {
+      "AuthType":"path", // <path|osuser|hash|machineAddress>
+      "AuthValue": "C:\\Users\\example\\documents", // "<Path string>|<OSUser Name>|<Hash Value>|<Machine Address|CIDR>",
+      "IsFolder": true, // <true|false>
+      "AllowInternalScripts": true // <true|false>
+    }
+  }
+}
+
+vars:pre-request {
+  aamAppId: SNow
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method deletes a specific application.
+  
+  The user requires the following permission in the Vault:
+  Manage Users
+  
+  
+  
+  
+}

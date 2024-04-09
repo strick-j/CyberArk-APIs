@@ -1,0 +1,25 @@
+meta {
+  name: Get Logo
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Logo?type=square
+  body: none
+  auth: none
+}
+
+query {
+  type: square
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

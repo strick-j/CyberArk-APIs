@@ -1,0 +1,21 @@
+meta {
+  name: Get Target Platforms
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/targets
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

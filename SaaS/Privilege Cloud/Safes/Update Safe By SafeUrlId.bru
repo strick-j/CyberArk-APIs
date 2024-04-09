@@ -1,0 +1,44 @@
+meta {
+  name: Update Safe By SafeUrlId
+  type: http
+  seq: 5
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "safeName": "Example1234",
+    "safeNumber": 210,
+    "description": "Desc2",
+    "location": "{{pasFolder}}",
+    "creator": {
+      "id": "3638b514-5d70-4264-b7b6-15b1767b8702",
+      "name": "svc_rest_api@cyberark.cloud.3558"
+    },
+    "olacEnabled": false,
+    "managingCPM": "{{pasCPMName}}",
+    "numberOfVersionsRetention": null,
+    "numberOfDaysRetention": 0
+  }
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+  pasFolder: 
+  pasCPMName: CONNECTOR1
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

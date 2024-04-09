@@ -1,0 +1,46 @@
+meta {
+  name: Add Application Authentication Method
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{aamAppId}}/Authentications
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "authentication":
+    {
+      "AuthType":"path", // <path|osuser|hash|machineAddress>
+      "AuthValue": "C:\\Users\\example\\documents", // "<Path string>|<OSUser Name>|<Hash Value>|<Machine Address|CIDR>",
+      "IsFolder": true, // <true|false>
+      "AllowInternalScripts": true // <true|false>
+    }
+  }
+}
+
+vars:pre-request {
+  aamAppId: SNow
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method adds a new authentication method to a specific application in the Vault.
+  
+  The user who adds this authentication method requires the following permissions in the Vault:
+  Manage Users
+  
+  
+}

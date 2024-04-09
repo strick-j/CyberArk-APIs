@@ -1,0 +1,40 @@
+meta {
+  name: Add Safe
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "SafeName": "{{pasSafeName}}",
+      "Description": "Desc1",
+      "OLACEnabled": false,
+      "ManagingCPM": "{{pasCPMName}}",
+      "NumberOfVersionsRetention": null,
+      "NumberOfDaysRetention": 0,
+      "AutoPurgeEnabled": false,
+      "Location": "{{pasFolder}}"
+  }
+}
+
+vars:pre-request {
+  pasSafeName: Example123
+  pasFolder: 
+  pasCPMName: CONNECTOR1
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

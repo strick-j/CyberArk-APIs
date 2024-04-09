@@ -1,0 +1,25 @@
+meta {
+  name: Get Safe Members v1
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Safes/{{pasSafeUrlId}}/Members
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

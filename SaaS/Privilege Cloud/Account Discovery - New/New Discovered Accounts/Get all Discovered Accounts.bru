@@ -1,0 +1,31 @@
+meta {
+  name: Get all Discovered Accounts
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts?offset=0&limit=5&extendedDetails=true
+  body: none
+  auth: none
+}
+
+query {
+  offset: 0
+  limit: 5
+  extendedDetails: true
+  ~search: 
+  ~searchOnAllFields: true
+  ~sort: username asc
+  ~filter: type EQ windows AND subtype EQ loosely
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

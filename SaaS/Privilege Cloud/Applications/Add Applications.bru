@@ -1,0 +1,45 @@
+meta {
+  name: Add Applications
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "application":
+    {
+      "AppID":"{{aamAppId}}",
+      "Description":"Testing DevOps Deployments with CyberArk",
+      "Location": "{{pasFolder}}",
+      "AccessPermittedFrom":0,
+      "AccessPermittedTo":23,
+      "ExpirationDate":"",
+      "Disabled":"No",
+      "BusinessOwnerFName":"John",
+      "BusinessOwnerLName":"Doe",
+      "BusinessOwnerEmail":"John.Doe@CyberArk.com",
+      "BusinessOwnerPhone":"555-555-1212"
+    }
+  }
+}
+
+vars:pre-request {
+  aamAppId: Example
+  pasFolder: Root
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

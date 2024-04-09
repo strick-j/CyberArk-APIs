@@ -1,0 +1,36 @@
+meta {
+  name: Import Platform
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/import
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Encoding: gzip, deflate, br
+  Accept: */*
+}
+
+body:json {
+  {
+    "ImportFile": "{zip file in the format of BASE 64 array}"
+  }
+}
+
+vars:pre-request {
+  pasPlatformName: GenericWebApp
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

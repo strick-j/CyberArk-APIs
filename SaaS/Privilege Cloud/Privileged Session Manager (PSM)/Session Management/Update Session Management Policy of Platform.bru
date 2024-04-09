@@ -1,0 +1,38 @@
+meta {
+  name: Update Session Management Policy of Platform
+  type: http
+  seq: 5
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/targets/{{pasPlatformName}}/privilegedsessionmanagement
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "PSMServerId":"PSMServer_e7b11b1",
+      "PSMServerName":"PSMServer2",
+      "PSMConnectors": [
+          {
+              "PSMConnectorID": "PSM-AWSConsoleWithSTS",
+              "Enabled": false
+          },
+          {
+              "PSMConnectorID": "SSH",
+              "Enabled": true
+          }
+      ]
+  }
+}
+
+vars:pre-request {
+  pasPlatformName: GenericWebApp
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

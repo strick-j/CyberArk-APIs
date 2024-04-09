@@ -1,0 +1,29 @@
+meta {
+  name: Get Group Details
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups/{{pasGroupId}}
+  body: none
+  auth: none
+}
+
+query {
+  ~includeMembers: true
+}
+
+vars:pre-request {
+  pasGroupId: 49
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

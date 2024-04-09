@@ -1,0 +1,21 @@
+meta {
+  name: Get Platform Details By Name
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/{{pasPlatformName}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasPlatformName: GenericWebApp
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

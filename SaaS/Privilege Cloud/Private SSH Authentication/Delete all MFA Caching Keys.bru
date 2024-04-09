@@ -1,0 +1,28 @@
+meta {
+  name: Delete all MFA Caching Keys
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/secret/sshkeys/clearcache
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "formats": ["PEM"], // ["PPK", "PEM", "OpenSSH"] Optional - Default PEM
+      "keyPassword": "Cyberark1" // Optional - Default: No Passphrase
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

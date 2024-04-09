@@ -1,0 +1,31 @@
+meta {
+  name: Update Group
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups/{{pasGroupId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "groupName": "FunGroupNew"
+  }
+}
+
+vars:pre-request {
+  pasGroupId: 49
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

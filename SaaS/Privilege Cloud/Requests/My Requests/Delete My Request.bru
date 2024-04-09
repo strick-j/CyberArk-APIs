@@ -1,0 +1,37 @@
+meta {
+  name: Delete My Request
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/myrequests/{{pasRequestId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "AccountID":"{{pasAccountID}}",
+    "Reason":"Access requested via CyberArk Web Services",
+    "TicketingSystemName":"ServiceNow"
+  }
+}
+
+vars:pre-request {
+  pasRequestId: A
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of the end user's requests
+}

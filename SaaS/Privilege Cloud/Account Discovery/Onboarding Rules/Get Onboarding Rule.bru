@@ -1,0 +1,25 @@
+meta {
+  name: Get Onboarding Rule
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/automaticonboardingrules
+  body: none
+  auth: none
+}
+
+query {
+  ~name: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

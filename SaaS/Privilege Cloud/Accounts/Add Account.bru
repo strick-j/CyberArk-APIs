@@ -1,0 +1,60 @@
+meta {
+  name: Add Account
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "{{pasObjectName}}",
+    "address": "{{pasAddress}}",
+    "userName": "{{pasUsername}}",
+    "platformId": "{{pasPlatformName}}",
+    "safeName": "{{pasSafeName}}",
+    "secretType": "password",
+    "secret": "string",
+    "platformAccountProperties": {
+      "LogonDomain": "string",
+      "Port": "integer"
+    },
+    "secretManagement": {
+      "automaticManagementEnabled": true,
+      "manualManagementReason": "string"
+    },
+    "remoteMachinesAccess": {
+      "remoteMachines": "string",
+      "accessRestrictedToRemoteMachines": true
+    }
+  }
+}
+
+vars:pre-request {
+  pasSafeName: 
+  pasObjectName: 
+  pasPlatformName: 
+  pasAddress: 
+  pasUsername: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns information about an account identified by its ID.
+  
+  The user who runs this web service requires List Accounts permissions in the Safe where the account is located inside the Vault.
+  
+}

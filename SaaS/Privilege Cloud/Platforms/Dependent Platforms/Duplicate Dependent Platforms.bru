@@ -1,0 +1,32 @@
+meta {
+  name: Duplicate Dependent Platforms
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/dependents/{{pasPlatformId}}/duplicate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "Name": "DuplicateDependent",
+      "Description": "Duplicated Dependent Platform"
+  }
+}
+
+vars:pre-request {
+  pasPlatformId: 1
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

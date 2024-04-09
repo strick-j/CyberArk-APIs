@@ -1,0 +1,30 @@
+meta {
+  name: Get My Requests
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/myrequests?onlyWaiting=false&expired=false
+  body: none
+  auth: none
+}
+
+query {
+  onlyWaiting: false
+  expired: false
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of the end user's requests
+}

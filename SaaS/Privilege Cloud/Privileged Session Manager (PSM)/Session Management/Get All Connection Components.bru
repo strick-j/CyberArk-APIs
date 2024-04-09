@@ -1,0 +1,17 @@
+meta {
+  name: Get All Connection Components
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/psm/connectors
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

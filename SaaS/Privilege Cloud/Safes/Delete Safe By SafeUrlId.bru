@@ -1,0 +1,38 @@
+meta {
+  name: Delete Safe By SafeUrlId
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "SafeName": "{{pasSafeName}}",
+      "Description": "Desc1",
+      "OLACEnabled": false,
+      "ManagingCPM": "{{pasCPMName}}",
+      "NumberOfVersionsRetention": null,
+      "NumberOfDaysRetention": 0,
+      "AutoPurgeEnabled": false,
+      "Location": "{{pasFolder}}"
+  }
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

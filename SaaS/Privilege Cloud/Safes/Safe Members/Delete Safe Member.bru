@@ -1,0 +1,26 @@
+meta {
+  name: Delete Safe Member
+  type: http
+  seq: 6
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members/{{pasSafeMemberName}}/
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+  pasSafeMemberName: joe.strickland@pineappledev.app
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

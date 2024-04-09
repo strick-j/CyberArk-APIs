@@ -1,0 +1,23 @@
+meta {
+  name: Import Connection Component
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/connectioncomponents/import
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ImportFile": "{zip file byte array}"
+  }
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

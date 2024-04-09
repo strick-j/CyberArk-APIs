@@ -1,0 +1,26 @@
+meta {
+  name: Remove Member from Group
+  type: http
+  seq: 6
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups/{{pasGroupId}}/members/{{pasUserId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasGroupId: 49
+  pasUserId: joe.strickland@pineappledev.app
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

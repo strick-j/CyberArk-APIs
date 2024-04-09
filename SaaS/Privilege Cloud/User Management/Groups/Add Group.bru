@@ -1,0 +1,37 @@
+meta {
+  name: Add Group
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups
+  body: json
+  auth: none
+}
+
+query {
+  ~includeMembers: true
+}
+
+body:json {
+  {
+      "groupName": "unique-group-name",
+      "description": "The users in this group all have the same authorizations",
+      "location": "{{pasFolder}}"
+  }
+}
+
+vars:pre-request {
+  pasFolder: 'Root'
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

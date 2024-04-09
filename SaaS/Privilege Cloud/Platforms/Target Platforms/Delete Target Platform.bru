@@ -1,0 +1,25 @@
+meta {
+  name: Delete Target Platform
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/targets/{{pasPlatformId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasPlatformId: 113
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

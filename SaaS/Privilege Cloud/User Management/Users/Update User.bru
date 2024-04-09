@@ -1,0 +1,91 @@
+meta {
+  name: Update User
+  type: http
+  seq: 7
+}
+
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/{{pasUserId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "enableUser": true,
+    "changePassOnNextLogon": true,
+    "expiryDate": 1577836800,
+    "suspended": false,
+    "lastSuccessfulLoginDate": 1712581371,
+    "unAuthorizedInterfaces": [
+      "PSMP",
+      "PSM",
+      "GUI"
+    ],
+    "authenticationMethod": [
+      "AuthTypePass"
+    ],
+    "passwordNeverExpires": true,
+    "distinguishedName": "newUser@cyberark",
+    "description": "This user is privileged",
+    "businessAddress": {
+      "workStreet": "Hapssagot 9",
+      "workCity": "Petah Tikva",
+      "workState": "Israel",
+      "workZip": "9999999",
+      "workCountry": "Israel"
+    },
+    "internet": {
+      "homePage": "Cyberark.com",
+      "homeEmail": "user@gmail.com",
+      "businessEmail": "user@cyberark.com",
+      "otherEmail": "user2@gmail.com"
+    },
+    "phones": {
+      "homeNumber": "555123456",
+      "businessNumber": "555456789",
+      "cellularNumber": "555789789",
+      "faxNumber": "999999",
+      "pagerNumber": "111111"
+    },
+    "personalDetails": {
+      "street": "Dizzengof 56",
+      "city": "Tel Aviv",
+      "state": "Israel",
+      "zip": "123456",
+      "country": "Israel",
+      "title": "Mr. VIP",
+      "organization": "Cyber ark",
+      "department": "R&D",
+      "profession": "software development",
+      "firstName": "John",
+      "middleName": "Doe",
+      "lastName": "Smith"
+    },
+    "id": "{{pasUserId}}",
+    "username": "newUser",
+    "source": "CyberArk",
+    "userType": "EPVUser",
+    "componentUser": false,
+    "groupsMembership": [],
+    "vaultAuthorization": [
+      "AddSafes",
+      "AuditUsers"
+    ],
+    "location": "\\"
+  }
+}
+
+vars:pre-request {
+  pasUserId: 376
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

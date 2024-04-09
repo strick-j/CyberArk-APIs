@@ -1,0 +1,30 @@
+meta {
+  name: Get Safe Member
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members/{{pasMemberName}}/
+  body: none
+  auth: none
+}
+
+query {
+  ~useCache: true
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+  pasMemberName: joe.strickland@pineappledev.app
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

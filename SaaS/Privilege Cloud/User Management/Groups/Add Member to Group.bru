@@ -1,0 +1,36 @@
+meta {
+  name: Add Member to Group
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/usergroups/{{pasGroupId}}/members
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "memberId": "{{pasUserId}}",
+      "memberType": "{{pasMemberType}}",
+      "domainName": "{{ldapID}}"
+  }
+}
+
+vars:pre-request {
+  pasUserId: john.doe@example.com
+  pasMemberType: vault
+  pasDomainName: example.com
+  pasGroupId: 49
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

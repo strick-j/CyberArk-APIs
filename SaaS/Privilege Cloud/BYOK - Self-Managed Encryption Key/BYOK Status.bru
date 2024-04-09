@@ -1,0 +1,29 @@
+meta {
+  name: BYOK Status
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok
+  body: none
+  auth: none
+}
+
+docs {
+  This API retrieves the BYOK status of the system, access policy, current key in use, and customer details.
+  
+  First time call - Retrieved details
+  - The policy to be used for the BYOK service in the encryption key. To be copied into your KMS key.
+  - Integration status with your key
+  - The key currently in use for encryption: Your key or CyberArk KMS Key
+  
+  Subsequent Calls - Retrieved Details
+  - As in the initial response, with the addition of your customer details
+  
+  Required User Permissions
+  To run this API, the user must be assigned to one of the following roles:
+  - Privilege Cloud Administrator
+  - Privilege Cloud Administrator Basic
+  - Privilege Cloud Administrator Lite
+}

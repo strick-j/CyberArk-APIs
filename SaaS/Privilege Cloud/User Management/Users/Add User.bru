@@ -1,0 +1,81 @@
+meta {
+  name: Add User
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "username": "newUser",
+      "userType": "EPVUser",
+      "initialPassword": "123Cyber",
+      "authenticationMethod": [
+          "AuthTypePass"
+      ],
+      "location": "\\",
+      "unAuthorizedInterfaces": [
+          "PSM",
+          "PSMP"
+      ],
+      "expiryDate": 1577836800,
+      "vaultAuthorization": [
+          "AddSafes",
+          "AuditUsers"
+      ],
+      "enableUser": true,
+      "changePassOnNextLogon": true,
+      "passwordNeverExpires": true,
+      "distinguishedName": "newUser@cyberark",
+      "description": "This user is privileged",
+      "businessAddress": {
+          "workStreet": "Hapssagot 9",
+          "workCity": "Petah Tikva",
+          "workState": "Israel",
+          "workZip": "9999999",
+          "workCountry": "Israel"
+      },
+      "internet": {
+          "homePage": "Cyberark.com",
+          "homeEmail": "user@gmail.com",
+          "businessEmail": "user@cyberark.com",
+          "otherEmail": "user2@gmail.com"
+      },
+      "phones": {
+          "homeNumber": "555123456",
+          "businessNumber": "555456789",
+          "cellularNumber": "555789789",
+          "faxNumber": "999999",
+          "pagerNumber": "111111"
+      },
+      "personalDetails": {
+          "street": "Dizzengof 56",
+          "city": "Tel Aviv",
+          "state": "Israel",
+          "zip": "123456",
+          "country": "Israel",
+          "title": "Mr. VIP",
+          "organization": "Cyber ark",
+          "department": "R&D",
+          "profession": "software development",
+          "firstName": "John",
+          "middleName": "Doe",
+          "lastName": "Smith"
+      }
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

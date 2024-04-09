@@ -1,0 +1,32 @@
+meta {
+  name: Get Extended Account Details By Id
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/extendedaccounts/{{pasAccountId}}/overview
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasAccountId: 200_3
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns information about an account identified by its ID.
+  
+  The user who runs this web service requires List Accounts permissions in the Safe where the account is located inside the Vault.
+  
+}

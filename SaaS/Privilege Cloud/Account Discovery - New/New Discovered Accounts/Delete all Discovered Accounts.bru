@@ -1,0 +1,27 @@
+meta {
+  name: Delete all Discovered Accounts
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/clear
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method deletes all the discovered accounts from the list of discovered accounts for local endpoint Windows and MacOS accounts . Deleting these accounts from the current discovered accounts list does not affect the next scan for discovered accounts, and the deleted accounts may appear again.
+  
+  The Delete All discovered accounts action is asynchronous and continues to run in the background, even after the API returns a response.
+}

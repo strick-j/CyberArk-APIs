@@ -1,0 +1,29 @@
+meta {
+  name: Delete a Discovered Account
+  type: http
+  seq: 2
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{pasDiscoveredAccountId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasDiscoveredAccountId: fd440b92-e747-404a-ae1f-31c5fefa7f2c
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method deletes a discovered account from the list of discovered accounts for local endpoint Windows and MacOS accounts . Deleting an account from the current discovered accounts list does not affect the next scan for discovered accounts, and the deleted account may appear again.
+}

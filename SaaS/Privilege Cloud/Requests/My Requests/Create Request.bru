@@ -1,0 +1,37 @@
+meta {
+  name: Create Request
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/myrequests
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "AccountID":"{{pasAccountID}}",
+    "Reason":"Access requested via CyberArk Web Services",
+    "TicketingSystemName":"ServiceNow"
+  }
+}
+
+vars:pre-request {
+  pasAccountId: 200_3
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of the end user's requests
+}

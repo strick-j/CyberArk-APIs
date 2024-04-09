@@ -1,0 +1,30 @@
+meta {
+  name: Get Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users
+  body: none
+  auth: none
+}
+
+query {
+  ~filter: userType, userName or componentUser
+  ~search: username, first name or last name
+  ~sort: username asc,userType desc
+  ~pageOffset: 0
+  ~pageLimit: 1000
+  ~extendedDetails: false
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

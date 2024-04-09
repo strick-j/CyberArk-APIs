@@ -1,0 +1,25 @@
+meta {
+  name: Deactivate Target Platform
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/targets/{{pasPlatformId}}/deactivate
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasPlatformId: 5
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

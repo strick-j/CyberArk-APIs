@@ -1,0 +1,60 @@
+meta {
+  name: Add Safe Member
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "memberName":"{{pasSafeMemberName}}",
+    "searchIn": "Vault",
+    "membershipExpirationDate":1667472534, // Unix Time Stamp
+    "permissions": {
+      "useAccounts":false,
+      "retrieveAccounts": false,
+      "listAccounts": false,
+      "addAccounts": false,
+      "updateAccountContent": false,
+      "updateAccountProperties": false,
+      "initiateCPMAccountManagementOperations": false,
+      "specifyNextAccountContent": false,
+      "renameAccounts": false,
+      "deleteAccounts": false,
+      "unlockAccounts": false,
+      "manageSafe": false,
+      "manageSafeMembers": false,
+      "backupSafe": false,
+      "viewAuditLog": false,
+      "viewSafeMembers": false,
+      "accessWithoutConfirmation": false,
+      "createFolders": false,
+      "deleteFolders": false,
+      "moveAccountsAndFolders": false,
+      "requestsAuthorizationLevel1": false,
+      "requestsAuthorizationLevel2": false
+      },
+    "MemberType": "{{pasSafeMemberType}}" // <user|group|role>
+  }
+}
+
+vars:pre-request {
+  pasSafeUrlId: Example123
+  pasSafeMemberName: joe.strickland@pineappledev.app
+  pasSafeMemberType: user
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

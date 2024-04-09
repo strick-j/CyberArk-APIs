@@ -1,0 +1,29 @@
+meta {
+  name: Get a Discovered Account
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{pasDiscoveredAccountId}}?extendedDetails=false
+  body: none
+  auth: none
+}
+
+query {
+  extendedDetails: false
+}
+
+vars:pre-request {
+  pasDiscoveredAccountId: fd440b92-e747-404a-ae1f-31c5fefa7f2c
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

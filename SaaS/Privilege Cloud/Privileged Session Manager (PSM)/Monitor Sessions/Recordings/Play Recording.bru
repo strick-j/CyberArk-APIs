@@ -1,0 +1,21 @@
+meta {
+  name: Play Recording
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/recordings/{{pasPsmRecordingsId}}/play
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasPsmRecordingsId: 42_2619
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

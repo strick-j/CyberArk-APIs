@@ -1,0 +1,32 @@
+meta {
+  name: Delete an MFA Caching Key for Another User
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/{{pasUserId}}/secret/sshkeys/cache
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "formats": ["PEM"], // ["PPK", "PEM", "OpenSSH"] Optional - Default PEM
+      "keyPassword": "Cyberark1" // Optional - Default: No Passphrase
+  }
+}
+
+vars:pre-request {
+  pasUserId: 35
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

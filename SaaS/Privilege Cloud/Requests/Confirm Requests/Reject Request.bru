@@ -1,0 +1,29 @@
+meta {
+  name: Reject Request
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/incomingrequests/{{pasRequestId}}/confirm
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasRequestId: Example
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method returns a list of the end user's requests
+}

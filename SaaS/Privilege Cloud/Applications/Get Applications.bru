@@ -1,0 +1,26 @@
+meta {
+  name: Get Applications
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications
+  body: none
+  auth: none
+}
+
+query {
+  ~Location: \
+  ~IncludeSublocations: false
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

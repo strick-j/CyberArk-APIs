@@ -1,0 +1,32 @@
+meta {
+  name: Delete Dependent Platforms
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/dependents/{{pasPlatformId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "Name": "DuplicateDependent",
+      "Description": "Duplicated Dependent Platform"
+  }
+}
+
+vars:pre-request {
+  pasPlatformId: 13
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}

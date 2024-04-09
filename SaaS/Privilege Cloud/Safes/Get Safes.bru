@@ -1,0 +1,30 @@
+meta {
+  name: Get Safes
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes?includeAccounts=false&extendedDetails=true
+  body: none
+  auth: none
+}
+
+query {
+  includeAccounts: false
+  extendedDetails: true
+  ~search: 
+  ~sort: UserName
+  ~offset: 0
+  ~limit: 1000
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
