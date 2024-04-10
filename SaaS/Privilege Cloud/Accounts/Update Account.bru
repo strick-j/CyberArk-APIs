@@ -1,0 +1,57 @@
+meta {
+  name: Update Account
+  type: http
+  seq: 7
+}
+
+patch {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  [
+    { 
+      "op": "replace",
+      "path": "/address", 
+      "value": "10.10.27.254"
+    },
+    {
+      "op": "replace", 
+      "path": "/secretManagement/automaticManagementEnabled", 
+      "value": "true"}
+  ]
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.createdTime: isNumber
+  res.body.name: isString
+  res.body.secretManagement.automaticManagementEnabled: isBoolean
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method updates an existing account's details.
+  
+  Note: 
+    - Make sure there are no spaces in the URL.
+    - The following characters are not supported in URL values: + & %
+    - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  It is not mandatory to send all of the account properties. You can send the request with only those properties that you changed. The values sent in the request will be updated. All other properties values will remain the same.
+  
+  You can do the following:
+    - Replace the existing value of a property
+    - Remove a property from the account
+    - Add a property to the account
+  
+  When sending several operations on the same property, only the last operation will affect the property.
+}
