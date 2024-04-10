@@ -1,6 +1,7 @@
 # dependencies
 node_modules
 SaaS/identity
+SaaS/Connector*
 
 # testing
 coverage
