@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts?filter=safeName eq {{pasSafeName}}
   body: none
   auth: none
 }
 
 query {
-  ~filter: safeName eq {{pasSafe}}
+  filter: safeName eq {{pasSafeName}}
   ~search: 
   ~searchType: contains
   ~sort: UserName
@@ -20,11 +20,13 @@ query {
 }
 
 vars:pre-request {
-  pasSafe: Example-Safe
+  pasSafeName: BRU-API-TEST-SAFE
 }
 
 assert {
   res.status: eq 200
+  res.body: isJson
+  res.body.count: isNumber
 }
 
 script:pre-request {
