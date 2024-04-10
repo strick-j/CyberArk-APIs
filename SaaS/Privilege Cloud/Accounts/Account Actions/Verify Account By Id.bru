@@ -1,0 +1,33 @@
+meta {
+  name: Verify Account By Id
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/verify/
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasAccountId: 212_5
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method marks an account for verification by the CPM.
+  
+  The user who runs this web service requires the following permission in the Safe where the privileged account is stored:
+    - Initiate CPM password management operations
+  
+}

@@ -1,0 +1,59 @@
+meta {
+  name: Ad Hoc Connect Using PSM
+  type: http
+  seq: 11
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/AdHocConnect/
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "UserName":"{{pasAdHocUserName}}",
+    "Secret": "{{pasAdHocSecret}}",
+    "Address": "{{pasAdHocAddress}}",
+    "PlatformId": "{{pasAdHocPlatformId}}",
+    "extraFields": {
+      "LogonDomain": "{{pasAdHocLogonDomain}}"
+    },
+    "PSMConnectPrerequisites": {
+      "ConnectionComponent": "PSM-RDP",
+      "ConnectionType": "PSMGW",  // RDPFile or PSMGW
+      "reason": "Bruno API Example",
+      "ticketingSystemName": null,
+      "ticketId": null
+    }
+  }
+}
+
+vars:pre-request {
+  pasUserName: example@cyberark.com
+  pasLogonDomain: EXAMPLE
+  pasAdHocAddress: example.cyberark.com
+  pasAdHocSecret: exampleSecret123!@#
+  pasAdHocPlatformId: PSMSecureConnect
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows you to connect through PSM without using an existing account, by returning settings that can be used with an RDP client application.
+  
+  You must enable Privileged Session Monitoring and ad-hoc connection via Privilege Cloud Portal configuration.
+}

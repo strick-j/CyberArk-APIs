@@ -1,0 +1,31 @@
+meta {
+  name: Get SSH Key Value
+  type: http
+  seq: 9
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/password/retrieve/
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasAccountId: 212_10
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method allows users to retrieve a private SSH key file to their local computer. It enables users to specify a reason and Ticket ID. The private SSH key file is from an existing account that is identified by its Account ID.
+  
+  Note: To get a password value, see the Get password value REST API.
+}

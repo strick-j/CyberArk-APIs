@@ -1,0 +1,51 @@
+meta {
+  name: Connect Using PSM
+  type: http
+  seq: 10
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/PSMConnect/
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "reason": "Bruno API Example",
+    "TicketingSystemName": null,
+    "TicketId": null,
+    "ConnectionComponent": "PSM-RDP",
+    "ConnectionParams": {
+      "Address": {
+        "value":"example.bruno.com",
+        "ShouldSave": false
+      }
+    }
+  }
+}
+
+vars:pre-request {
+  pasAccountId: 212_9
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method enables you to connect to an account through PSM (PSMConnect) using a connection method defined in the Privilege Cloud Portal.
+  
+  A response header defines which connection method is returned.
+}

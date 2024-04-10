@@ -1,0 +1,34 @@
+meta {
+  name: Check In Exclusive Account
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/checkin/
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  pasAccountId: 212_5
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  This method checks an exclusive account into Privilege Cloud.
+    - If the account is managed automatically by the CPM, after it is checked in, the password is changed immediately.
+    - If the account is managed manually, a notification is sent to a user who is authorized to change the password. The account is checked in automatically after it has been changed.
+  
+  The user who runs this web service requires the following permission in the Safe where the privileged account is stored:
+    - Initiate CPM password management operations
+}
