@@ -18,38 +18,47 @@ body:json {
     "platformId": "{{pasPlatformName}}",
     "safeName": "{{pasSafeName}}",
     "secretType": "password",
-    "secret": "string",
+    "secret": "PassWord123!@#",
     "platformAccountProperties": {
-      "LogonDomain": "string",
-      "Port": "integer"
+      "LogonDomain": "EXAMPLE"
     },
     "secretManagement": {
-      "automaticManagementEnabled": true,
-      "manualManagementReason": "string"
+      "automaticManagementEnabled": false,
+      "manualManagementReason": "Example management disabled"
     },
     "remoteMachinesAccess": {
-      "remoteMachines": "string",
+      "remoteMachines": "192.168.19.10,192.168.19.11",
       "accessRestrictedToRemoteMachines": true
     }
   }
 }
 
 vars:pre-request {
-  pasSafeName: 
-  pasObjectName: 
-  pasPlatformName: 
-  pasAddress: 
-  pasUsername: 
+  pasSafeName: BRU-API-TEST-SAFE
+  pasObjectName: BRU-OBJECT-NAME-1
+  pasPlatformName: BRU-API-TEST-PLATFORM
+  pasAddress: example.com
+  pasUsername: example
 }
 
 assert {
-  res.status: eq 200
+  res.status: eq 201
+  res.body: isJson
+  res.body.createdTime: isNumber
+  res.body.name: isString
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Stores pasAccountId in Session Collection for subsequent tests
+  if (res.body.id) {
+    bru.setVar('pasAccountId',res.body.id)
+  }
 }
 
 docs {
