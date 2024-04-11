@@ -20,7 +20,29 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets pasSafeMemberName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeMemberName', bru.getEnvVar('testPrivilegeCloudUserId'));
+    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
+    tools.log('MemberName: ' + bru.getEnvVar('testPrivilegeCloudUserId'))
+    tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  if (res.status != 204) {
+    tools.log('Error Code: ' + res.body.ErrorCode);
+    tools.log('Error Message: ' + res.body.ErrorMessage);
+  }
 }
