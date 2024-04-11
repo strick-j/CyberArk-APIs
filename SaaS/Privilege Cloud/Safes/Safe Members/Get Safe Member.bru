@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members/{{pasMemberName}}/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members/{{pasSafeMemberName}}/
   body: none
   auth: none
 }
@@ -15,20 +15,32 @@ query {
 }
 
 vars:pre-request {
-  pasSafeUrlId: BRU-API-TEST-SAFE
-  pasMemberName: CONNECTOR1
+  pasSafeUrlId: example-safe
+  pasSafeMemberName: example@example.com
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.safeNumber: isNumber 
+  res.body.safeNumber: isNumber
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets pasSafeMemberName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeMemberName', bru.getEnvVar('testPrivilegeCloudUserId'));
+    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
+    tools.log('MemberName: ' + bru.getEnvVar('testPrivilegeCloudUserId'))
+    tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))
+  }
 }
 
 script:post-response {
