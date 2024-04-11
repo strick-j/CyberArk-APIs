@@ -6,15 +6,8 @@ meta {
 
 delete {
   url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/secret/sshkeys/clearcache
-  body: json
+  body: none
   auth: none
-}
-
-body:json {
-  {
-      "formats": ["PEM"], // ["PPK", "PEM", "OpenSSH"] Optional - Default PEM
-      "keyPassword": "Cyberark1" // Optional - Default: No Passphrase
-  }
 }
 
 assert {
