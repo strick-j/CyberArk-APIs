@@ -77,8 +77,9 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
 }
 
