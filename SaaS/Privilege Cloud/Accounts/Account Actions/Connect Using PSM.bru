@@ -44,6 +44,16 @@ script:pre-request {
   await platformTokenAuth.login();
 }
 
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  if (res.status != 200) {
+    tools.log('Error Code: ' + res.body.ErrorCode);
+    tools.log('Error Message: ' + res.body.ErrorMessage);
+  }
+}
+
 docs {
   This method enables you to connect to an account through PSM (PSMConnect) using a connection method defined in the Privilege Cloud Portal.
   
