@@ -19,14 +19,18 @@ body:json {
 
 assert {
   res.status: eq 200
-  res.body: isJson 
-  res.body.count: isNumber 
-  res.body.expirationTime: isNumber 
-  res.body.publicKey: isString 
+  res.body: isJson
+  res.body.count: isNumber
+  res.body.expirationTime: isNumber
+  res.body.publicKey: isString
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  This method generates an MFA caching SSH key for you to be used connecting to targets via PSM for SSH.
 }
