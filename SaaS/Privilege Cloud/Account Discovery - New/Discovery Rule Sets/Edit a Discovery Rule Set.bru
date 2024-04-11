@@ -46,8 +46,8 @@ body:json {
         "action": {
           "type": "ONBOARD",
           "parameters": {
-            "platformId": "BRU-API-TEST-PLATFORM",
-            "safeName": "BRU-API-TEST-SAFE"
+            "platformId": "{{pasPlatformName}}",
+            "safeName": "{{pasSafeName}}"
           },
           "subActions": [
             {
@@ -76,8 +76,8 @@ body:json {
         "action": {
           "type": "ONBOARD",
           "parameters": {
-            "platformId": "BRU-API-TEST-PLATFORM",
-            "safeName": "BRU-API-TEST-SAFE"
+            "platformId": "{{pasPlatformName}}",
+            "safeName": "{{pasSafeName}}"
           },
           "subActions": []
         }
@@ -88,8 +88,8 @@ body:json {
 }
 
 vars:pre-request {
-  pasPlatformName: BRU-API-TEST-PLATFORM
-  pasSafeName: BRU-API-TEST-SAFE
+  pasPlatformName: example-platform
+  pasSafeName: example-safe
 }
 
 assert {
@@ -99,9 +99,20 @@ assert {
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets Safe Name and Platform Name for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeName', bru.getEnvVar('testSafeName'));
+    bru.setVar('pasPlatformName', bru.getEnvVar('testPlatformName'));
+    tools.log('Safe Name: ' + bru.getVar('pasName'))
+    tools.log('Platform Name: ' + bru.getVar('pasPlatformName'))
+  }
 }
 
 script:post-response {
