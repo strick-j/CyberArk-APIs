@@ -12,7 +12,7 @@ put {
 
 body:json {
   {
-    "safeName": "BRU-API-TEST-SAFE-ADD",
+    "safeName": "{{pasSafeUrlId}}",
     "safeNumber": "{{pasSafeNumber}}",
     "description": "New Description",
     "location": "{{pasFolder}}",
@@ -29,7 +29,7 @@ body:json {
 
 vars:pre-request {
   pasFolder: 
-  pasCPMName: CONNECTOR1
+  pasCPMName: example
 }
 
 assert {
@@ -38,9 +38,21 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets pasSafeMemberName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeNameAction'));
+    bru.setVar('pasCPMName', bru.getEnvVar('testCpmName'));
+    tools.log('SafeName: ' + bru.getVar('pasSafeUrlId'))
+    tools.log('CPM Name: ' + bru.getVar('pasCPMName'))
+  }
 }
 
 script:post-response {
