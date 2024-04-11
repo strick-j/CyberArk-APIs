@@ -21,6 +21,16 @@ script:pre-request {
   await platformTokenAuth.login();
 }
 
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  if (res.status != 200) {
+    tools.log('Error Code: ' + res.body.ErrorCode);
+    tools.log('Error Message: ' + res.body.ErrorMessage);
+  }
+}
+
 docs {
   This method returns consolidated information about the Vault, PVWA, CPM, PSM/PSMP, and AIM, including all clients that are relevant to each specific component
 }
