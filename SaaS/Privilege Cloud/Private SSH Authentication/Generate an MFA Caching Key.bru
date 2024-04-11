@@ -19,6 +19,10 @@ body:json {
 
 assert {
   res.status: eq 200
+  res.body: isJson 
+  res.body.count: isNumber 
+  res.body.expirationTime: isNumber 
+  res.body.publicKey: isString 
 }
 
 script:pre-request {
