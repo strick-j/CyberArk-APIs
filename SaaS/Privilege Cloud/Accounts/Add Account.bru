@@ -57,7 +57,7 @@ script:pre-request {
 script:post-response {
   // Stores pasAccountId in Session Collection for subsequent tests
   if (res.body.id) {
-    bru.setVar('pasAccountId',res.body.id)
+    bru.setVar('pasAccountId', res.body.id)
   }
 }
 
@@ -65,5 +65,4 @@ docs {
   This method returns information about an account identified by its ID.
   
   The user who runs this web service requires List Accounts permissions in the Safe where the account is located inside the Vault.
-  
 }
