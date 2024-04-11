@@ -36,7 +36,7 @@ script:pre-request {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasSafeMemberName', bru.getEnvVar('testPrivilegeCloudUserId'));
+    bru.setVar('pasSafeMemberName', bru.getEnvVar('testPrivilegeCloudUserName'));
     bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
     tools.log('MemberName: ' + bru.getEnvVar('testPrivilegeCloudUserId'))
     tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))

@@ -40,7 +40,7 @@ script:pre-request {
   if (flag == 'true') {
     tools.log('Setting Variables');
     bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
-    tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))
+    tools.log('SafeName: ' + bru.getVar('pasSafeUrlId'))
   }
 }
 
