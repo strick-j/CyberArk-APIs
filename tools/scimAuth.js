@@ -4,8 +4,11 @@ const moment = require('moment');
 const scimAuth = {
 
   log: function(str) {
-    let now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-    console.log(now + ' ' + str);
+    var verbose = bru.getEnvVar('testLogVerbose')
+    if (verbose == 'true') {
+      let now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      console.log(now + ' ' + str);
+    }
   },
 
   setAuth: function(scimBearerTokenKey = 'mapperToken') {
