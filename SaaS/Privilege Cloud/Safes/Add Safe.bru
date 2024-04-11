@@ -48,7 +48,7 @@ script:pre-request {
     tools.log('Setting Variables');
     bru.setVar('pasSafeName', bru.getEnvVar('testSafeNameAction'));
     bru.setVar('pasCPMName', bru.getEnvVar('testCpmName'));
-    tools.log('SafeName: ' + bru.getVar('pasSafeUrlId'))
+    tools.log('SafeName: ' + bru.getVar('pasSafeName'))
     tools.log('CPM Name: ' + bru.getVar('pasCPMName'))
   }
 }
