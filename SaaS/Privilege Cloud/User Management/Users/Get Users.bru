@@ -34,7 +34,7 @@ script:post-response {
   const tools = require('./tools/tools');
   
   // Log on error
-  if (res.status != 204) {
+  if (res.status != 200) {
     if (res.body.Message) {
       tools.log('Message: ' + res.body.Message);
     }
