@@ -21,6 +21,8 @@ query {
 
 assert {
   res.status: eq 200
+  res.body: isJson 
+  res.body.count: isNumber 
 }
 
 script:pre-request {
