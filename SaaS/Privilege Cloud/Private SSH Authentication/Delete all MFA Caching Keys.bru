@@ -19,3 +19,10 @@ script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
 }
+
+docs {
+  This method can be triggered by a strong user to delete all MFA caching SSH keys used to connect to targets via PSM for SSH.
+  
+  The user who runs this method requires the following permission in the Vault:
+    - Reset Users' Passwords
+}
