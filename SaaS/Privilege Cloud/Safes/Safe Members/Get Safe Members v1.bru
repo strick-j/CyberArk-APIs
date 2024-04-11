@@ -39,8 +39,21 @@ script:post-response {
   // Log on error
   const tools = require('./tools/tools');
   
+  // Log on error
   if (res.status != 200) {
-    tools.log('Error Code: ' + res.body.ErrorCode);
-    tools.log('Error Message: ' + res.body.ErrorMessage);
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
   }
 }
