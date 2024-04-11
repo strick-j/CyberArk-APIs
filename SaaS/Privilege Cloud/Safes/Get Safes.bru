@@ -29,6 +29,16 @@ script:pre-request {
   await platformTokenAuth.login();
 }
 
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  if (res.status != 200) {
+    tools.log('Error Code: ' + res.body.ErrorCode);
+    tools.log('Error Message: ' + res.body.ErrorMessage);
+  }
+}
+
 docs {
   This method returns a list of all Safes in the Vault that the user has permissions for. To run this web user, the user must be a member of the Safes in the Vault that are returned in the list.
 }
