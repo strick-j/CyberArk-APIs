@@ -1,0 +1,83 @@
+meta {
+  name: Get Connector Pools By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/connector-pools/{{pool_id}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.poolId: isString 
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Get Available Connector Pools
+  Get information about a specific connector pool
+  
+  ## URL
+  https://<subdomain>.connectormanagement.cyberark.com/api/connector-pools/<pool_id>
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  | Content Type | application/json  |
+  
+  ### Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Authorization | The token that identifies the session, encoded in BASE 64.  |
+  
+  ## Example Responses
+  
+  ### *Status Code 200*
+  ```
+  {
+    "poolId": "string",
+    "name": "string",
+    "description": "string"
+  }
+  ```
+  
+  ### *Status Codes 400, 401, 404, and 500*
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "",
+    "details": ""
+  }
+  ```
+}

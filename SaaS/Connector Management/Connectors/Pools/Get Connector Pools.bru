@@ -1,0 +1,94 @@
+meta {
+  name: Get Connector Pools
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/connector-pools
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Pool ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pool_id', res.body.connectorPools[0].poolId);
+    tools.log('Connector Pool Id: ' + bru.getVar('pool_id'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Get Available Connector Pools
+  Returns a list of Connector Pools Ids for this Tenant
+  
+  ## URL
+  https://<subdomain>.connectormanagement.cyberark.com/api/connector-pools
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  | Content Type | application/json  |
+  
+  ### Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Authorization | The token that identifies the session, encoded in BASE 64.  |
+  
+  ## Example Responses
+  
+  ### *Status Code 200*
+  ```
+  {
+    "connectorPools": [
+      {
+        "poolId": "string",
+        "name": "string",
+        "description": "string"
+      }
+    ]
+  }
+  ```
+  
+  ### *Status Codes 401, 404, 500 and 501*
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "",
+    "details": ""
+  }
+  ```
+}

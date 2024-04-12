@@ -1,0 +1,108 @@
+meta {
+  name: Get A Component By Connector
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/connectors/{{connector_id}}/components/{{component_id}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Get A Component By Connector
+  Returns a list of component based on the connector ID
+  
+  ## URL
+  https://<subdomain>.connectormanagement.cyberark.com/api/connectors/<connector_id>/components/<component_id>
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  | Content Type | application/json  |
+  
+  ### Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Authorization | The token that identifies the session, encoded in BASE 64.  |
+  
+  ### URL Parameters
+  | Parameter | Description | Required |
+  | :-- | :-- |  :--:  |
+  | connector_id | the ID of the connector  | true |
+  | component_id | the ID of the component  | true |
+  
+  ## Example Responses
+  
+  ### *Status Code 200*
+  ```
+  {
+    "componentId": "managementagent_96e1df8d-ffe5-4314-8b65-b6b941f35a13",
+    "componentName": "Privileged Session Manager",
+    "acronym": "PSM",
+    "componentStatus": "Active",
+    "connectorId": "96e1df8d-ffe5-4314-8b65-b6b941f35a13",
+    "version": "1.1",
+    "upgradeVersions": [
+      "string"
+    ],
+    "usedCpu": 65.5,
+    "usedMemory": 2.5,
+    "installedAt": 1674760162,
+    "updatedAt": 1674760162,
+    "maintenanceStatus": {
+      "maintenanceType": "Installation",
+      "progress": 65.5,
+      "currentStep": "Hardening",
+      "additionalInformation": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    }
+  }
+  ```
+  
+  ### *Status Codes 400, 401, 404, and 500*
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "",
+    "details": ""
+  }
+  ```
+}
