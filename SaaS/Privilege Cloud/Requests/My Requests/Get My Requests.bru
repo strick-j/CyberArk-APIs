@@ -70,8 +70,14 @@ docs {
   > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
   
   ## URL
+  > ### Note
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
   > https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/MyRequests?onlywaiting={bool}&expired={bool}
   
+  The following mandatory values are required in the URL:
   | Parameter | OnlyWaiting |
   | :-- | :-- |
   | type | Boolean  |
