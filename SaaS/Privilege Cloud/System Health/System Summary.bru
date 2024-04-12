@@ -32,5 +32,122 @@ script:post-response {
 }
 
 docs {
+  ## Privilege Cloud System Health Summary
   This method returns consolidated information about the Vault, PVWA, CPM, PSM/PSMP, and AIM, including all clients that are relevant to each specific component
+  
+  ## URL
+  > ### Note
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  https://<subdomain>.privilegecloud.cyberark.com/PasswordVault/API/ComponentsMonitoringSummary/
+  
+  ## Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  | Content Type | application/json  |
+  
+  ## Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Authorization | The token that identifies the session, encoded in BASE 64.  |
+  |  | **Type**: String |
+  |  | **Mandatory**: Yes |
+  |  | **Default Value:** None|
+  
+  ## Body Parameters
+  None
+  
+  ## Result:
+  ```
+  {
+    "Components": [
+      {
+        "ComponentID": "<ComponentID>",
+        "ComponentName": "<ComponentName>",
+        "Description": "<Description>",
+        "ConnectedComponentCount": <number>,
+        "ComponentTotalCount": <number>,
+        "ComponentSpecificStat": <number>,
+      }
+    ],
+    "Vaults": [
+      "IP": "<hostname or IP>"
+      "Role": "<Role>",
+      "IsLoggedOn": <boolean>
+    ]
+  }
+  ```
+  
+  ### Parameter Information
+  | Components Parameter | Description |
+  | :-- | :-- |
+  | ComponentID | The ID of the component whose details are displayed. **Type**: String |
+  | ComponentName | The name of the component whose details are displayed. **Type**: String |
+  | Description | The type of information that will be displayed based on the relative component. **Type**: String |
+  |  | **Privilege Cloud Portal**: Active Users |
+  |  | **CPM**: Managed Accounts |
+  |  | **PSM/PSMP**: Concurrent Sessions |
+  |  | **AIM**: Application IDs |
+  | ConnectedComponentCount | The number of logged on component users for the relative component. **Type**: Integer |
+  | ComponentTotalCount | The total number of component users for the component type in Privilege Cloud. **Type**: Integer |
+  | ComponentSpecifcStat | Component type specific information: **Type**: Integer |
+  |  | **Privilege Cloud Portal**: Active Users |
+  |  | **CPM**: Managed Accounts |
+  |  | **PSM/PSMP**: Concurrent Sessions |
+  |  | **AIM**: Application IDs |
+  
+  | Vaults Parameter | Description |
+  | :-- | :-- |
+  | IP | The IP or Hostname of the vault whose details are displayed. **Type**: String |
+  | Role | The name of the vault whose details are displayed. **Type**: String |
+  | IsLoggedOn | Whether or not the component is connected to Privilege Cloud. **Type**: Boolean |
+  
+  ### Example Result
+  ```
+  {
+    "Components": [
+      {
+        "ComponentID": "PVWA",
+        "ComponentName": "PVWA",
+        "Description": "Active Users",
+        "ConnectedComponentCount": 1,
+        "ComponentTotalCount": 2,
+        "ComponentSpecificStat": 3
+      },
+      {
+        "ComponentID": "CPM",
+        "ComponentName": "CPM",
+        "Description": "Managed Accounts",
+        "ConnectedComponentCount": 2,
+        "ComponentTotalCount": 2,
+        "ComponentSpecificStat": 424
+      },
+      {
+        "ComponentID": "SessionManagement",
+        "ComponentName": "PSM/PSMP",
+        "Description": "Concurrent Sessions",
+        "ConnectedComponentCount": 1,
+        "ComponentTotalCount": 2,
+        "ComponentSpecificStat": 0
+      },
+      {
+        "ComponentID": "AIM",
+        "ComponentName": "AAM Credential Provider",
+        "Description": "Applications",
+        "ConnectedComponentCount": 1,
+        "ComponentTotalCount": 2,
+        "ComponentSpecificStat": 14
+      }
+    ],
+    "Vaults": [
+      {
+        "IP": "vault-example.pcloudprod.cyberarkinternal.com",
+        "Role": "Primary",
+        "IsLoggedOn": true
+      }
+    ]
+  }
+  ```
 }
