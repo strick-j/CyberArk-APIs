@@ -1,7 +1,7 @@
 meta {
   name: Get My Request Details By Id
   type: http
-  seq: 4
+  seq: 3
 }
 
 get {
@@ -10,18 +10,41 @@ get {
   auth: none
 }
 
-vars:pre-request {
-  pasRequestId: Example
-}
-
 assert {
   res.status: eq 200
+  res.body: isJson
+  res.body.RequestID: isString 
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 201) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
+  }
 }
 
 docs {
