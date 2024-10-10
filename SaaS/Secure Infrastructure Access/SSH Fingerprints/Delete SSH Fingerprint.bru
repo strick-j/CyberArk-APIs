@@ -1,0 +1,91 @@
+meta {
+  name: Delete SSH Fingerprint
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/ssh-fingerprints/{{target-id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "target_id": "{{target-id}}",
+    "fingerprint": "{{fingerprint}}"
+  }
+}
+
+vars:pre-request {
+  target-id: example.domain.com
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Delete SIA SSH-Fingerprints
+  
+  Delete fingerprint by target ID. Use this API only when you are sure the fingerprint has changed and must be deleted from DPA. Target ID should be one of the following:
+  - FQDN
+  - AWS Instance ID
+  - Azure VM ID
+  - Google Cloud Instance ID
+  - <IP_ADDRESS>_<LOGICAL_NETWORK_NAME> (For Vaulted Credentials Only)
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/ssh-fingerprints/{target-id}
+  ```
+  
+  ### Method
+  DEL
+  
+  ### Example Response Body
+  ```
+  ""
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |204|Success|
+  |400|Invalid Request|
+  |404|Not Found|
+  |500|Internal Server Error|
+}

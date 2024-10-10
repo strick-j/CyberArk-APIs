@@ -1,0 +1,111 @@
+meta {
+  name: Add SSH Fingerprint
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/ssh-fingerprints
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "target_id": "{{target-id}}",
+    "fingerprint": "{{fingerprint}}"
+  }
+}
+
+vars:pre-request {
+  target-id: example.domain.com
+  fingerprint: SHA256:EXAMPLE0HNAcOdLM1pyx1aNh1EXAMPLE
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Target ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('target-id', res.body.target_id);
+    tools.log('Target Id: ' + bru.getVar('target-id'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Add SIA SSH-Fingerprints
+  
+  Add fingerprint by target ID. Target ID should be one of the following:
+  - FQDN
+  - AWS Instance ID
+  - Azure VM ID
+  - Google Cloud Instance ID
+  - <IP_ADDRESS>_<LOGICAL_NETWORK_NAME> (For Vaulted Credentials Only)
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/ssh-fingerprints
+  ```
+  
+  ### Method
+  POST
+  
+  ### Example RequestBody
+  ```
+  {
+    "target_id": "string",
+    "fingerprint": "string"
+  }
+  ```
+  
+  ### Example Response Body
+  ```
+  {
+    "target_id": "string",
+    "fingerprint": "string"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |404|Not Found|
+  |500|Internal Server Error|
+}

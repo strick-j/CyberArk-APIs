@@ -1,0 +1,88 @@
+meta {
+  name: Retrieve SSH Fingerprints
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/ssh-fingerprints/{{target-id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  target-id: example.domain.com
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get SIA SSH-Fingerprints
+  
+  Get fingerprint by target ID. Target ID should be one of the following:
+  - FQDN
+  - AWS Instance ID
+  - Azure VM ID
+  - Google Cloud Instance ID
+  - <IP_ADDRESS>_<LOGICAL_NETWORK_NAME> (For Vaulted Credentials Only)
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/ssh-fingerprints/{target-id}
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "target_id": "string",
+    "fingerprint": "string"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |404|Not Found|
+  |500|Internal Server Error|
+}
