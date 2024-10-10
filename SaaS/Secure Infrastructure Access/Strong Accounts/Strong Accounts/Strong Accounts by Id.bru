@@ -1,0 +1,81 @@
+meta {
+  name: Strong Accounts by Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1/{{strong_account_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  strong_account_id: ea85ebb6-4b23-49d7-968b-ee03cbb1d1c3
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## SIA Strong Accounts
+  
+  Retrieves an existing strong account from the DPA database. The strong account is encrypted unless server-side decryption is allowed.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1/{strong_account_id}
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "secret_id": "1234ebb6-1234-1234-1234-ee03cbb1d1c3",
+    "tenant_id": "12345795-1234-1234-1234-026a68520adf",
+    "secret": {
+      "secret_data": "AQICAHg8hbPDIqAelZR27kL2Uopq5EXAMPLEdSZpts+G+7ExoDI/QPtRjguzRAgbw7CsdenEtKBq95Hokocw9RRts5KoVWF6P/FTdsK/uXOrEjjUAlJb/Q5j8V+gjQecJQBgKk934zP+JNBLAo4+EXAMPLEYO+AlnuN2K0rA==",
+      "tenant_encrypted": true
+    },
+    "secret_type": "PCloudAccount",
+    "secret_details": {
+      "certFileName": "",
+      "account_domain": "local",
+      "domain": "",
+      "domains": []
+    },
+    "is_active": true,
+    "is_rotatable": false,
+    "creation_time": "2023-12-12T20:15:15",
+    "last_modified": "2024-08-22T18:37:03",
+    "secret_name": "EX-WIN-LOC-ADM_Operating System-EX-WIN-SERVER-LOCAL-A-ccp.example.com-Administrator"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

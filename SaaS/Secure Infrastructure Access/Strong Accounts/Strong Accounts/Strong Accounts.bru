@@ -1,0 +1,114 @@
+meta {
+  name: Strong Accounts
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 4
+  ~count: 2
+  ~any_details: 
+  ~secret_details: 
+  ~secret_name: 
+  ~secret_type: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets strong Account ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('strong_account_id', res.body[0].secret_id);
+    tools.log('Strong Account Id: ' + bru.getVar('strong_account_id'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Strong Accounts
+  
+  Retrieves a list of strong accounts by filters of allowed strong account type, strong account name, or strong account details
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  [
+    {
+      "secret_id": "123a4926-5989-44b9-9f05-84197618d4f3",
+      "tenant_id": "12315795-4abc-1234-8abc-026a68520adf",
+      "secret_type": "ProvisionerUser",
+      "secret_name": "example",
+      "secret_details": {
+        "certFileName": "",
+        "account_domain": "local"
+      },
+      "is_active": true
+    },
+    {
+      "secret_id": "123feeea-11e1-4518-b99d-7475d091c9f7",
+      "tenant_id": "12315795-4abc-1234-8abc-026a68520adf",
+      "secret_type": "PCloudAccount",
+      "secret_name": "Operating System-EL-WIN-SERVER-LOCAL-A-az-ue1-sia-tar1.example.az-exlocaladmin_EL-WIN-SERVER-LOCAL-A",
+      "secret_details": {
+        "certFileName": "",
+        "account_domain": "local"
+      },
+      "is_active": true
+    }
+  ]
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

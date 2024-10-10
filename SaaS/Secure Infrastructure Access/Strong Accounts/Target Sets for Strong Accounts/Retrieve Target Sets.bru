@@ -1,0 +1,110 @@
+meta {
+  name: Retrieve Target Sets
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/discovery/targetsets
+  body: none
+  auth: none
+}
+
+query {
+  ~b64StartKey: 
+  ~name: 
+  ~strongAccountId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets strong Account ID for testing based on environment flag and variables
+  //var flag = bru.getEnvVar('testFlag')
+  //if (flag == 'true') {
+  //  tools.log('Setting Variables');
+  //  bru.setVar('strong_account_id', res.body[0].secret_id);
+   // tools.log('Strong Account Id: ' + bru.getVar('strong_account_id'))
+  //}
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Target Sets
+  
+  Retrieves the list of existing target sets with the related information for each target set
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/discovery/targetsets
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "target_sets": [
+      {
+        "name": "eu.example.local",
+        "provision_format": "<user>-<session-guid>",
+        "description": null,
+        "enable_certificate_validation": true,
+        "secret_type": "PCloudAccount",
+        "secret_id": "f0e12799-809e-1234-abef-d898f4cc810e",
+        "type": "Domain"
+      },
+      {
+        "name": "yrdy.test.com",
+        "provision_format": "<user>-<session-guid>",
+        "description": null,
+        "enable_certificate_validation": true,
+        "secret_type": "ProvisionerUser",
+        "secret_id": "2f7a4926-5989-44b9-9f05-84197618d4f3",
+        "type": "Target"
+      }
+    ],
+    "b64_last_evaluated_key": null
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}
