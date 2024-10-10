@@ -1,0 +1,62 @@
+meta {
+  name: Get Remediation
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/reduce-exposure/remediation
+  body: none
+  auth: none
+}
+
+query {
+  ~identityId: 
+  ~plaform: 
+  ~workspaceId: 
+  ~execTime: 
+}
+
+body:json {
+  {
+    "workspaceId": "string",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  This section describes the API for retrieving an identity's remediations in Cloud Entitlements Manager.
+  
+  ## Schemas
+  
+  
+  ## Response Status Codes
+  - 200 - Get all workspaces
+  - 500 - Internal server error
+  
+  ## Example Success Response
+  ```
+  {
+    "platform": "aws",
+    "workspaceId": "string",
+    "identityId": "string",
+    "remediations": [
+      {
+        "UN_USED_PERMISSIONS": {
+          "LEAST_PRIVILEGE": {
+            "data": "string"
+          }
+        }
+      }
+    ]
+  }
+  ```
+}
