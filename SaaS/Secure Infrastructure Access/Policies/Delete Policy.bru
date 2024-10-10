@@ -1,0 +1,81 @@
+meta {
+  name: Delete Policy
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/access-policies/{{access_policy_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  ~access_policy_id: dc54f2c0-8ddf-47d8-a2b0-600367b2c69b
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Access Policies
+  
+  Deletes the specified policy
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/access-policies/{policy_id}
+  ```
+  
+  ### Method
+  PUT
+  
+  ### Query Parameters
+  No Parameters
+  
+  ### Example Response Body
+  ```
+  ""
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

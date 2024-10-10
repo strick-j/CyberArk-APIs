@@ -1,0 +1,125 @@
+meta {
+  name: List Policies
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/access-policies
+  body: none
+  auth: none
+}
+
+query {
+  ~extended: true
+  ~filter: ((updatedOn gt '2024-01-01 10:00:00') and (platforms eq 'AWS'))
+  ~limit: 1
+  ~offset: 2
+  ~sort: asc | desc
+}
+
+assert {
+  res.status: eq 200
+  res.body.totalCount: isNumber
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Access Policies
+  
+  This endpoint retrieves a list of authorization policies based on specified filter criteria, sorting preferences and pagination parameters. It also includes the total count of policies that match the specified filters. By default, this endpoint returns 100 policies. To retrieve all policies you need to use the pagination mechanism (using the limit and offset parameters).
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/access-policies
+  ```
+  
+  ### Method
+  GET
+  
+  ### Query Parameters
+  |Name|Description|Default Value|Example|
+  |----|-----------|-------------|-------|
+  |extended|This parameter sets the extended response, when true. Extended response includes all the details of each policy.|false|true|
+  |filter|This parameter is used to filter the policies based on specific criteria. The filter expressions must be complete within parentheses. The filter supports various operations such as equals, not equals, contains, starts with, ends with, is null, is not null, greater than and less than. The filter can be applied to various fields such as policyName, description, startDate, endDate, status, updatedBy, updatedOn, createdBy, createdOn, and platforms.|null|((updatedOn gt '2024-01-01 10:00:00') and (platforms eq 'AWS'))|
+  |limit|This parameter sets the maximum number of items to be retrieved. The maximum limit is 1000. To get all policies (more then 1000), you should continue to fetch the next 1000 by iterating on the request and using the offset parameter accordingly in each request.|100|1000|
+  |offset|This parameter sets the starting point of the retrieved items.|0|5|
+  |sort|This parameter sets the sorting order of the retrieved items. The sorting order can be set to ascending (asc) or descending (desc).|id asc|id desc|
+  
+  ### Example Response Body
+  ```
+  {
+    "items": [
+      {
+        "policyId": "027f7551-1234-1234-1234-bc92d076368e",
+        "status": "Enabled",
+        "policyName": "example Azure - Main Sub",
+        "description": "Provides access to machines running in Azure for Linux Admins",
+        "createdOn": "2023-02-22 22:36:00.619549",
+        "updatedOn": "2023-11-20 14:16:42.161149",
+        "ruleNames": [
+          "AzureSSHAccess"
+        ],
+        "platforms": [
+          "Azure"
+        ]
+      },
+      {
+        "policyId": "0a7f7551-1234-1234-1234-bc92d076368e",
+        "status": "Enabled",
+        "policyName": "Example DevOps - PASaaS",
+        "description": "Self-hosted PAM component access",
+        "createdOn": "2024-08-22 16:57:05",
+        "updatedOn": "2024-08-22 16:57:05",
+        "ruleNames": [
+          "Windows Admin"
+        ],
+        "platforms": [
+          "OnPrem"
+        ]
+      }
+    ],
+    "totalCount": 2
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

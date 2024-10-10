@@ -1,0 +1,284 @@
+meta {
+  name: Add Policy
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/access-policies
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "policyName": "Production App Access",
+    "status": "Draft",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ]
+      }
+    },
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ]
+                }
+              }
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  //Sets Access Policy ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('access_policy_id', res.body.policyId);
+    tools.log('Access Policy Id: ' + bru.getVar('access_policy_id'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Access Policies
+  
+  Adds a new authorization policy
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/access-policies
+  ```
+  
+  ### Method
+  POST
+  
+  ### Query Parameters
+  No Parameters
+  
+  ### Example Request body
+  ```
+  {
+    "policyName": "Production App Access",
+    "status": "Draft",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ]
+      }
+    },
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "AWS": {
+              "ssh": "ec2-user",
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ]
+                }
+              }
+            },
+            "Azure": {
+              "ssh": "azureuser"
+            },
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ]
+                }
+              }
+            },
+            "GCP": {
+              "ssh": "root"
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Example Response Body
+  ```
+  {
+    "policyId": "06923e81-53cd-4913-ac91-cc15678951f9",
+    "policyName": "Production App Access",
+    "status": "Draft",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ],
+        "logicalNames": null,
+        "ipRules": null
+      }
+    },
+    "startDate": null,
+    "endDate": null,
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "AWS": {
+              "ssh": "ec2-user",
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ],
+                  "enableEphemeralUserReconnect": false
+                }
+              }
+            },
+            "Azure": {
+              "ssh": "azureuser"
+            },
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ],
+                  "enableEphemeralUserReconnect": false
+                }
+              }
+            },
+            "GCP": {
+              "ssh": "root"
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |201|Created|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

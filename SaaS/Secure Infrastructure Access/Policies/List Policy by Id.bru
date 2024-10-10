@@ -1,0 +1,204 @@
+meta {
+  name: List Policy by Id
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/access-policies/{{access_policy_id}}
+  body: none
+  auth: none
+}
+
+query {
+  ~extended: true
+  ~filter: ((updatedOn gt '2024-01-01 10:00:00') and (platforms eq 'AWS'))
+  ~limit: 1
+  ~offset: 2
+  ~sort: asc | desc
+}
+
+vars:pre-request {
+  ~access_policy_id: dc54f2c0-8ddf-47d8-a2b0-600367b2c69b
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Access Policies
+  
+  Retrieves the authorization policy with the given ID
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/access-policies/{policy_id}
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "policyName": "Production App Access",
+    "status": "Enabled",
+    "description": "",
+    "providersData": {
+      "AWS": {
+        "regions": [
+          "us-east-1",
+          "us-east-2"
+        ],
+        "tags": [
+          {
+            "Key": "env",
+            "Value": [
+              "prod"
+            ]
+          }
+        ],
+        "vpcIds": [],
+        "accountIds": []
+      },
+      "Azure": {
+        "regions": [
+          "eastus2",
+          "eastus"
+        ],
+        "tags": [
+          {
+            "Key": "env",
+            "Value": [
+              "prod"
+            ]
+          }
+        ],
+        "resourceGroups": [],
+        "vnetIds": [],
+        "subscriptions": []
+      },
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ]
+      },
+      "GCP": {
+        "regions": [
+          "asia-east1",
+          "us-east1"
+        ],
+        "labels": [
+          {
+            "Key": "env",
+            "Value": [
+              "prod"
+            ]
+          }
+        ],
+        "vpc_ids": [],
+        "projects": []
+      }
+    },
+    "startDate": "2023-01-10",
+    "endDate": "2024-01-10",
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DEV_TEAM_ROLE"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "AWS": {
+              "ssh": "ec2-user",
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ]
+                }
+              }
+            },
+            "Azure": {
+              "ssh": "azureuser"
+            },
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ]
+                }
+              }
+            },
+            "GCP": {
+              "ssh": "root"
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |404|Not Found|
+  |500|Internal Server Error|
+}

@@ -1,0 +1,260 @@
+meta {
+  name: Update Policy
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/access-policies/{{access_policy_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "policyId": "{{access_policy_id}}",
+    "policyName": "Production App Access",
+    "status": "Enabled",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ],
+        "logicalNames": null,
+        "ipRules": []
+      }
+    },
+    "startDate": null,
+    "endDate": null,
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ],
+                  "enableEphemeralUserReconnect": false
+                }
+              }
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  ~access_policy_id: 06923e81-53cd-4913-ac91-cc15678951f9
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Access Policies
+  
+  Updates the specified policy
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/access-policies/{policy_id}
+  ```
+  
+  ### Method
+  PUT
+  
+  ### Query Parameters
+  No Parameters
+  
+  ### Example Request body
+  ```
+  {
+    "policyId": "{access_policy_id}",
+    "policyName": "Production App Access",
+    "status": "Enabled",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ],
+        "logicalNames": null,
+        "ipRules": []
+      }
+    },
+    "startDate": null,
+    "endDate": null,
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ],
+                  "enableEphemeralUserReconnect": false
+                }
+              }
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Example Response Body
+  ```
+  {
+    "policyId": "06923e81-53cd-4913-ac91-cc15678951f9",
+    "policyName": "Production App Access",
+    "status": "Enabled",
+    "description": "",
+    "providersData": {
+      "OnPrem": {
+        "fqdnRules": [
+          {
+            "operator": "EXACTLY",
+            "computernamePattern": "acme.com",
+            "domain": "ad.product2.com"
+          }
+        ],
+        "logicalNames": null,
+        "ipRules": []
+      }
+    },
+    "startDate": null,
+    "endDate": null,
+    "userAccessRules": [
+      {
+        "ruleName": "dev-team-access",
+        "userData": {
+          "roles": [
+            "DevSecOps SMEs"
+          ],
+          "groups": [],
+          "users": []
+        },
+        "connectionInformation": {
+          "connectAs": {
+            "OnPrem": {
+              "rdp": {
+                "localEphemeralUser": {
+                  "assignGroups": [
+                    "Administrators"
+                  ],
+                  "enableEphemeralUserReconnect": false
+                }
+              }
+            }
+          },
+          "grantAccess": 3,
+          "idleTime": 10,
+          "daysOfWeek": [
+            "Mon",
+            "Tue"
+          ],
+          "fullDays": false,
+          "hoursFrom": "10:00",
+          "hoursTo": "18:00",
+          "timeZone": "Asia/Jerusalem"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |404|Not Found|
+  |500|Internal Server Error|
+}
