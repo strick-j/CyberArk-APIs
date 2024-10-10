@@ -22,6 +22,11 @@ body:json {
   }
 }
 
+assert {
+  res.body: isJson 
+  res.status: eq 200
+}
+
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
   
