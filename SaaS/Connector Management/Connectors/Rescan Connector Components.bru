@@ -1,19 +1,18 @@
 meta {
-  name: Get All Connector Components
+  name: Rescan Connector Components
   type: http
-  seq: 3
+  seq: 5
 }
 
-get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/connectors/{{connector_id}}/components
+post {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/connectors/{{connector_id}}/components/rescan
   body: none
   auth: none
 }
 
 assert {
-  res.status: eq 200
-  res.body: isJson
-  res.body.components[0].componentId: isString
+  res.status: eq 202
+  res.body: isString 
 }
 
 script:pre-request {
@@ -25,14 +24,6 @@ script:pre-request {
 
 script:post-response {
   const tools = require('./tools/tools');
-  
-  // Sets Component ID for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    tools.log('Setting Variables');
-    bru.setVar('component_id', res.body.components[1].componentId);
-    tools.log('Component Id: ' + bru.getVar('component_id'))
-  }
   
   // Log on error
   if (res.status != 200) {
