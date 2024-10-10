@@ -1,0 +1,25 @@
+meta {
+  name: Rescan
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/cloud/rescan
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "cloudProvider":0,
+    "accountType":"All"
+  }
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

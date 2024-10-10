@@ -1,0 +1,53 @@
+meta {
+  name: Policy By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies/{{policy_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  ~scaPolicyId: 
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  
+  
+  
+  
+  
+  ### Example Response
+  ```
+  {
+    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
+    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
+    "status": "InProgress",
+    "last_updated": "2024-10-01T19:53:07Z",
+    "already_running": true
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job Status|
+  |400|Missing jobId parameter|
+  |404|Job Not Found|
+  |500|Internal Server Error|
+}
