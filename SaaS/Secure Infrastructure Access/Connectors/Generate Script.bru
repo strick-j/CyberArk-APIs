@@ -1,0 +1,81 @@
+meta {
+  name: Generate Script
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/connectors/setup-script
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "connector_type": "AWS",
+    "connector_os": "linux",
+    "connector_pool_id": "{{pool_id}}",
+    "expiration_miniutes": 15
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## SIA Connectors
+  
+  API for downloading and managing SIA connectors. To run this API, you must have the DpaAdmin role.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/connectors/setup-script
+  ```
+  
+  ### Method
+  POST
+  
+  ### Request Body
+  ```
+  {
+    "connector_type": "AWS",
+    "connector_os": "linux",
+    "connector_pool_id": "96eca9df-daac-4519-8716-fd8a630abce5",
+    "expiration_miniutes": 15
+  }
+  ```
+  
+  ### Example Response Body
+  ```
+  {
+    "script_url": "https://presignedurldemo.s3.eu-west-2.amazonaws.com/...",
+    "bash_cmd": "#!/bin/bash....."
+  }
+  ```
+  
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_CONNECTOR_SETUPS_SCRIPT_INVALID_INPUT",
+    "message": "The platform you specified is not supported in DPA",
+    "description": "Invalid platform supplied"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |201|Success|
+  |400|Invalid Request|
+  |500|Unexpected Error|
+}

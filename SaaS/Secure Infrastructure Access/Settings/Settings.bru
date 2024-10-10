@@ -1,0 +1,144 @@
+meta {
+  name: Settings
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/settings
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Settings
+  
+  Returns DPA settings and configurations for all features.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/settings
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "mfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 3600
+    },
+    "sshMfaCaching": {
+      "isMfaCachingEnabled": false,
+      "keyExpirationTimeSec": 3600
+    },
+    "rdpMfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 60,
+      "clientIpEnforced": true,
+      "tokenUsageCount": 0
+    },
+    "rdpTokenMfaCaching": {
+      "isMfaCachingEnabled": false,
+      "keyExpirationTimeSec": 3600,
+      "clientIpEnforced": true,
+      "tokenUsageCount": 0
+    },
+    "adbMfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 7200,
+      "clientIpEnforced": true,
+      "tokenUsageCount": 0
+    },
+    "k8sMfaCaching": {
+      "keyExpirationTimeSec": 7200,
+      "clientIpEnforced": false,
+      "tokenUsageCount": 0
+    },
+    "sshCommandAudit": {
+      "isCommandParsingForAuditEnabled": true,
+      "shellPromptForAudit": "(.*)[>#\\$]$"
+    },
+    "standingAccess": {
+      "standingAccessAvailable": true,
+      "sessionMaxDuration": 120,
+      "sessionIdleTime": 10,
+      "fingerprintValidation": false,
+      "sshStandingAccessAvailable": true,
+      "rdpStandingAccessAvailable": true,
+      "adbStandingAccessAvailable": true
+    },
+    "rdpFileTransfer": {
+      "enabled": true
+    },
+    "certificateValidation": {
+      "enabled": false
+    },
+    "rdpKeyboardLayout": {
+      "layout": "en-us-qwerty"
+    },
+    "rdpRecording": {
+      "enabled": true
+    },
+    "sshRecording": {
+      "enabled": false
+    },
+    "logonSequence": {
+      "logonSequence": "\\[.*\\@.*~]\\$>exec su - {Username}\nPassword:>{Password}"
+    },
+    "selfHostedPam": {
+      "tenantType": "PCLOUD",
+      "connectorPoolId": "",
+      "pvwaBaseUrl": "",
+      "serviceUserSecretId": ""
+    }
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

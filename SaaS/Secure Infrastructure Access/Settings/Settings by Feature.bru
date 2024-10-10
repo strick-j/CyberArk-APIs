@@ -1,0 +1,67 @@
+meta {
+  name: Settings by Feature
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/settings/{{featureName}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  featureName: mfaCaching
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## SIA Settings
+  
+  Returns DPA settings and configurations for the requested feature.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/settings/{feature_name}
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "mfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 3600
+    }
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

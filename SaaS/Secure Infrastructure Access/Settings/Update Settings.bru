@@ -1,0 +1,85 @@
+meta {
+  name: Update Settings
+  type: http
+  seq: 3
+}
+
+patch {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/settings
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mfaCachingConfiguration": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 3600
+    },
+    "sshCommandAuditConfiguration": {
+      "isCommandParsingForAuditEnabled": true,
+      "shellPromptForAudit": "(.*)[>#\\$]$"
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## SIA Settings
+  
+  Returns DPA settings and configurations for the requested feature.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/settings
+  ```
+  
+  ### Method
+  PATCH
+  
+  ### Example Request Body
+  ```
+  {
+    "mfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 3600
+    }
+  }
+  
+  ### Example Response Body
+  ```
+  {
+    "mfaCaching": {
+      "isMfaCachingEnabled": true,
+      "keyExpirationTimeSec": 3600
+    }
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}
