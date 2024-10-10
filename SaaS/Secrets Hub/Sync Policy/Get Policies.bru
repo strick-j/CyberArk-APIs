@@ -1,0 +1,113 @@
+meta {
+  name: Get Policies
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies
+  body: none
+  auth: none
+}
+
+query {
+  ~projection: EXTEND
+  ~filter: filter.data.safeName EQ EXAMPLE-SAFE
+  ~filter: target.id EQ store-5e0a3c5c-1234-1234-1234-77499f205835
+}
+
+assert {
+  res.body.count: isNumber
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get Policies
+  
+  Retrieve sync policies.
+  
+  Use filters to retrieve a subset of sync policies. You can use one filter per API call.
+  
+  ### Endpoint
+  ```
+  https://subdomain.secretshub.cyberark.cloud/api/policies
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "count": 1,
+    "policies": [
+      {
+        "id": "policy-62d19762-85d0-4cc0-ba44-9e0156a5c9c6",
+        "name": "Dev Team1 Policy",
+        "description": "This policy is syncing from PAM Self Hosted to us-east-1",
+        "createdAt": "2023-07-03T14:03:25.146000",
+        "updatedAt": "2023-07-03T14:03:25.146000",
+        "createdBy": "user@example.com",
+        "updatedBy": "user@example.com",
+        "source": {
+          "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
+        },
+        "target": {
+          "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
+        },
+        "filter": {
+          "id": "filter-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
+        },
+        "transformation": {
+          "id": "trns-password-only-plaintext-aws-pam-pcloud"
+        },
+        "state": {
+          "current": "ENABLED"
+        }
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "GNRL0001E",
+    "message": "Forbidden",
+    "description": "Verify you are a member of the Secrets Hub role via Identity Administration"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |401|Unauthorized|
+  |403|Forbidden|
+  |500|Internal Server Error|
+}

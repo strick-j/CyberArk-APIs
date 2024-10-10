@@ -1,0 +1,74 @@
+meta {
+  name: Service Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/info
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Service Info
+  
+  Get information about your Secrets Hub service.
+  
+  ### Endpoint
+  ```
+  https://subdomain.secretshub.cyberark.cloud/api/info
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "tenantRoleArn": "arn:aws:iam::123456789101:role/Secrets-Hub-Role-Name",
+    "tenantPamType": "PAM_PCLOUD"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "GNRL0001E",
+    "message": "Forbidden",
+    "description": "Verify you are a member of the Secrets Hub role via Identity Administration"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |401|Unauthorized|
+  |403|Forbidden|
+  |500|Internal Server Error|
+}
