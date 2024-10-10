@@ -1,0 +1,28 @@
+meta {
+  name: Generate Public Key Script
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/public-keys?workspaceId&workspaceType
+  body: none
+  auth: none
+}
+
+query {
+  workspaceId: 
+  workspaceType: 
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

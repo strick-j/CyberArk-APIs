@@ -1,0 +1,74 @@
+meta {
+  name: Download Public Key
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/public-keys?workspaceId=11342eb7de464a409ff64fd7d9dc2ab4&workspaceType=AWS
+  body: none
+  auth: none
+}
+
+query {
+  workspaceId: 11342eb7de464a409ff64fd7d9dc2ab4
+  workspaceType: AWS
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  
+  
+  
+  
+  ### Example Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_QUERY_STRING_PARAMETERS",
+    "message": "Invalid query string parameters",
+    "description": "",
+    "errors": [
+      {
+        "code": "DPA_INVALID_VALUE",
+        "message": "Invalid value in request input",
+        "description": "",
+        "field": "workspaceType"
+      },
+      {
+        "code": "DPA_INVALID_VALUE",
+        "message": "Invalid value in request input",
+        "description": "",
+        "field": "workspaceId"
+      }
+    ]
+  }
+  ```
+}
