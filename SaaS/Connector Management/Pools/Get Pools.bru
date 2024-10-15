@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools?order=type EQ ASC
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools
   body: none
   auth: none
 }
 
 query {
-  order: type EQ ASC
+  ~order: ASC
   ~pageSize: 5
   ~filter: name:=="UpdatedPoolName"
   ~continuationToken: NQ
