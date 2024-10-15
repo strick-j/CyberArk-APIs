@@ -1,13 +1,20 @@
 meta {
-  name: List Pool Component Types
+  name: Update Pool
   type: http
-  seq: 14
+  seq: 4
 }
 
-get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/components/types
-  body: none
+patch {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/{{pool_id}}
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "name":"UpdatedPoolNameTesting",
+    "description":"Example Pool Description - Updated"
+  }
 }
 
 assert {
@@ -43,14 +50,14 @@ script:post-response {
 }
 
 docs {
-  ## List pool component types
-  List pool component types
+  ## Update Pool 
+  Updates a pool
   
   ## URL
-  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/components/types
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools
   
   ### Resource Information
-  | HTTP Method | GET |
+  | HTTP Method | PATCH |
   | :-- | :-- |
   | Content Type | application/json  |
   
@@ -59,22 +66,31 @@ docs {
   | :-- | :-- |
   | Authorization | The token that identifies the session, encoded in BASE 64.  |
   
-  ### Example Responses
+  ### Example Request Body
   ```
   {
-    "resources": [
-      "PLATFORM_CONNECTOR",
-      "ACCESS_CONNECTOR"
-    ],
-    "page": {
-      "pageSize": 2,
-      "continuationToken": null,
-      "totalResourcesCount": 2
-    }
+    "name":"UpdatedPoolName",
+    "description":"Example Pool Description - Updated",
+    "assignedNetworkIds":["0e00afc0-7e0d-43d3-98aa-4622a9bb4789"]
   }
   ```
   
-  ### *Status Codes 200, 400, 401, 403, and 500*
+  ### Example Response Body
+  ```
+  {
+    "id": "f3cc2257-79bd-4300-a437-fd151f2b0ae1",
+    "createdAt": "2024-10-15T14:33:17.000+00:00",
+    "updatedAt": "2024-10-15T14:33:17.000+00:00",
+    "name": "UpdatedPoolName",
+    "description": "Example Pool Description - Updated",
+    "assignedNetworkIds": [
+      "0e00afc0-7e0d-43d3-98aa-4622a9bb4789"
+    ],
+    "type": "PLATFORM"
+  }
+  ```
+  
+  ### *Status Codes 200, 400, 401, 403, 404, and 500*
   ```
   {
     "code": "string",

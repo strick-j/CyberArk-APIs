@@ -1,17 +1,17 @@
 meta {
   name: Get Pool by Id
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/{{pool_id}}
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/{{pool_id}}?projection=EXTENDED
   body: none
   auth: none
 }
 
-vars:pre-request {
-  pool_id: 96eca9df-dffc-4509-8916-fd8c630acce4
+query {
+  projection: EXTENDED
 }
 
 assert {
@@ -47,11 +47,11 @@ script:post-response {
 }
 
 docs {
-  ## Get Connectors
-  Returns a list of all connectors
+  ## Get Pool By Id
+  Retrieves the given pool
   
   ## URL
-  https://<subdomain>.connectormanagement.cyberark.com/api/connectors
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/{pool_id}
   
   ### Resource Information
   | HTTP Method | GET |
@@ -63,9 +63,12 @@ docs {
   | :-- | :-- |
   | Authorization | The token that identifies the session, encoded in BASE 64.  |
   
-  ## Example Responses
+  ### Query Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | projection | Projection of the response. BASIC/EXTENDED  |
   
-  ### *Status Code 200*
+  ### Example Responses
   ```
   {
     "connectors": [
@@ -133,7 +136,7 @@ docs {
   }
   ```
   
-  ### *Status Codes 400, 401, 404, and 500*
+  ### *Status Codes 200, 400, 401, 404, and 500*
   ```
   {
     "code": "string",

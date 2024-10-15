@@ -1,13 +1,20 @@
 meta {
-  name: List Pool Component Types
+  name: List Pool Identifier
   type: http
-  seq: 14
+  seq: 6
 }
 
 get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/components/types
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/{{pool_id}}/identifiers
   body: none
   auth: none
+}
+
+body:json {
+  {
+    "type":"GENERAL_FQDN",
+    "value":"fqdnexample.example.com"
+  }
 }
 
 assert {
@@ -43,11 +50,11 @@ script:post-response {
 }
 
 docs {
-  ## List pool component types
-  List pool component types
+  ## List Pool Identifier
+  List identifiers for a pool.
   
   ## URL
-  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/components/types
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/{pool_id}/identifiers
   
   ### Resource Information
   | HTTP Method | GET |
@@ -59,28 +66,35 @@ docs {
   | :-- | :-- |
   | Authorization | The token that identifies the session, encoded in BASE 64.  |
   
-  ### Example Responses
+  
+  ### Example Response Body
   ```
   {
     "resources": [
-      "PLATFORM_CONNECTOR",
-      "ACCESS_CONNECTOR"
+      {
+        "id": "4362bf99-4a3c-4c66-a2af-2f5a6e4bcaad",
+        "createdAt": "2024-10-15T14:52:56.000+00:00",
+        "updatedAt": "2024-10-15T14:52:56.000+00:00",
+        "poolId": "093c5e0c-b1be-4f7f-8a07-9ab9c7e42690",
+        "type": "GENERAL_FQDN",
+        "value": "fqdnexample.example.com"
+      }
     ],
     "page": {
-      "pageSize": 2,
+      "pageSize": 1,
       "continuationToken": null,
-      "totalResourcesCount": 2
+      "totalResourcesCount": 1
     }
   }
   ```
   
-  ### *Status Codes 200, 400, 401, 403, and 500*
+  ### *Status Codes 200, 400, 401, 403, 404, and 500*
   ```
   {
-    "code": "string",
-    "message": "string",
-    "description": "",
-    "details": ""
+    "code": "409",
+    "message": "The request could not be completed due to a conflict with the current state of the resource",
+    "description": "Name must be unique.",
+    "details": "Failed to create pool"
   }
   ```
 }

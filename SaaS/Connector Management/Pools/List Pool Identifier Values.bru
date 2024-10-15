@@ -1,13 +1,19 @@
 meta {
   name: List Pool Identifier Values
   type: http
-  seq: 4
+  seq: 11
 }
 
 get {
   url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/identifiers
   body: none
   auth: none
+}
+
+query {
+  ~continuationToken: Mw
+  ~pageSize: 3
+  ~filter: type:==AWS_VPC
 }
 
 assert {
@@ -43,11 +49,11 @@ script:post-response {
 }
 
 docs {
-  ## Get Connectors
-  Returns a list of all connectors
+  ## List identifiers values
+  List identifiers values
   
   ## URL
-  https://<subdomain>.connectormanagement.cyberark.com/api/connectors
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/identifiers
   
   ### Resource Information
   | HTTP Method | GET |
@@ -59,77 +65,44 @@ docs {
   | :-- | :-- |
   | Authorization | The token that identifies the session, encoded in BASE 64.  |
   
-  ## Example Responses
-  
-  ### *Status Code 200*
+  ### Example Responses
   ```
   {
-    "connectors": [
+    "resources": [
       {
-        "connectorId": "managementagent_96e1df8d-ffe5-4314-8b65-b6b941f35a13",
-        "connectorStatus": "Active",
-        "platformType": "AWS",
-        "connectorPoolId": "string",
-        "version": "1.1",
-        "upgradeVersions": [
-          "string"
-        ],
-        "installedAt": 1674760162,
-        "updatedAt": 1674760162,
-        "host": {
-          "hostname": "string",
-          "privateIp": "string",
-          "publicIp": "string",
-          "os": "windows",
-          "osVersion": "string",
-          "osName": "string",
-          "cloudRegion": "string",
-          "cloudAccount": "string",
-          "cpuType": "string",
-          "totalCpu": 0,
-          "usedCpu": 65.5,
-          "totalMemory": 65.5,
-          "usedMemory": 3.5,
-          "hostConfig": {
-            "proxyDetails": {
-              "proxyAddress": "string",
-              "proxyPort": 65535
-            }
-          }
-        },
-        "components": [
-          {
-            "componentId": "managementagent_96e1df8d-ffe5-4314-8b65-b6b941f35a13",
-            "componentName": "Privileged Session Manager",
-            "acronym": "PSM",
-            "componentStatus": "Active",
-            "connectorId": "96e1df8d-ffe5-4314-8b65-b6b941f35a13",
-            "version": "1.1",
-            "upgradeVersions": [
-              "string"
-            ],
-            "usedCpu": 65.5,
-            "usedMemory": 2.5,
-            "installedAt": 1674760162,
-            "updatedAt": 1674760162,
-            "maintenanceStatus": {
-              "maintenanceType": "Installation",
-              "progress": 65.5,
-              "currentStep": "Hardening",
-              "additionalInformation": {
-                "additionalProp1": "string",
-                "additionalProp2": "string",
-                "additionalProp3": "string"
-              }
-            }
-          }
-        ]
+        "id": "fc6e690d-b0d6-4404-93b3-b0eeb0583cdf",
+        "createdAt": "2024-07-28T08:44:33.000+00:00",
+        "updatedAt": "2024-07-28T08:44:33.000+00:00",
+        "poolId": "76ad589d-0ea5-48c5-a7ae-eb515fcd758a",
+        "type": "AWS_VPC",
+        "value": "vpc-0bbb03764ede0b350"
+      },
+      {
+        "id": "aa2231d3-cf60-42f0-b20f-4aa99d6b9d2d",
+        "createdAt": "2024-07-28T08:44:23.000+00:00",
+        "updatedAt": "2024-07-28T08:44:23.000+00:00",
+        "poolId": "d9058fc8-0f39-4d94-b994-665c944f4427",
+        "type": "AWS_VPC",
+        "value": "vpc-0e4531bdc910b5430"
+      },
+      {
+        "id": "c752d571-2bc1-40f4-833c-324aee7328be",
+        "createdAt": "2024-07-28T08:44:16.000+00:00",
+        "updatedAt": "2024-07-28T08:44:16.000+00:00",
+        "poolId": "1a373251-f66b-494d-960d-9dfe27d43e94",
+        "type": "AWS_VPC",
+        "value": "vpc-0428764971924aab0"
       }
-    ]
+    ],
+    "page": {
+      "pageSize": 3,
+      "continuationToken": null,
+      "totalResourcesCount": 3
+    }
   }
   ```
   
-  ### *Status Codes 400, 401, 404, and 500*
+  ### *Status Codes 200, 400, 401, 403, and 500*
   ```
   {
     "code": "string",

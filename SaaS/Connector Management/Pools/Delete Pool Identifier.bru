@@ -1,18 +1,25 @@
 meta {
-  name: List Pool Component Types
+  name: Delete Pool Identifier
   type: http
-  seq: 14
+  seq: 7
 }
 
-get {
-  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/components/types
+delete {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools/{{pool_id}}/identifiers/{{identifier_id}}
   body: none
   auth: none
 }
 
+body:json {
+  {
+    "type":"GENERAL_FQDN",
+    "value":"fqdnexample.example.com"
+  }
+}
+
 assert {
-  res.status: eq 200
-  res.body: isJson
+  res.status: eq 204
+  res.body: isString
 }
 
 script:pre-request {
@@ -43,14 +50,14 @@ script:post-response {
 }
 
 docs {
-  ## List pool component types
-  List pool component types
+  ## Delete Pool Identifier
+  Delete a pool identifier.
   
   ## URL
-  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/components/types
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools/{pool_id}/identifiers/{identifier_id}
   
   ### Resource Information
-  | HTTP Method | GET |
+  | HTTP Method | DELETE |
   | :-- | :-- |
   | Content Type | application/json  |
   
@@ -59,22 +66,13 @@ docs {
   | :-- | :-- |
   | Authorization | The token that identifies the session, encoded in BASE 64.  |
   
-  ### Example Responses
+  
+  ### Example Response Body
   ```
-  {
-    "resources": [
-      "PLATFORM_CONNECTOR",
-      "ACCESS_CONNECTOR"
-    ],
-    "page": {
-      "pageSize": 2,
-      "continuationToken": null,
-      "totalResourcesCount": 2
-    }
-  }
+  ""
   ```
   
-  ### *Status Codes 200, 400, 401, 403, and 500*
+  ### *Status Codes 204, 400, 401, 403, and 500*
   ```
   {
     "code": "string",

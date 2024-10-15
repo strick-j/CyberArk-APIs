@@ -1,0 +1,111 @@
+meta {
+  name: Create Pool
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/pool-service/pools
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name":"ExamplePoolName1",
+    "description":"Example Pool Description",
+    "assignedNetworkIds":["0e00afc0-7e0d-43d3-98aa-4622a9bb4789"]
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Pool Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pool_id', res.body.id);
+    tools.log('Pool Id: ' + bru.getVar('pool_id'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Create Pool 
+  Creates a pool
+  
+  ## URL
+  https://<subdomain>.connectormanagement.cyberark.com/api/pool-service/pools
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  | Content Type | application/json  |
+  
+  ### Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Authorization | The token that identifies the session, encoded in BASE 64.  |
+  
+  ### Example Request Body
+  ```
+  {
+    "name":"ExamplePoolName",
+    "description":"Example Pool Description",
+    "assignedNetworkIds":["0e00afc0-7e0d-43d3-98aa-4622a9bb4789"]
+  }
+  ```
+  
+  ### Example Response Body
+  ```
+  {
+    "id": "f3cc2257-79bd-4300-a437-fd151f2b0ae1",
+    "createdAt": "2024-10-15T14:33:17.000+00:00",
+    "updatedAt": "2024-10-15T14:33:17.000+00:00",
+    "name": "ExamplePoolName1",
+    "description": "Example Pool Description",
+    "assignedNetworkIds": [
+      "0e00afc0-7e0d-43d3-98aa-4622a9bb4789"
+    ],
+    "type": "PLATFORM"
+  }
+  ```
+  
+  ### *Status Codes 201, 400, 401, 403, 409, and 500*
+  ```
+  {
+    "code": "409",
+    "message": "The request could not be completed due to a conflict with the current state of the resource",
+    "description": "Name must be unique.",
+    "details": "Failed to create pool"
+  }
+  ```
+}
