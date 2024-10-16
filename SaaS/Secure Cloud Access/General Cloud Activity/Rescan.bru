@@ -17,9 +17,52 @@ body:json {
   }
 }
 
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+}
+
+docs {
+  ## Initiate Scan
+  Start a scan on the cloud resources. This operation is asynchronous, and returns a job identifier. The /integration/status API can be used to pull the job status
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/cloud/rescan
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Parameters
+  No parameters
+  
+  ### Request Body
+  ```
+  {
+    "cloudProvider":0,
+    "accountType":"All"
+  }
+  ```
+  
+  ### Example Response
+  ```
+  {
+    "jobId": "620efd99-11bc-4ab7-93b3-2b46828e4bf1",
+    "operation": "RESCAN",
+    "alreadyRunning": false
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |500|Internal server error|
 }
