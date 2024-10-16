@@ -1,0 +1,97 @@
+meta {
+  name: Discovery
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies/discovery
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "csp": "GCP",
+    "organization_id": "513889216773",
+    "account_info": {
+      "id": "82171426831",
+      "new_account": false
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Discovery
+  This method starts account discovery on CEM and scan operation in the cloud.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/discovery
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Request Body
+  ```
+  {
+    "csp": "GCP",
+    "organization_id": "123456216773",
+    "account_info": {
+      "id": "82171412345",
+      "new_account": false
+    }
+  }
+  ```
+  
+  ### Example Response
+  ```
+  {
+    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
+    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
+    "status": "InProgress",
+    "last_updated": "2024-10-01T19:53:07Z",
+    "already_running": true
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job Status|
+  |400|Missing jobId parameter|
+  |404|Job Not Found|
+  |500|Internal Server Error|
+}
