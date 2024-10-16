@@ -1,0 +1,84 @@
+meta {
+  name: Validate Policy
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies/validate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "policyId": "{{policy_id}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Validate Policy
+  This method starts a validation process on a policy
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/validate
+  
+  ### Parameters
+  No parameters
+  
+  ### Request Body
+  ```
+  {
+    "policyId":"string"
+  }
+  ```
+  
+  ### Example Response
+  ```
+  {
+    "jobId": "ab3ce5af-18d8-4b9f-b38b-e9b3d5de6ad8"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Missing jobId parameter|
+  |401|Invalid Permissions|
+  |403|No permissions on resource|
+  |404|Policy not found|
+  |500|Internal server error|
+}
