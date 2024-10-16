@@ -10,6 +10,12 @@ get {
   auth: none
 }
 
+query {
+  ~status: 1
+  ~cloud_provider: 1
+  ~free_text: 
+}
+
 assert {
   res.status: eq 200
   res.body: isJson
@@ -51,27 +57,94 @@ script:post-response {
 }
 
 docs {
+  ## Query Policies
+  Returns a list of policies that match the requested filters
   
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies
   
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
   
+  ### Parameters
+  |Name|Description|Supported Values|
+  |:--|:--|:--|
+  |status|Filter on policies that have a specific status|Active = 1, Expired = 3, Error = 4, Validating = 6|
+  |free_text|Search for free text in the supported policy fields|Name, description, entity name, organization ID, cloud provider, status, account name|
+  |cloud_provider|Filter by the cloud provider that the policy applies to.|AWS IAM = 0, Google Cloud = 1, Azure RBAC = 2, AWS IAM Identity Center = 3, Microsoft Entra ID = 4|
   
+  ### Request Body
+  No body
   
   ### Example Response
   ```
   {
-    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
-    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
-    "status": "InProgress",
-    "last_updated": "2024-10-01T19:53:07Z",
-    "already_running": true
+    "total": 1,
+    "last_evaluated_key": null
+    "hits": [
+      {
+        "tenantId": "e51a10e2-3666-4496-a459-233a817ea2c7",
+        "name": "policy for dev ops group",
+        "status": 1,
+        "description": "",
+        "creationDate": "2022-06-21T14:50:04.579024+00:00",
+        "lastChanged": "2022-06-21T14:50:04.579024+00:00",
+        "cloudProvider": 0,
+        "policyId": "aws_7eb10249-e792-4a50-b5d5-12e39c1455fa",
+        "targetAttributes": [],
+        "startDate": "string",
+        "expirationDate": "string",
+        "accessRules": {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "fromTime": "string",
+          "toTime": "string",
+          "maxSessionDuration": 1,
+          "timeZone": "Asia/Jerusalem"
+        },
+        "entities": [
+          {
+            "entityId": "47d66b2b-8117-42f1-bee5-ad7bfe21bc15",
+            "entityName": "John.S@company.com",
+            "entityType": 1,
+            "entitySourceId": "09B9A9B0-6CE8-465F-AB03-65766D55B05E",
+            "entitySourceName": "CyberArk Cloud Directory",
+            "entityDisplayName": "John Smith",
+            "entityClass": "user",
+            "entityEmail": "string"
+          },
+          {
+            "entityId": "arn:aws:iam::123451234567:role/examplerole",
+            "entityName": "examplerole",
+            "entityType": 0,
+            "entitySourceId": "123451234567",
+            "entitySourceName": "Dev",
+            "exposureLevel": 43,
+            "organizationId": "string",
+            "workspaceType": "string",
+            "roleType": "string",
+            "rolePackage": "string"
+          }
+        ],
+        "exposure": 100,
+        "faultCode": 1001,
+        "statusTooltipMessage": "string"
+      }
+    ]
   }
   ```
   
-  ### Error Codes
+  ### Response Codes
   |code|Description|
   |-----|:---------------|
-  |200|Job Status|
-  |400|Missing jobId parameter|
-  |404|Job Not Found|
-  |500|Internal Server Error|
+  |200|Success|
+  |500|Internal server error|
 }
