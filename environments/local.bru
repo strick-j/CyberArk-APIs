@@ -1,7 +1,9 @@
 vars {
+  tenantId: {{process.env.TENANT_ID}}
   identityTenantSuffix: {{process.env.IDENTITY_TENANT_SUFFIX}}
   identityTenantName: {{process.env.IDENTITY_TENANT_NAME}}
   identityTenantId: {{process.env.IDENTITY_TENANT_ID}}
+  identityUserName: {{process.env.IDENTITY_USER_NAME}}
   platformTokenClientId: {{process.env.PLATFORM_TOKEN_CLIENT_ID}}
   platformTokenClientSecret: {{process.env.PLATFORM_TOKEN_CLIENT_SECRET}}
   scimApplicationId: {{process.env.SCIM_APPLICATION_ID}}
@@ -22,4 +24,11 @@ vars {
   testPlatformName: {{process.env.TEST_PLATFORM_NAME}}
   testFlag: {{process.env.TEST_FLAG}}
   testLogVerbose: {{process.env.TEST_LOG_VERBOSE}}
+  testAwsOrgId: {{process.env.TEST_AWS_ORG_ID}}
+  testAwsRootId: {{process.env.TEST_AWS_ROOT_ID}}
+  testAwsMgmtAcctId: {{process.env.TEST_AWS_MGMT_ACCT_ID}}
+  testAwsCybrId: {{process.env.TEST_AWS_CYBR_ID}}
+  testAwsAcctId: {{process.env.TEST_AWS_ACCT_ID}}
+  testConjurCloudSecretId1: {{process.env.TEST_CONJUR_CLOUD_SECRET_ID_1}}
+  testConjurCloudSecretId2: {{process.env.TEST_CONJUR_CLOUD_SECRET_ID_2}}
 }
