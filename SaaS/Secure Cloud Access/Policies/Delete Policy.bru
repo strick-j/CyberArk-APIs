@@ -1,0 +1,122 @@
+meta {
+  name: Delete Policy
+  type: http
+  seq: 9
+}
+
+delete {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies/{{policy_id}}
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Version: 2.0
+}
+
+body:json {
+  {
+    "csp": "GCP",
+    "name": "BRU-TEST-POLICY-UPDATE",
+    "description": "BRU AUTOMATION TESTING",
+    "startDate": null,
+    "endDate": null,
+    "policy_type": "pre_defined",
+    "roles": [
+      {
+        "entityId": "roles/owner",
+        "workspaceType": "gcp_organization",
+        "entitySourceId": "513889216773",
+        "organizationId": "513889216773"
+      }
+    ],
+    "identities": [
+      {
+        "entityName": "Bru API Testing",
+        "entitySourceId": "00000000-0000-0000-0000-000000000000",
+        "entityClass": "role"
+      }
+    ],
+    "accessRules": {
+      "days": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "fromTime": null,
+      "toTime": null,
+      "maxSessionDuration": 1,
+      "timeZone": "Asia/Jerusalem"
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isString 
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Delete Policy
+  This method deletes an existing policy in SCA
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/{policy_id}
+  
+  ### Parameters
+  |Name|Location|Description|
+  |:--|:--|:--|
+  |X-API-Version|Header|Policy Version. Supported Values: 1.0, 2.0 (recommended)|
+  |policy_id|Path|Policy Id to update|
+  
+  ### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  ### Request Body
+  No request body
+  
+  ### Example Response
+  ```
+  "Removed"
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |401|Not Authorized|
+  |404|Not Found|
+  |500|Internal Server Error|
+}
