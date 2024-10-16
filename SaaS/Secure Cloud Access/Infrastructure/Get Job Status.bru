@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/integrations/status?jobId=0ac01193-8e95-4402-af70-dfc068fafbf8
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/integrations/status?jobId
   body: none
   auth: none
 }
 
 query {
-  jobId: 0ac01193-8e95-4402-af70-dfc068fafbf8
+  jobId: 
 }
 
 script:pre-request {
@@ -22,26 +22,54 @@ script:pre-request {
 }
 
 docs {
+  ## Get Job Status
+  This method returns the status of a job that was created by an "async" API call (e.g. /cloud/rescan).
   
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/integrations/status
   
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
   
+  ### Query Parameters
+  |Name|Description|
+  |---|---|
+  |jobId|The ID of the requested job|
   
+  ### Request Body
+  No body
   
-  ### Example Response
+  ### Example Responses
+  #### Policy Creation Failure
   ```
   {
-    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
-    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
-    "status": "InProgress",
-    "last_updated": "2024-10-01T19:53:07Z",
-    "already_running": true
+    "job_id": "6f585b38-c833-4c66-b6e0-cace112bc514",
+    "operation": "CREATE_POLICY_V2",
+    "status": "Failure",
+    "last_updated": "2024-10-16T13:21:29Z",
+    "already_running": false
+  }
+  ```
+  #### Rescan Success
+  ```
+  {
+    "job_id": "e369baf0-1b24-11ee-be56-0242ac120002",
+    "operation": "RESCAN",
+    "status": "Success",
+    "last_updated": "2011-10-05T14:48:00.000Z",
+    "already_running": false,
+    "total_executed": {
+      "current": 100,
+      "total": 100
+    }
   }
   ```
   
   ### Error Codes
   |code|Description|
   |-----|:---------------|
-  |200|Job Status|
+  |200|Job status|
   |400|Missing jobId parameter|
   |404|Job Not Found|
   |500|Internal Server Error|
