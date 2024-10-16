@@ -18,7 +18,7 @@ query {
 
 vars:pre-request {
   kind: host
-  identifier: data%2Fapi-test-account
+  identifier: data%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
 }
 
 assert {
@@ -99,9 +99,9 @@ docs {
     {
       "admin_option": false,
       "ownership": false,
-      "role": "conjur:group:data/vault/PIN-MSSQL-ADM/delegation/consumers",
-      "member": "conjur:host:data/api-test-account",
-      "policy": "conjur:policy:data/vault/PIN-MSSQL-ADM"
+      "role": "conjur:group:data/bruno/api-testing/api-testing-host-group",
+      "member": "conjur:host:data/bruno/api-testing/api-testing-host-1",
+      "policy": "conjur:policy:data"
     }
   ]
   ```

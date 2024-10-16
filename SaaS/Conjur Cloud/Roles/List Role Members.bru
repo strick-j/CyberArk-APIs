@@ -18,7 +18,7 @@ query {
 
 vars:pre-request {
   kind: host
-  identifier: data%2Fapi-test-account
+  identifier: data%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
 }
 
 assert {
@@ -99,8 +99,8 @@ docs {
     {
       "admin_option": true,
       "ownership": true,
-      "role": "conjur:host:data/api-test-account",
-      "member": "conjur:policy:data",
+      "role": "conjur:host:data/bruno/api-testing/api-testing-host-1",
+      "member": "conjur:policy:data/bruno/api-testing",
       "policy": "conjur:policy:data"
     }
   ]
