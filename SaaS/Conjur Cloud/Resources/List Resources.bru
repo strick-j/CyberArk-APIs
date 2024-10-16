@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/resources/conjur?kind=host&limit=10
-  body: formUrlEncoded
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/resources/conjur
+  body: none
   auth: none
 }
 
 query {
-  kind: host
-  limit: 10
+  ~kind: host
+  ~limit: 10
   ~offset: 
   ~count: 
   ~acting_as: 
