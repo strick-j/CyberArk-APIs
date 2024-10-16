@@ -1,0 +1,196 @@
+meta {
+  name: Create Policy v2
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies/create-policy
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "csp": "GCP",
+    "name": "BRU-TEST-POLICY-V2",
+    "description": "BRU AUTOMATION TESTING",
+    "startDate": null,
+    "endDate": null,
+    "policy_type": "pre_defined",
+    "roles": [
+      {
+        "entityId": "roles/owner",
+        "workspaceType": "gcp_organization",
+        "entitySourceId": "513889216773",
+        "organizationId": "513889216773"
+      }
+    ],
+    "identities": [
+      {
+        "entityName": "Bru API Testing",
+        "entitySourceId": "00000000-0000-0000-0000-000000000000",
+        "entityClass": "role"
+      }
+    ],
+    "accessRules": {
+      "days": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "fromTime": null,
+      "toTime": null,
+      "maxSessionDuration": 1,
+      "timeZone": "Asia/Jerusalem"
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+}
+
+docs {
+  ## Create Policy
+  Create policy v2. It is recommend to use POST /api/policies with the header X-API-Version:2.0.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/create-policy
+  
+  ### Parameters
+  No Parameters
+  
+  ### Resource Information
+  | HTTP Method | POST|
+  | :-- | :-- |
+  
+  ### Request Body
+  #### AWS Account Policy
+  ```
+  {
+    "csp": "AWS",
+    "name": "finance",
+    "description": "end of year calculations",
+    "startDate": "2022-07-12T00:00:00.000Z",
+    "endDate": "2022-10-10T00:00:00.000Z",
+    "policy_type": "pre_defined",
+    "roles": [
+      {
+        "entityId": "arn:aws:iam::123451234567:role/examplerole",
+        "workspaceType": "account",
+        "entitySourceId": "123451234567",
+        "organization_id": null
+      }
+    ],
+    "identities": [
+      {
+        "entityName": "John.D",
+        "entitySourceId": "09B9A9B0-6CE8-465F-AB03-65766D55B05E",
+        "entityClass": "user"
+      }
+    ],
+    "accessRules": {
+      "days": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "fromTime": null,
+      "toTime": null,
+      "maxSessionDuration": 1,
+      "timeZone": "Asia/Jerusalem"
+    }
+  }
+  ```
+  #### GCP Policy
+  ```
+  {
+    "csp": "GCP",
+    "name": "Example-Name",
+    "description": "Example Description",
+    "startDate": null,
+    "endDate": null,
+    "policy_type": "pre_defined",
+    "roles": [
+      {
+        "entityId": "roles/owner",
+        "workspaceType": "gcp_organization",
+        "entitySourceId": "123889216123",
+        "organizationId": "123889216123"
+      }
+    ],
+    "identities": [
+      {
+        "entityName": "Example Role",
+        "entitySourceId": "00000000-0000-0000-0000-000000000000",
+        "entityClass": "role"
+      }
+    ],
+    "accessRules": {
+      "days": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "fromTime": null,
+      "toTime": null,
+      "maxSessionDuration": 1,
+      "timeZone": "Asia/Jerusalem"
+    }
+  }
+  ```
+  
+  ### Example Response
+  ```
+  {
+    "job_id": "5837c66b-d858-467e-9a86-7989ed12d836"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |500|Internal Server Error|
+}
