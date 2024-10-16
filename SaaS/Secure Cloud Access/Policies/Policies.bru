@@ -1,19 +1,19 @@
 meta {
   name: Policies
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/policies?free_text=BRU
   body: none
   auth: none
 }
 
 query {
+  free_text: BRU
   ~status: 1
   ~cloud_provider: 1
-  ~free_text: 
 }
 
 assert {
