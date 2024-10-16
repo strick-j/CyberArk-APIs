@@ -1,0 +1,95 @@
+meta {
+  name: Check Permission
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/resources/conjur/{{kind}}/{{identifier}}?check=true&role=conjur:host:data%2Fapi-test-account&privilege=execute
+  body: formUrlEncoded
+  auth: none
+}
+
+query {
+  check: true
+  role: conjur:host:data%2Fapi-test-account
+  privilege: execute
+}
+
+vars:pre-request {
+  kind: variable
+  identifier: data%2Fvault%2FPIN-MSSQL-ADM%2FDatabase-PL-MYSQL-A-readonly%2Faddress
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  //if (res.status != 200) {
+  //  if (res.body.error.code) {
+  //    tools.log('Error Code: ' + res.body.error.code);
+  //  }
+   // if (res.body.error.message) {
+  //    tools.log('Error Message: ' + res.body.error.message);
+   // }
+  //}
+}
+
+docs {
+  ## Check permission
+  Checks whether a role has a privilege on a resource. For example, is this Host authorized to execute (fetch the value of) this Secret?
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/resources/conjur/{kind}/{identifier}?check=true&role={role}&privilege={privilege}
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET /api/resources/conjur/variable/data/vault/prod-safe/app-prod/db-password?check=true&role=conjur:host:data/application&privilege=execute
+  
+  #### Example URI Parameters
+  | Parameter | Type | Mandatory | Description |
+  | :-- | :-- | :-- | :-- |
+  | kind | string | yes | The kind of resource to test **Example:** variable  |
+  | identifier | string | yes | The identifier of the resource to test **Example:** data/vault/prod-safe/app-prod/db-password |
+  | check | string | boolean | The kind of resource to test **Example:** true |
+  | role | string | yes | The fully qualified identifier of the role to test **Example:** conjur:host:data/application |
+  | privilege | string | yes | The privilege to test on the resource. **Example:** Read or Execute |
+  
+  ### Kinds of Resources
+  | Kind | Description |
+  | :-- | :-- | 
+  | User | One unique human | 
+  | Host | A single logical machine (in the broad sense, not just physical) | 
+  | Layer | A collection of hosts that have the same privileges |
+  | Group | A collection of users and groups that have the same privileges |
+  | Policy | Privileges on policies enable a user to create and modify objects and permissions | 
+  | Variable | A secret such as a password, API key, SSH key, etc. |
+  | Webservice | An HTTP(S) web service which performs sensitive operations |
+  
+  > *NOTE:* Entity IDs must be *URL-encoded*
+  
+  ### Example Responses
+  #### Success
+  204 No Conent - The role has the specified privilege on the resource
+  
+  ### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 204 | No Content |
+  | 401 | Not Authorized | 
+  | 404 | The role or resource was not found; or the role does not have the specified permission |
+}

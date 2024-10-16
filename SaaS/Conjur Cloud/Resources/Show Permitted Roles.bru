@@ -1,0 +1,104 @@
+meta {
+  name: Show Permitted Roles
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/resources/conjur/{{kind}}/{{identifier}}?permitted_roles=true&privilege=read
+  body: formUrlEncoded
+  auth: none
+}
+
+query {
+  permitted_roles: true
+  privilege: read
+}
+
+vars:pre-request {
+  kind: host
+  identifier: data%2Fapi-test-account
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.error.code) {
+      tools.log('Error Code: ' + res.body.error.code);
+    }
+    if (res.body.error.message) {
+      tools.log('Error Message: ' + res.body.error.message);
+    }
+  }
+}
+
+docs {
+  ## Show Permitted Roles
+  Lists the roles which have the named permission on a resource.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/resources/conjur/{kind}/{identifier}
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Parameters
+  | Name | Location | Description |
+  | :-- | :-- | :-- |
+  | permitted_roles | Query | Boolean: true / false |
+  | privilege | Query | e.g. Execute, Read, etc.. |
+  
+  ### Kinds of Resources
+  | Kind | Description |
+  | :-- | :-- | 
+  | User | One unique human | 
+  | Host | A single logical machine (in the broad sense, not just physical) | 
+  | Layer | A collection of hosts that have the same privileges |
+  | Group | A collection of users and groups that have the same privileges |
+  | Policy | Privileges on policies enable a user to create and modify objects and permissions | 
+  | Variable | A secret such as a password, API key, SSH key, etc. |
+  | Webservice | An HTTP(S) web service which performs sensitive operations |
+  
+  *NOTE:* Entity IDs must be *URL-encoded*
+  
+  ### Example Responses
+  #### Success
+  ```
+  [
+    "conjur:policy:data/vault/prod-safe/delegation",
+    "conjur:user:alice@example.com",
+    "conjur:group:data/vault/prod-safe/delegation/consumers"
+  ]
+  ```
+  #### Error
+  ```
+  {
+    "error": {
+      "code": "argument_error",
+      "message": "privilege"
+    }
+  }
+  ```
+  
+  ### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized | 
+  | 404 | Not Found |
+  | 422 | Unrpocessable Entity |
+}
