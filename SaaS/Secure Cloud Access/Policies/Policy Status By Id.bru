@@ -16,7 +16,7 @@ vars:pre-request {
 
 assert {
   res.status: eq 200
-  res.body: isNumber 
+  res.body: isNumber
 }
 
 script:pre-request {
@@ -27,27 +27,36 @@ script:pre-request {
 }
 
 docs {
+  ## Get Policy Status
+  Returns the status of the policy
   
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/{policy_id}/status
   
+  ### Parameters
+  |Name|Location|Description|
+  |:--|:--|:--|
+  |policy_id|path|The Id of the requested policy|
   
+  ### Resource Information
+  |HTTP Method|Get|
+  |:--|:--|
   
+  ### Request Body
+  No request body
   
-  ### Example Response
+  ### Example Response (text/plain)
   ```
-  {
-    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
-    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
-    "status": "InProgress",
-    "last_updated": "2024-10-01T19:53:07Z",
-    "already_running": true
-  }
+  "1"
   ```
+  #### Response Schema
+  1 = active, 3 = expired, 4 = error, 6 = validating
   
   ### Error Codes
   |code|Description|
   |-----|:---------------|
-  |200|Job Status|
-  |400|Missing jobId parameter|
-  |404|Job Not Found|
+  |200|Success
+  |401|Not Authorized|
+  |404|Not Found|
   |500|Internal Server Error|
 }
