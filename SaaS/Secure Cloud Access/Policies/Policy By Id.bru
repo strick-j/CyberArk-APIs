@@ -10,8 +10,12 @@ get {
   auth: none
 }
 
+headers {
+  X-API-Version: 2.0
+}
+
 vars:pre-request {
-  ~scaPolicyId: 
+  ~policy_id: 
 }
 
 assert {
@@ -27,19 +31,76 @@ script:pre-request {
 }
 
 docs {
+  ## Get Policy
+  This method returns information about a specific policy
   
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/policies/{policy_id}
   
+  ### Parameters
+  |Name|Location|Description|
+  |:--|:--|:--|
+  |X-API-Version|Header|Policy Version. Supported Values: 1.0, 2.0 (recommended)|
+  |policy_id|path|The Policy ID you want to retrieve|
   
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
   
+  ### Request Body
+  No Body
   
   ### Example Response
   ```
   {
-    "job_id": "e96362d5-f6b8-4edc-8586-3827625f8033",
-    "operation": "RESCAN_REQUEST_ORCHESTRATOR",
-    "status": "InProgress",
-    "last_updated": "2024-10-01T19:53:07Z",
-    "already_running": true
+    "policyId": "gcp_0e2bfd12-a123-2abc-1ac1-66d8dc31110e",
+    "csp": "GCP",
+    "name": "Example Policy Name",
+    "description": "Example Description",
+    "startDate": null,
+    "endDate": null,
+    "policyType": "pre_defined",
+    "roles": [
+      {
+        "entityId": "roles/cloudjobdiscovery.admin",
+        "workspaceType": "folder",
+        "entitySourceId": "123410617123",
+        "organizationId": "789272866123"
+      },
+      {
+        "entityId": "roles/cloudjobdiscovery.admin",
+        "workspaceType": "project",
+        "entitySourceId": "prod-infra",
+        "organizationId": "789272866123"
+      }
+    ],
+    "identities": [
+      {
+        "entityName": "jane.doe@example.com",
+        "entitySourceId": "09B9A9B0-ABCD-1234-ABCD-65766D33B05E",
+        "entityClass": "user"
+      },
+      {
+        "entityName": "Example Role",
+        "entitySourceId": "09B9A9B0-ABCD-1234-ABCD-65766D33B05E",
+        "entityClass": "role"
+      }
+    ],
+    "accessRules": {
+      "days": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "fromTime": null,
+      "toTime": null,
+      "maxSessionDuration": 1,
+      "timeZone": "America/New_York"
+    }
   }
   ```
   
