@@ -1,0 +1,98 @@
+meta {
+  name: List Issuers
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/issuers/conjur
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.error.code) {
+      tools.log('Error Code: ' + res.body.error.code);
+    }
+    if (res.body.error.message) {
+      tools.log('Error Message: ' + res.body.error.message);
+    }
+    if (res.body.error.target) {
+      tools.log('Error Target: ' + res.body.error.target);
+    }
+    if (res.body.error.details) {
+      if (res.body.error.details.code) {
+        tools.log('Error Details - Code: ' + res.body.error.details.code);
+      }
+      if (res.body.error.details.target) {
+        tools.log('Error Details - Target: ' + res.body.error.details.target);
+      }
+      if (res.body.error.details.message) {
+        tools.log('Error Details - Message: ' + res.body.error.details.message);
+      }
+    }
+  }
+}
+
+docs {
+  ## List Issuers
+  This API lists all the issuer resources in Conjur Cloud, including the information about each issuer, and when each issuer was created and modified.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/api/issuers/conjur
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  None
+  
+  #### Example URI
+  > GET https://<subdomain>.secretsmgr.cyberark.com/api/api/issuers/conjur
+  
+  ### Request Details
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The issuers were successfully listed |
+  | 403 | The user doesn't have permissions to list the issuers |
+  | 500 | Internal server error |
+  
+  #### 200 Success
+  ```
+  {
+    "issuers": [
+      {
+        "id": "my-aws-issuer",
+        "max_ttl": 900,
+        "type": "aws",
+        "created_at": "2024-03-25T17:53:43.694+00:00",
+        "modified_at": "2024-03-25T17:53:43.704+00:00"
+      },
+      {
+        "id": "bruno-aws-issuer",
+        "max_ttl": 3600,
+        "type": "aws",
+        "created_at": "2024-10-17T16:52:14.271+00:00",
+        "modified_at": "2024-10-17T16:52:14.277+00:00"
+      }
+    ]
+  }
+  ```
+}
