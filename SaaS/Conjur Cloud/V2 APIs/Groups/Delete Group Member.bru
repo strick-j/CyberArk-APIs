@@ -32,6 +32,34 @@ script:pre-request {
   await conjurTokenAuth.conjurLogin();
 }
 
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 204) {
+    if (res.body.error.code) {
+      tools.log('Error Code: ' + res.body.error.code);
+    }
+    if (res.body.error.message) {
+      tools.log('Error Message: ' + res.body.error.message);
+    }
+    if (res.body.error.target) {
+      tools.log('Error Target: ' + res.body.error.target);
+    }
+    if (res.body.error.details) {
+      if (res.body.error.details.code) {
+        tools.log('Error Details - Code: ' + res.body.error.details.code);
+      }
+      if (res.body.error.details.target) {
+        tools.log('Error Details - Target: ' + res.body.error.details.target);
+      }
+      if (res.body.error.details.message) {
+        tools.log('Error Details - Message: ' + res.body.error.details.message);
+      }
+    }
+  }
+}
+
 docs {
   ## Remove Group Member
   Remove a member from a group.
