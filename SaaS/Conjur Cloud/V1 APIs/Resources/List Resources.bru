@@ -1,0 +1,136 @@
+meta {
+  name: List Resources
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/resources/conjur
+  body: none
+  auth: none
+}
+
+query {
+  ~kind: host
+  ~limit: 10
+  ~offset: 
+  ~count: 
+  ~acting_as: 
+  ~search: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+docs {
+  ## List resources
+  ists a Conjur Cloud account's resources.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/resources/conjur
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Parameters
+  | Parameter | Location | Description |
+  | :-- | :-- | :-- |
+  | kind | query | Filters returned resource. Valid values: user, host, layer, group, policy, variable, webservice  |
+  | search| query | Filters returned resource. Results are weighted as follows from highest to lowest priority: resource's identifier, resource's annotation, resource's kind |
+  | limit | query | Sets the maximum number of returned resources. *Maximum and default value:* 1000 (when offset is not specified) |
+  | offset | query | Sets the number of resources that are not returned, from the first resource of a zero-based resource array. When offset is defined, the default limit value is 10. |
+  | count | query | Boolean: When true, only the number of matched resources is returned (not a JSON array listing resource properties). *Default value:* false |
+  | acting_as | query | Filters returned resources according to the specified role. To specify the role, use its fully qualified URL-encoded identifier (see URI): conjur:{kind}:{identifier} | 
+  
+  ### Example Responses
+  #### Success
+  ```
+  [
+      {
+          "created_at": "2023-10-03T08:46:40.079+00:00",
+          "id": "conjur:variable:data/vault/conjur1/var1",
+          "owner": "conjur:policy:data/vault/conjur1",
+          "policy": "conjur:policy:data/vault/conjur1",
+          "permissions": [
+              {
+                  "privilege": "read",
+                  "role": "conjur:group:data/vault/conjur1/delegation/consumers",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              },
+              {
+                  "privilege": "execute",
+                  "role": "conjur:group:data/vault/conjur1/delegation/consumers",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              }
+          ],
+          "annotations": [
+              {
+                  "name": "cyberark-vault",
+                  "value": "true",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              }
+          ],
+          "secrets": [
+              {
+                  "version": 1,
+                  "expires_at": null
+              }
+          ]
+      },
+      {
+          "created_at": "2023-10-03T08:46:40.528+00:00",
+          "id": "conjur:variable:data/vault/conjur1/var10",
+          "owner": "conjur:policy:data/vault/conjur1",
+          "policy": "conjur:policy:data/vault/conjur1",
+          "permissions": [
+              {
+                  "privilege": "read",
+                  "role": "conjur:group:data/vault/conjur1/delegation/consumers",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              },
+              {
+                  "privilege": "execute",
+                  "role": "conjur:group:data/vault/conjur1/delegation/consumers",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              }
+          ],
+          "annotations": [
+              {
+                  "name": "cyberark-vault",
+                  "value": "true",
+                  "policy": "conjur:policy:data/vault/conjur1"
+              }
+          ],
+          "secrets": [
+              {
+                  "version": 1,
+                  "expires_at": null
+              }
+          ]
+      }
+  ]
+  ```
+  #### Error
+  ```
+  {
+    "status": "error",
+    "error": "#<Errors::Authentication::Security::WebserviceNotFound: CONJ00005E Webservice 'authn-azure/status' not found>"
+  }
+  ```
+  
+  ### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 204 | No Content |
+  | 401 | Not Authorized | 
+  | 403 | No Permissions |
+}

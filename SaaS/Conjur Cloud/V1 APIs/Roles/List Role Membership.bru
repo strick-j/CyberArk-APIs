@@ -1,0 +1,131 @@
+meta {
+  name: List Role Membership
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/roles/conjur/{{kind}}/{{identifier}}?memberships
+  body: none
+  auth: none
+}
+
+query {
+  memberships: 
+  ~search: 
+  ~limit: 
+}
+
+vars:pre-request {
+  kind: host
+  identifier: data%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.error.code) {
+      tools.log('Error Code: ' + res.body.error.code);
+    }
+    if (res.body.error.message) {
+      tools.log('Error Message: ' + res.body.error.message);
+    }
+    if (res.body.error.target) {
+      tools.log('Error Target: ' + res.body.error.target);
+    }
+    if (res.body.error.details) {
+      if (res.body.error.details.code) {
+        tools.log('Error Details - Code: ' + res.body.error.details.code);
+      }
+      if (res.body.error.details.target) {
+        tools.log('Error Details - Target: ' + res.body.error.details.target);
+      }
+      if (res.body.error.details.message) {
+        tools.log('Error Details - Message: ' + res.body.error.details.message);
+      }
+    }
+  }
+}
+
+docs {
+  ## List role membership
+  Allows you to view the memberships of a role, including a list of groups of which a specific host or user is a member.
+  
+  If a kind query parameter is used, the results are narrowed to only resources of that kind.
+  
+  If a limit is provided, the results return up to the number specified. Providing an **offset** skips a number of resources before returning the rest. In addition, providing an offset gives limit a default value of 10 if no other limit is provided. These two parameters can be combined to page through results.
+  
+  If the parameter count is true, the number of items in the list are returned.
+  
+  **Text search**
+  
+  If the search parameter is provided, the results are narrowed to those pertaining to the search query. Search works across resource IDs and the values of annotations. It weighs results so that those with matching id or a matching value of an annotation called name appear first, then those with another matching annotation value, and finally those with a matching kind.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/roles/conjur/{kind}/{identifier}?memberships
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Types of roles
+  | Role | Description |
+  | :-- | :-- | 
+  | user | One unique human |
+  | host | A single logical machine (in the broad sense, not just physical) |
+  | layer | A collection of hosts that have the same privileges |
+  | group | A collection of users and groups that have the same privileges |
+  | policy | A role which owns of a set of related objects |
+  
+  > *NOTE:* Entity IDs must be *URL-encoded*
+  
+  ### Example Responses
+  #### Success
+  ```
+  [
+    {
+      "admin_option": false,
+      "ownership": false,
+      "role": "conjur:group:data/bruno/api-testing/api-testing-host-group",
+      "member": "conjur:host:data/bruno/api-testing/api-testing-host-1",
+      "policy": "conjur:policy:data"
+    }
+  ]
+  ```
+  #### Error
+  ```
+  {
+    "error": {
+      "code": "not_found",
+      "message": "Policy 'conjur/authn-jwt/example/identity-path' not found in account 'conjur'",
+      "target": "policy",
+      "details": {
+        "code": "not_found",
+        "target": "id",
+        "message": "conjur:policy:conjur/authn-jwt/example/identity-path"
+      }
+    }
+  }
+  ```
+  
+  ### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The response body contains the requested role members. |
+  | 401 | The request lacks valid authentication credentials. | 
+  | 403 | The authenticated user lacks the necessary privilege. |
+  | 404 | The requested role does not exist. |
+}
