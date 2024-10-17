@@ -1,0 +1,186 @@
+meta {
+  name: Add Group Member
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/groups/{{branch}}/{{group-name}}/members
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/x.secretsmgr.v2+json
+}
+
+body:json {
+  {
+    "id": "data/bruno/api-testing/api-testing-host-1",
+    "kind": "host"
+  }
+}
+
+vars:pre-request {
+  group-name: api-testing-host-group
+  branch: data%2Fbruno%2Fapi-testing
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 201
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 201) {
+    if (res.body.error.code) {
+      tools.log('Error Code: ' + res.body.error.code);
+    }
+    if (res.body.error.message) {
+      tools.log('Error Message: ' + res.body.error.message);
+    }
+    if (res.body.error.target) {
+      tools.log('Error Target: ' + res.body.error.target);
+    }
+    if (res.body.error.details) {
+      if (res.body.error.details.code) {
+        tools.log('Error Details - Code: ' + res.body.error.details.code);
+      }
+      if (res.body.error.details.target) {
+        tools.log('Error Details - Target: ' + res.body.error.details.target);
+      }
+      if (res.body.error.details.message) {
+        tools.log('Error Details - Message: ' + res.body.error.details.message);
+      }
+    }
+  }
+}
+
+docs {
+  ## Add Group Member
+  Add a user, workload, or group as a member of a group.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/groups/{branch}/{group-name}/members
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | branch | string | yes | The full policy path to the group. **Example:** data/myapps/ | 
+  | group-name| string | yes | The name of the group to which you are adding a member. **Example:** app-admins | 
+  
+  #### Example URI
+  > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/groups/data/myapps/app-admins/members
+  
+  > **NOTE**
+  > - Any path included in the URL must be URL-encoded to be recognized by the Conjur Cloud API.
+  
+  #### URL-Encoded Examples
+  | Identifier | URL-encoded |
+  | :-- | :-- |
+  | data/myapp-01 | data%2Fmyapp-01 |
+  | alice@example.com | alice%40example.com |
+  | data/prod/aws/db-password | data%2Fprod%2Faws%2Fdb-password |
+  | data/research+development | data%2Fresearch%2Bdevelopment |
+  | data/sales&marketing | data%2Fsales%26marketing |
+  
+  ### Request
+  #### Request Header
+  Must include the following Accept request header, which indicates that the API belongs to Conjur Cloud API v2, and that the body is a JSON object
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Accept | application/x.secretsmgr.v2+json |
+  
+  #### Request Body
+  The body must include the parameters:
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The full absolute path to the resource (user, workload, group) being added as a member of the group. **Examples:** User: bob, Workload: data/aws-apps/my-aws-workload | 
+  | kind | string | yes | The kind of resource being added to the group **Allowed values:** user, host, group | 
+  
+  ### Example Request Body
+  ```
+  {
+    "id": "data/bruno/api-testing/api-testing-host-1",
+    "kind": "host"
+  }
+  ```
+  
+  ### Response
+  
+  #### Response Header
+  Includes the following Content-Type response header, which indicates that the API belongs to Conjur Cloud API v2, and that the body is a JSON object
+  | Response Header | Field Definition |
+  | :-- | :-- |
+  | Content-Type | application/x.secretsmgr.v2+json |
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 201 | Member was added to the group |
+  | 400 | Invalid Request |
+  | 401 | Not Authorized | 
+  | 403 | The authenticated user doesn't have the necessary permission to perform this action |
+  | 404 | Resource not found |
+  | 409 | The resource is already a member of the group |
+  | 500 | Internal server error |
+  
+  #### 201 Created
+  ```
+  {
+    "kind": "host",
+    "id": "data/bruno/api-testing/api-testing-host-1"
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "error": {
+      "code": "bad_request",
+      "message": "CONJ00194W The api belongs to v2 APIs but it missing the version \"application/x.secretsmgr.v2+json\" in the Accept header"
+    }
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  {
+    "error": {
+      "code": "not_found",
+      "message": "Group 'data/bruno/api-testing-host-group' not found in account 'conjur'",
+      "target": "group",
+      "details": {
+        "code": "not_found",
+        "target": "id",
+        "message": "conjur:group:data/bruno/api-testing-host-group"
+      }
+    }
+  }
+  ```
+  
+  
+  #### 409 Conflict
+  ```
+  {
+    "error": {
+      "code": "conflict",
+      "message": "CONJ00180W 'data/bruno/api-testing/api-testing-host-1' (kind='host') is already a member of 'conjur:group:data/bruno/api-testing/api-testing-host-group'"
+    }
+  }
+  ```
+}
