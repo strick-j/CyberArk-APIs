@@ -1,0 +1,98 @@
+meta {
+  name: Rotate Host API Key
+  type: http
+  seq: 2
+}
+
+put {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn/conjur/api_key?role=host:{{host-id}}
+  body: none
+  auth: none
+}
+
+query {
+  role: host:{{host-id}}
+}
+
+vars:pre-request {
+  host-id: data%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+docs {
+  ## Rotate a host's API Key
+  Replaces the specified host's API key with a new random API key. The new API key is returned as the response body.
+  
+  > **NOTE**
+  > - The body of the request must be the empty string
+  > - Entity Ids must be URL-encoded
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/authn/conjur/api_key?role=host:{host-id}
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | host-id | string | yes | The ID of the host **Example:** data/myapps/example-host | 
+  
+  #### Example URI
+  > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/authn/conjur/api_key?role=host:data%2Fmyapps%2Fexample-host
+  
+  > **NOTE**
+  > - Any path included in the URL must be URL-encoded to be recognized by the Conjur Cloud API.
+  
+  #### URL-Encoded Examples
+  | Identifier | URL-encoded |
+  | :-- | :-- |
+  | data/myapp-01 | data%2Fmyapp-01 |
+  | alice@example.com | alice%40example.com |
+  | data/prod/aws/db-password | data%2Fprod%2Faws%2Fdb-password |
+  | data/research+development | data%2Fresearch%2Bdevelopment |
+  | data/sales&marketing | data%2Fsales%26marketing |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | basic 14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc |
+  > **NOTE**
+  > - Requests that roate a role's own PAI key must use their API key.
+  
+  #### Request Body
+  None
+  
+  ### Example Request Body
+  None
+  
+  ### Response
+  
+  #### Response Header
+  Includes the following Content-Type response header, which indicates that the API belongs to Conjur Cloud API v2, and that the body is a JSON object
+  | Response Header | Field Definition |
+  | :-- | :-- |
+  | Content-Type | text/plain |
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The response body is the API key |
+  | 401 | The credentials were not accepted | 
+  | 403 | The caller does not have sufficient permission to perform this action |
+  | 404 | The target role does not exist or the caller does not have permission to see the target's role |
+  | 405 | The target role does not have an API key |
+  
+  #### 200 Success
+  ```
+  14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
+  ```
+}
