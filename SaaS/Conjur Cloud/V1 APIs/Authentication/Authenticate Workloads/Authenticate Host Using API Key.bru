@@ -1,0 +1,102 @@
+meta {
+  name: Authenticate Host Using API Key
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn/conjur/{{login}}/authenticate
+  body: text
+  auth: none
+}
+
+headers {
+  Accept-Encoding: base64
+}
+
+body:text {
+  {{host-api-key}}
+}
+
+body:form-urlencoded {
+  id_token: {{platformTokenBearerToken}}
+}
+
+vars:pre-request {
+  login: host%2Fdata%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
+  host-api-key: 2a5mjqdzEXAMPLEa2d3z4jy3qrnsxbEXAMPLE3sbp1m1
+}
+
+assert {
+  res.status: eq 200
+  res.body: isString
+}
+
+script:pre-request {
+  const tools = require('./tools/tools');
+  
+  // Sets host-api-key for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('host-api-key', bru.getEnvVar('testConjurCloudHostApiKey'));
+    tools.log('Host API Key: ' + bru.getVar('host-api-key'))
+  }
+}
+
+docs {
+  ## Authenticate host using API key
+  Gets a short-lived access token, which is required in the header of most subsequent API requests. A client can obtain a Conjur Cloud access token by presenting a valid login name and API key.
+  
+  The Conjur Cloud access token is used to communicate to the REST API that the bearer of the token has been authorized to access the API and perform specific actions specified by the scope that was granted during authorization.
+  
+  The login must be URL encoded. For example, **alice@devops** must be encoded as **alice%40devops**.
+  
+  The login is the host ID with the prefix **host/**. For example, the host webserver would log in as **host/webserver**, and would be encoded as **host%2Fwebserver**.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/api/authn/conjur/{login}/authenticate
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | login| string | yes | Login name of the host: host/<host-id> **Example:** host/data/myapps/example-host | 
+  
+  #### Example URI
+  > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/authn/conjur/host%2Fdata%2Fmyapps%2Fexample-host/authenticate
+  
+  #### Request Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Accept-Encoding | base64 |
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  eyJwcm90ZWN0ZWQiOiJleUpoYkdjaU9pSmpiMjVxZFhJdWIzSm5MM05zYjNOcGJHOHZkaklpTENKcmFXUWlPaUk0T0dZek16QXEXAMPLEZjX3JlRlgxX29aWm5xd245Q01WEXAMPLEVWNLZ1hSLSJ9
+  ```
+  
+  > **NOTE**
+  > - If you didn't encode the access token by passing the Accept-Encoding header and you received a raw token, you must format the token before you use it, as follows: Take the response from the authentication request and Base64-encode it, stripping out newlines: response=$(echo -n $response | base64 | tr -d '\r\n')
+  
+  #### 401 Error
+  ```
+  {
+    "error": {
+      "code": "unauthorized",
+      "message": "CONJ00016E Token expired"
+    }
+  }
+  ```
+  
+  #### Status Codes
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The response body is the API key |
+  | 401 | The credentials were not accepted | 
+  
+}
