@@ -1,0 +1,305 @@
+meta {
+  name: Get users details
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/GetUsers
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get users details
+  - Use this API to fetch the list with details of all existing users in the cloud directory.
+  - Only system administrators and users with user management rights can invoke this API.
+  - This API is a simple GET request which doesn't need any parameters in the body arguments.
+  - Only system admin or any user with user management permission can execute this to get a successful response with a list of all cloud users.
+  - The API call returns the ID, name and various details for all users present in the cloud directory.
+  - Before adding a new user, you can determine whether the user already exists by calling this API.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/CDirectoryService/GetUsers
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/CDirectoryService/GetUsers
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "IsAggregate": false,
+      "count": 2,
+      "Columns": [
+        {
+          "Name": "Uuid",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Uuid",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "DisplayName",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "DisplayName",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Description",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Description",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Mail",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Mail",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Name",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Name",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "OfficeNumber",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "OfficeNumber",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "MobileNumber",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "MobileNumber",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "HomeNumber",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "HomeNumber",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "StartDate",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "StartDate",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 3,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "EndDate",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "EndDate",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 3,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "ReportsTo",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ReportsTo",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "PictureUri",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "PictureUri",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "PreferredCulture",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "PreferredCulture",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        }
+      ],
+      "FullCount": 2,
+      "Results": [
+        {
+          "Entities": [
+            {
+              "Type": "CDUser",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "Uuid": "42c2bc59-7d76-45c3-8009-32e8524ea22f",
+            "DisplayName": "Bru User 1",
+            "Name": "bru.user.1@example.com",
+            "Mail": "bru.user.1@example.com",
+            "ReportsTo": null,
+            "PreferredCulture": null,
+            "HomeNumber": null,
+            "StartDate": "/Date(1708560000000)/",
+            "MobileNumber": "+13561234317",
+            "EndDate": "/Date(1727740799000)/",
+            "PictureUri": null,
+            "Description": null,
+            "OfficeNumber": null
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "CDUser",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "Uuid": "3639c48b-9b0c-4017-ba10-bf5fb70cfb3d",
+            "DisplayName": "Bru User 2",
+            "Name": "bru.user.2@example.com",
+            "Mail": "bru.user.2@example.com",
+            "ReportsTo": null,
+            "PreferredCulture": null,
+            "HomeNumber": null,
+            "StartDate": "/Date(1708560000000)/",
+            "MobileNumber": "+13561234317",
+            "EndDate": "/Date(1727740799000)/",
+            "PictureUri": null,
+            "Description": null,
+            "OfficeNumber": null
+          }
+        }
+      ],
+      "ReturnID": ""
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+}
