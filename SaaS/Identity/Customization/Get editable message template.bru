@@ -1,0 +1,82 @@
+meta {
+  name: Get editable message template
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantConfig/GetEditableMessageTemplate?templateName=challenge_mail&templateType=Email
+  body: none
+  auth: none
+}
+
+query {
+  templateName: challenge_mail
+  templateType: Email
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get editable message template
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantConfig/GetEditableMessageTemplate
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Query Parameters
+  | Name | Type | Description |
+  | :-- | :-- | :-- |
+  | templateName | string | The message template name. |
+  | templateType | string | The message template type. |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantConfig/GetEditableMessageTemplate?templateName=challenge_mail&templateType=Email
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "SaveMetaDataPath": "/etc/mail_templates/challenge_mail_meta.en",
+      "Subject": "Authentication Needed",
+      "SaveTemplatePath": "/etc/mail_templates/challenge_mail.en",
+      "FromAddress": "noreply-svc_rest_api-cyberark.cloud.3558@abc1234.id.cyberark.cloud",
+      "Path": "/lib/branding/idaptive/mail_templates/challenge_mail.en",
+      "FromDisplayName": "CyberArk Account Verification",
+      "FileText": "<!DOCTYPE html>\r\n\r\n<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n</head>\r\n\r\n<body style=\"background-color:#f1f2f2;margin:0px;padding:0px;\">\r\n\r\n<!-- centering table -->\r\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color:#f1f2f2;\">\r\n  <tr>\r\n    <td align=\"center\" style=\"padding:20px 10px 20px 10px;\">\r\n\r\n    <!-- containing stroke table -->\r\n    <table cellspacing=\"0\" cellpadding=\"20\" style=\"border:1px solid #e3e3e3;background-color:#ffffff;\">\r\n      <tr>\r\n        <td>\r\n\r\n              <table cellpadding=\"0\" cellspacing=\"0\">\r\n                  <tr>\r\n                      <td class=\"column\" width=\"598\" colspan=\"2\" align=\"left\" valign=\"top\" style=\"padding:12px 0 10px 0;\">\r\n\r\n                        <table cellpadding=\"0\" cellspacing=\"0\">\r\n                          <tr>\r\n                            <td style=\"padding:5px 0 7px 0;\">\r\n\r\n                              <span style=\"display:block; vertical-align: middle;\"><img src=\"cid:EmailLogo\" alt=\"CyberArk Identity logo\"/></span>\r\n\r\n                            </td>\r\n                          </tr>\r\n                        </table>\r\n\r\n                      </td>\r\n                  </tr>\r\n                  <tr>\r\n\r\n                      <td class=\"column\" width=\"598\" colspan=\"2\" align=\"left\" valign=\"top\" style=\"border-top:3px solid #4e4242;\">\r\n\r\n                        <table cellpadding=\"0\" cellspacing=\"0\">\r\n                          <tr>\r\n                            <td style=\"font-family: arial,sans-serif; font-size: 22px; font-weight: bold; color: #4e4242;padding:12px 0 23px 0;\">Hello {UserName},</td>\r\n                          </tr>\r\n                        </table>\r\n                        <tr>\r\n                            <td style=\"padding:0 20px 20px 0;font-family: arial,sans-serif; font-size: 13px; font-weight: normal; color: #4e4242;line-height:18px;\">Please find your one-time authentication link or code below. </td>\r\n                        </tr>\r\n                      </td>\r\n                  </tr>\r\n                  <tr>\r\n                      <td class=\"column\" width=\"598\" align=\"left\" valign=\"top\" style=\"padding:0;\">\r\n\r\n                          <table cellpadding=\"0\" cellspacing=\"0\">\r\n                            <tr>\r\n                              <td style=\"padding:0px 0px 20px 0;\">\r\n\r\n                                   <table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\r\n                                    <tr>\r\n                                      <td style=\"width:100%; border-top:1px solid #ccc; padding: 7px 0 0 0; text-decoration:none; color: #4e4242; font-weight:normal; font-family: arial,helvetica,sans-serif; font-size: 17px; line-height:23px;\"><a href=\"{AuthLink}\" style=\"font-weight: bold; color: #0381e4; text-decoration:none;\"><span style=\"font-weight: bold; color: #0381e4; text-decoration:none;\">Continue with Authentication</span></a></td>\r\n                                    </tr>\r\n                                    <tr><td style=\"padding:7px 0; font-family:arial,helvetica,sans-serif; color:#666; font-size:11px;\">or</td></tr>\r\n                                    <tr>\r\n                                        <td style=\"width:100%; border-bottom:1px solid #ccc; padding:0 0 7px 0; font-weight:normal; color:#4e4242; line-height:23px; font-family:arial,helvetica,sans-serif;\"><span style=\"font-size:13px;\">Enter the following code where prompted:</span> <span style=\"font-weight: bold; color: #4e4242; text-decoration:none; font-size:17px; line-height:23px;\"><strong>{AuthCode}</strong></span></td>\r\n                                    </tr>\r\n                                    </table>\r\n                              </td>\r\n                            </tr>\r\n\r\n                            <tr>\r\n                              <td class=\"text\" style=\"padding:0 20px 5px 0; font-family: arial,sans-serif; font-size: 13px; font-weight: bold; color: #4e4242;line-height:27px;\">Don't Know The Sender?</td>\r\n                            </tr>\r\n\r\n                            <tr>\r\n                              <td class=\"text\" style=\"padding:0 20px 20px 0;font-family: arial,sans-serif; font-size: 13px; font-weight: normal; color: #4e4242;line-height:18px;\">You are receiving this email because you are attempting to login and authenticate your connection with CyberArk Identity. If you did not initiate this process, please delete this email.</td>\r\n                            </tr>\r\n\r\n                            <tr>\r\n                              <td style=\"padding:0 20px 20px 0;font-family: arial,sans-serif; font-size: 22px; font-weight: bold; color: #4e4242;line-height:27px;\">CyberArk Identity</td>\r\n                            </tr>\r\n                          </table>\r\n\r\n\r\n                      </td>\r\n                  </tr>\r\n\r\n                  <tr>\r\n                      <td class=\"column\" width=\"598\" colspan=\"2\" align=\"left\" valign=\"top\" style=\"padding:20px 0 0 0;\">\r\n\r\n                        <table cellpadding=\"0\" cellspacing=\"0\" colspan=\"2\" style=\"width:100%;\">\r\n                          <tr>\r\n                            <td colspan=\"2\" style=\"border-top:2px solid #4e4242;padding:20px 0 0 0;font-family: arial,sans-serif; font-size: 10px; font-weight: normal; line-height: 18px; color: #666666;width:100%;\">\r\n                              Please do not reply directly to this mail as your response will not be received.\r\n                            </td>\r\n                          </tr>\r\n\r\n                          <tr>\r\n                            <td colspan=\"2\" style=\"padding:6px 0 20px 0;font-family: arial,sans-serif; font-size: 10px; font-weight: normal; color: #666666;width:100%;\">\r\n                              &#169; {CurrentYear} CyberArk Software Ltd.\r\n                            </td>\r\n                          </tr>\r\n                        </table>\r\n\r\n                    </td>\r\n                  </tr>\r\n                </table>\r\n\r\n\r\n\r\n            </td>\r\n          </tr>\r\n        </table>\r\n<!-- / stroke table -->\r\n    </td>\r\n  </tr>\r\n</table>\r\n<!-- / centering table -->\r\n\r\n\r\n\r\n</body>\r\n\r\n\r\n</html>\r\n\r\n"
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

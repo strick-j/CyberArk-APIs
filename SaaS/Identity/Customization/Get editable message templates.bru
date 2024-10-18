@@ -1,0 +1,814 @@
+meta {
+  name: Get editable message templates
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantConfig/GetEditableMessageTemplates
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get editable message templates
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantConfig/GetEditableMessageTemplates
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantConfig/GetEditableMessageTemplates
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "IsAggregate": false,
+      "Count": 35,
+      "Columns": [
+        {
+          "Name": "ModifiedLanguages",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ModifiedLanguages",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 16,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Name",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Name",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 63,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Substitutions",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Substitutions",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 16,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "DisplayType",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "DisplayType",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 13,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "Type",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "Type",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 12,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "TemplateName",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "TemplateName",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 39,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        }
+      ],
+      "FullCount": 35,
+      "Results": [
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "MFA Challenge",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "challenge_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "CyberArk Identity Connector Failure Notification",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "connector_failure_notify_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "MFA Challenge with Code",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "challenge_mail_nolink"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Email Verification Challenge",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "email_verification_mail_nocode"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Device Enrollment",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "deviceenroll_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk User Import Report",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulkuserimport_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk OATH Token Import Report",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulkoathimport_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk Corporate Owned Device Import Report",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulkcorporateownedimport_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk Account Delete",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulk_account_delete"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk Password Rotation",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulk_password_rotation"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Bulk Org Update Report",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "bulkorgupdate_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Invite User",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "welcome_group_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Invite User with OTP",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "welcome_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Invite External User",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "ciam_welcome_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Directory Synchronization Report",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "prov_sync"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Forgot User Name",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "forgot_username"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Confirm Password Change",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "confirm_pw_change"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Password Expiration Notification",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "pw_expiry_notify_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Sign-up Request Review",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "wf_user_awaiting_approval"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Sign-up Awaiting Approval",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "wf_user_sign_up_request_intimation"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Sign-up Rejected",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "wf_user_sign_up_rejected"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Sign-up Request Failed",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "wf_user_sign_up_failed"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Password for new accounts",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "password_for_new_accounts"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Identity Certification Campaign Start Notification to Certifier",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "campaign_created_notification"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Identity Certification Reminder to Certifier",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "campaign_cycle_start_reminder"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Identity Certification Reminder to Certifier",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "campaign_cycle_failed_reminder"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Status of User Suffix Removal Request",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "removesuffix_mail"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Monthly active users consumption alert",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "mau_consumption_alert"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "End-user notifications for shared items",
+            "Substitutions": [],
+            "DisplayType": "Email",
+            "Type": "Email",
+            "TemplateName": "end-user_notifications_for_shared_items"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "SMS MFA Challenge",
+            "Substitutions": [
+              {
+                "PropertyDisplayName": "Service Type",
+                "PropertyName": "ServiceType",
+                "SampleValue": "MDM and SSO"
+              },
+              {
+                "PropertyDisplayName": "Company",
+                "PropertyName": "Company",
+                "SampleValue": "cyberark.com"
+              },
+              {
+                "PropertyDisplayName": "SMS Code",
+                "PropertyName": "SmsCode",
+                "SampleValue": "95466873"
+              },
+              {
+                "PropertyDisplayName": "Short URL",
+                "PropertyName": "ShortUrl",
+                "SampleValue": "https://c6.idap.co/u/IXvNIQmoOB8J ."
+              }
+            ],
+            "DisplayType": "SMS",
+            "Type": "SMS",
+            "TemplateName": "sms_message"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "SMS MFA Challenge for Legacy RADIUS",
+            "Substitutions": [
+              {
+                "PropertyDisplayName": "Service Type",
+                "PropertyName": "ServiceType",
+                "SampleValue": "MDM and SSO"
+              },
+              {
+                "PropertyDisplayName": "Company",
+                "PropertyName": "Company",
+                "SampleValue": "cyberark.com"
+              },
+              {
+                "PropertyDisplayName": "SMS Code",
+                "PropertyName": "SmsCode",
+                "SampleValue": "95466873"
+              },
+              {
+                "PropertyDisplayName": "Short URL",
+                "PropertyName": "ShortUrl",
+                "SampleValue": "https://c6.idap.co/u/IXvNIQmoOB8J ."
+              }
+            ],
+            "DisplayType": "SMS",
+            "Type": "SMS",
+            "TemplateName": "sms_message_nolink"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Device Enrollment Invite",
+            "Substitutions": [
+              {
+                "PropertyDisplayName": "Service Type",
+                "PropertyName": "ServiceType",
+                "SampleValue": "MDM and SSO"
+              },
+              {
+                "PropertyDisplayName": "Company",
+                "PropertyName": "Company",
+                "SampleValue": "cyberark.com"
+              },
+              {
+                "PropertyDisplayName": "SMS Code",
+                "PropertyName": "SmsCode",
+                "SampleValue": "95466873"
+              },
+              {
+                "PropertyDisplayName": "Short URL",
+                "PropertyName": "ShortUrl",
+                "SampleValue": "https://c6.idap.co/u/IXvNIQmoOB8J ."
+              }
+            ],
+            "DisplayType": "SMS",
+            "Type": "SMS",
+            "TemplateName": "sms_invite_message"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Phone Call MFA Challenge Customization",
+            "Substitutions": [],
+            "DisplayType": "Audio Message",
+            "Type": "AudioMessage",
+            "TemplateName": "audiomessage_challenge"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Phone Call MFA Challenge Succesful Customization",
+            "Substitutions": [],
+            "DisplayType": "Audio Message",
+            "Type": "AudioMessage",
+            "TemplateName": "audiomessage_challenge_successful"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "MessageTemplate",
+              "Key": "??",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ModifiedLanguages": [],
+            "Name": "Phone Call MFA Challenge Failure Customization",
+            "Substitutions": [],
+            "DisplayType": "Audio Message",
+            "Type": "AudioMessage",
+            "TemplateName": "audiomessage_challenge_failure"
+          }
+        }
+      ],
+      "ReturnID": ""
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}
