@@ -1,0 +1,69 @@
+meta {
+  name: Get tenant information
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/SysInfo/About
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get tenant information
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/SysInfo/About
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/SysInfo/About
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "Version": "24.9.215",
+      "PodRegion": "Us East",
+      "PodFqdn": "pod1009.idaptive.app",
+      "PodName": "pod1009",
+      "CompanyName": "CyberArk"
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

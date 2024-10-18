@@ -1,0 +1,166 @@
+meta {
+  name: Set preferred tenant Cnames
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantCnames/SetPreferred?customCname=bruno-test
+  body: none
+  auth: none
+}
+
+query {
+  customCname: bruno-test
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Sets the tenant cname to preferred as cname
+  
+  - Returns the status of the operation.
+  - This performs the update to the tenant Cname.
+  - This operation stops if the registry configuration is not valid for the tenant.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantCnames/SetPreferred
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantCnames/SetPreferred?customCname=api-test
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "IsAggregate": false,
+      "Count": 1,
+      "Columns": [
+        {
+          "Name": "ID",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ID",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "CnameType",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "CnameType",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "ReadOnly",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ReadOnly",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 1,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "IsCustom",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "IsCustom",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 1,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        }
+      ],
+      "FullCount": 1,
+      "Results": [
+        {
+          "Entities": [
+            {
+              "Type": "TenantCnames",
+              "Key": "abc1234.id.cyberark.cloud",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "CnameType": "System",
+            "ID": "abc1234.id.cyberark.cloud",
+            "IsCustom": null,
+            "ReadOnly": null
+          }
+        }
+      ],
+      "ReturnID": ""
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  #### 200 OK - Error
+  ```
+   {
+    "success": false,
+    "Result": null,
+    "Message": "Tenant CNAME api-test belongs to a different tenant.",
+    "MessageID": "_I18N_TenantCnames.TenantCnameNotOwned",
+    "Exception": "CyberArkIdentity.Cloud.Core.TenantCnames.TenantCnameNotOwnedException: Tenant CNAME api-test belongs to a different tenant.\r\n   at CyberArkIdentity.Cloud.Core.TenantCnames.TenantCnameApi.SetCustomCnameAsPreferred(String tenantId, String tenantHostName)\r\n   at CyberArkIdentity.Cloud.Core.TenantCnames.TenantCnamesController.<>c__DisplayClass10_0.<SetPreferred>b__0()\r\n   at CyberArkIdentity.Cloud.Core.RestHelpers.JsonRest.StandardJsonResult(Action action)",
+    "ErrorID": "7c29243e-5695-4a5a-9bc1-2b04f4358c3a:f261b67008964608a129a8f1531601ef",
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

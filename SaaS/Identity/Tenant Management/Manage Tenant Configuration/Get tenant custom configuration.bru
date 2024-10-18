@@ -1,0 +1,754 @@
+meta {
+  name: Get tenant custom configuration
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantConfig/GetCustomerConfig
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get tenant custom configuration
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantConfig/GetCustomerConfig
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantConfig/GetCustomerConfig
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "SingleAuthenticationMechanismEnabled": true,
+      "Mobile.AutoFill.User.Creds.For.Apps.Enable": false,
+      "IsCookieLifespanMaxChangeEnabled": true,
+      "LoginBackgroundImage": null,
+      "IsLoginCaptchaFeatureEnabled": true,
+      "Mobile.Configure.LandingScreen.Enabled": true,
+      "IdentityCompliance.ReassignmentCertificationEpicEnabled": false,
+      "SecureFilesConfiguration": {
+        "ValidExtensions": [
+          "csv",
+          "doc",
+          "docx",
+          "odt",
+          "ppt",
+          "pptx",
+          "txt",
+          "xls",
+          "xlsx",
+          "pdf",
+          "png",
+          "gif",
+          "jpg",
+          "jpeg",
+          "m4a",
+          "mpg",
+          "wav",
+          "avi",
+          "rtf",
+          "html",
+          "htm",
+          "mov",
+          "tiff",
+          "tif",
+          "wmv",
+          "tsv",
+          "zip",
+          "rar",
+          "log",
+          "key",
+          "7z",
+          "db",
+          "crt",
+          "cer",
+          "ca-bundle",
+          "p7b",
+          "p7c",
+          "p7s",
+          "pem",
+          "ppk",
+          "key",
+          "keystore",
+          "jks",
+          "p12",
+          "pfx",
+          "json",
+          "xml",
+          "conf",
+          "eml",
+          "msg"
+        ],
+        "MaxStorageSpaceInMb": 1073741824,
+        "MaxNoOfFilesPerItem": 10
+      },
+      "Core.Splunk.V3.Enabled": true,
+      "AddToFolderEnabled": true,
+      "PortraitPortalImage": null,
+      "IdentityInShellUIEnabled": true,
+      "EnableSecurityImage": true,
+      "IsOriginValidationOnGetEnabled": true,
+      "Core.User.Invite.RequireUserAction": false,
+      "FilterAdgroups": false,
+      "CustomLoginWidgetURLEnabled": true,
+      "AppMovingLastUponUpdateFix": true,
+      "DisableVaultConfigFromOIDCApp": true,
+      "UserSettings": null,
+      "EnableUserPortalNumberOfAppRestrictions": false,
+      "EnableRestrictedUsernamesForWPM": true,
+      "DisableHtmlEncodeForAttributes": true,
+      "BrandExperience": "idaptive",
+      "EnableListViewForUserPortalItems": false,
+      "IdentityCompliance.EnableRolesAndGroupsAsCertifier": false,
+      "IsSearchFieldLimitEnabled": true,
+      "Core.SyslogWriter.Id.Threat.Intelligence.Enabled": true,
+      "CustomLinkTitle1": "",
+      "EnableGroupedViewPagination": true,
+      "DisableRefreshAllItemsOnUpdate": true,
+      "Core.U2f.RequireUserVerification": "discouraged",
+      "IsIdentityProofingEnabled": false,
+      "EnableOIDCEncryption": false,
+      "IsSmartCardFeatureEnabled": true,
+      "Core.MFA.CustomError.CannotSatisfyChallenges.Enabled": true,
+      "CustomLinkUrl1": "",
+      "Core.Plugin.DrillDownForUsersRiskLevel.DurationInDays": 7,
+      "TotpFieldsLimits": {
+        "digits": {
+          "min": 2,
+          "max": 6
+        },
+        "period": {
+          "min": 30,
+          "max": 999
+        },
+        "totpSecret": {
+          "min": 16,
+          "max": 250
+        },
+        "label": {
+          "max": 250,
+          "regex": "^(?:[a-zA-Z0-9%]+:)?([^?:&#<>]+)$"
+        },
+        "issuer": {
+          "max": 250,
+          "regex": "^[a-zA-Z0-9%]+$"
+        }
+      },
+      "office365_tba_support_url": "",
+      "MigrateSecuredItemNotes": false,
+      "Core.MfaSession.EnableDuo": true,
+      "Core.MfaSession.ForgotPassword.Standalone": false,
+      "IsEmailVerificationWorkflowEnable": false,
+      "DisplayLoginBanner": false,
+      "TransferOwnershipAdminControlsEnabled": true,
+      "AzureActiveDirectoryNationalCloudEnabled": true,
+      "Name": "joe.strickland@cyberark.com",
+      "LegacyExperienceUPEnabled": false,
+      "WindowsCertificateAgentURL": "https://edge.idaptive.app/products/cloud-service/DeviceTrust/Windows/Windows-Device-Trust-Agent-23.4-209.msi",
+      "SkipAliasCheck": false,
+      "Core.SecurityImage.Count": 12,
+      "Company": "cyberark.com",
+      "IsOriginValidationEnabled": true,
+      "IdentityCompliance.EnableNewCampaignsListingUI": true,
+      "HideMyAppsTilePreferences": true,
+      "EnableSaveAndLeaveButtonForSettingsForms": false,
+      "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording.",
+      "InternetGatewayAllowed": true,
+      "Core.Plugin.DrillDownForUsersRiskLevel.Enabled": true,
+      "EnableCyberarkIconsForAccessCompliancePortal": false,
+      "EnablePersonalAppAuthRules": true,
+      "ScaAppsWithIdentityAsIdp": [
+        "AWSSingleSignOnSAML",
+        "Google Cloud Platform"
+      ],
+      "EnableMyAppsUISwitch": true,
+      "IsFactorEnrollmentWidgetEnabled": false,
+      "GoogleClient": "AIzaSyAJ_mSv46N8nkG0q6-tcRVDvr3WQ5npyPs",
+      "IdentityCompliance.RestrictMaximumNoOfRoleandGroups": true,
+      "EnableClearLocalStorageOnLogout": true,
+      "LoginBannerMessageL10nEnabled": false,
+      "IsUserSuspendDaysFeatureEnabled": false,
+      "EnableFoldersInItems": false,
+      "EnableNotesToSecuredPassword": true,
+      "AdvancedConfig": false,
+      "EnableGetFoldersWithoutItemCalc": true,
+      "PronounItems": {
+        "0": {
+          "---": "---"
+        },
+        "1": {
+          "she_her": "She/Her"
+        },
+        "2": {
+          "he_him": "He/Him"
+        },
+        "3": {
+          "they_them": "They/Them"
+        },
+        "4": {
+          "other": "Other"
+        }
+      },
+      "EnableModalWindowResize": false,
+      "IdentityCompliance.RolesAndGroupCertifiersMaxCount": 100,
+      "Core.NewNGLoginExperience.Enabled": true,
+      "DefaultSkipMechsInFalseAdvance": false,
+      "EnableFolderView": true,
+      "EnableOnlineImportSharedFolders": false,
+      "isMultiCorpIPRangeEnabled": true,
+      "SharedAppsEnabled": true,
+      "TransferOwnershipForSecuredItemsEnabled": true,
+      "EnableDomainAndURLAllowances": false,
+      "EnableReactViewForSecuredItemTiles": true,
+      "Core.UI.NGLoginExperience": true,
+      "EnableImportAccountDuplicateCheck": true,
+      "Core.Login.UI.HideLoginFooter": true,
+      "Core.MfaSession.YubikeyOtp.Enable": true,
+      "EmailSystemEnabled": true,
+      "DirectoryServiceInfo": [
+        {
+          "ServiceName": "CDS",
+          "Config": null,
+          "Name": "CDS",
+          "InEverybody": true,
+          "Uuid": "0912344B0-1234-465F-ABCD-65766D33B05E"
+        }
+      ],
+      "OpenIdExactMatchRedirectUriEnabled": true,
+      "Core.SecurityImage.FF": true,
+      "DisableAddPersonalAppsInAppRestrictions": false,
+      "EnableDevUIPages": false,
+      "EnableCyberarkThemeRestyleGrids": false,
+      "IsIdentityProofingConfigured": false,
+      "IsExternalIdpAttributeMapping": false,
+      "MaxNumberOfAppsAllowedForUserPortal": 200,
+      "EnableAdUserAttributeEditing": false,
+      "EnableE2EEncryptionValidation": true,
+      "EnableOAuthInOIDC": true,
+      "FetchUsersApplicationSettingsAppsFromRemote": true,
+      "ForgotUsernameAllowed": false,
+      "MinNumberOfCharactersInAppSearch": 3,
+      "EnableApplicationRestrictions": true,
+      "EnableEmailDomainRestrictions": true,
+      "IsPasswordAuthenticationFactorEnabled": true,
+      "EnableUserPortalLaunchScreenForNewUI": true,
+      "EnableDraggableAppTiles": true,
+      "EnableSignalRInterceptor": true,
+      "DefaultShowTitlesDashboardTiles": true,
+      "UseGraphCredsinBasic": false,
+      "DefaultGroupAppTiles": false,
+      "EnableShellTelemetry": true,
+      "Core.MfaSession.Passkey.SingleChallenge": false,
+      "Mobile.Integrations.WorkspaceOne": true,
+      "isChallengeRuleIpRangeEnabled": true,
+      "IsMAUJobEnabled": false,
+      "Core.MFA.CustomError.CannotSatisfyPasswordComplexity.Enabled": true,
+      "DefaultPerPageCatalogAppsByHostName": 25,
+      "Core.MFA.CustomError.AuthenticationFailed.Checked": true,
+      "Core.WebApp.AuthenticationRule.Filter.UserName.Enabled": false,
+      "IdentityCompliance.RevokeScheduleAccessBetweenMinutes": 60,
+      "Core.MFA.CustomError.AuthenticationFailed": "Authentication (login or challenge) has failed. Please try again or contact your system administrator.",
+      "Core.Integration.EnableVaultConfigTabAlways": true,
+      "Core.Integration.EnableVaultConfigTab": true,
+      "ShortUrlLength": 33,
+      "Core.MFA.Auth.Profile.Flow.View.Enabled": true,
+      "MfaAttributeMapping": {},
+      "IdentityCompliance.ComplianceUserPortalMigrationToReact": true,
+      "IsTenantCustomizable": true,
+      "AllowFederatedSuffixMapping": true,
+      "CustomLinkTitle2": "",
+      "Brand": "idaptive",
+      "ClearClipboardOfCopyPasswordEnabled": true,
+      "RecaptchaThreshold": 3,
+      "IsSwsEnabled": true,
+      "PhoneCallsEnabled": true,
+      "EnableBackgroundImageOnStandaloneLogin": true,
+      "Core.MfaCategorizationEnabled": true,
+      "EnableAuthProfileScripting": true,
+      "isSignupCustomizationEnabled": false,
+      "Mobile.Restricted.Device.Info.SSO.Enrollment": true,
+      "PortalImage": null,
+      "Saas.SecuredItems.Mobile.Enabled": true,
+      "EnableMyAppsCustomSort": true,
+      "IdentityInShellEnabled": true,
+      "EnableClearFileFieldOnClick": true,
+      "IdentityISIInShellEnabled": false,
+      "RecaptchaSiteKey": "6LehItkdAAAEXAMPLEaOK7E",
+      "Core.MFA.UserPortal.StepUp.UI.POLLINGTIME.MILLISECONDS": 5000,
+      "NoOfTotpCodes": 3,
+      "EnableForceAuthenticationAtIdp": false,
+      "DisableSecuredItemsCache": true,
+      "Mobile.Android.AutoLogin.Enabled": true,
+      "ZsoCertLifeTime": 365,
+      "AllowPhonePin": true,
+      "Core.UI.AdminPortal.Dashboards.Enabled": true,
+      "IdentityCompliance.CampaignDescriptionLength": 1024,
+      "UserAddedAppUpdateEnabled": true,
+      "IdentityUrl": "https://aap4212.id.cyberark.cloud",
+      "AllTraceEnabled": false,
+      "LegacyExperienceFlowsEnabled": true,
+      "SecurityInsightsEnabled": true,
+      "ShowPtaUbaISI": true,
+      "Core.MFA.CustomError.CannotSatisfyChallenges": "User does not have the attributes required to login. Please contact your administrator.",
+      "IdentityCompliance.MaximumNoOfRolesandGroups": 30,
+      "IdentityCompliance.MaxActionsToBeTakenAtOnceRoleCertification": 100,
+      "IsUserPortalCustomizationEnabled": false,
+      "Mobile.AppleWatch.Auth.Approve.Enabled": true,
+      "ShowNgLogin": true,
+      "ShowRiskLevelColumnForUsers": true,
+      "ShowPronounSelection": false,
+      "GroupedViewPageSize": 100,
+      "IdentityCompliance.SchedulingRevocationEpicEnabled": true,
+      "AllowADPictureUpload": true,
+      "SecuredItemsValidationEnabled": true,
+      "NavigationColor": "#2F3564",
+      "IdentityCompliance.GroupCertificationInRoleCampaignEnabled": true,
+      "IsEmailVerificationRequired": false,
+      "ProxyRegistrationAllowCodeGeneration": false,
+      "isPpmEnabled": false,
+      "IsRoutingRuleFeatureEnabled": true,
+      "IsFederationByRoleEnabled": true,
+      "SecuredItemsEnabled": true,
+      "EnableImportForRestrictedUsernames": true,
+      "CnameCount": 1,
+      "EnableOnlineImportAccounts": true,
+      "isFidoFacetIdCheckingEnabled": false,
+      "PronounsFeatureEnabled": true,
+      "EnableMyAppsFiltersSidebar": false,
+      "Core.MFA.CustomError.CannotSatisfyChallenges.Checked": true,
+      "IdentityCompliance.CampaignNameLength": 100,
+      "EnableLoginBannerFeature": true,
+      "IdentityCompliance.UserToRolesEpicEnabled": true,
+      "Core.RememberMe.FF": true,
+      "EnablePasswordRetry": true,
+      "IsTenantExternalCAEnabled": true,
+      "IdentityCompliance.MaxActionsToBeTakenAtOnce": 50,
+      "DefaultGroupDashboardTiles": true,
+      "HideSharedAppsTab": true,
+      "Mobile.App.Android.DownloadEnabled": false,
+      "isEndpointPolicyNLARulesEnabled": true,
+      "UsePlainDefaultLoginBackground": false,
+      "EnableAPIGateway": false,
+      "ClearClipboardOfCopyPasswordDefaultDuration": 60,
+      "Office365AppSettingsTabFixEnabled": true,
+      "EnableCyberarkIconsForAdminPortal": false,
+      "EmailImage": null,
+      "EnableCyberarkIconsForUserPortal": false,
+      "CoreDirectoryServicesPaged": false,
+      "BypassNewTabLaunch": false,
+      "IsSignUpRateLimitFeatureEnabled": false,
+      "Core.MfaSession.DuoFF": true,
+      "Core.MFA.CustomError.CannotSatisfyPasswordComplexity.Checked": true,
+      "IsConsentManagementEnabled": false,
+      "EnableFolderItemUpdateImprovements": true,
+      "Core.Policy.EnableEmailVerification": false,
+      "EnableOIDCProofOfPossession": false,
+      "MaxSecuredItemCustomFieldsAllowed": 10,
+      "EnableEmailNotifications": true,
+      "IsCustomPushNotificationMessageEnabled": false,
+      "Core.UI.AdminPortal.PreventLandingOnDashboards": false,
+      "IdentityCompliance.RevokeActionDocumentationLink": "https://docs.cyberark.com/Product-Doc/OnlineHelp/IdentityCompliance/Latest/en/Content/Administrator/IdentityCertification/Identity-certification.htm?tocpath=Administrators%7C_____1",
+      "isPolicyCountAllLoginFailuresEnabled": true,
+      "Core.MFA.SecurityInsightAlerts.Collect.UserReviewInfo": true,
+      "DefaultShowTitlesAppTiles": true,
+      "DefaultNumberOfTimeChunksInDashboard": 7,
+      "IdentityComplianceInShellUIEnabled": true,
+      "UserLocationEnabled": true,
+      "EnableFilesStorageEnhancements": true,
+      "DisableAndroidCBA": true,
+      "EnableApplicationCustomAttributes": true,
+      "FF.Mobile.Rooted.Device.Feature.Disabled": true,
+      "MaxApplicationAttributes": 10,
+      "Core.MFA.CustomError.AuthenticationFailed.Enabled": true,
+      "UseApplicationTagsExactMatch": true,
+      "EnableFilesStorageForSecuredItems": true,
+      "isExtendPassthroughEnabled": false,
+      "Core.MFA.UserPortal.StepUp.UI.TIMEOUT.MINUTES": 5,
+      "IsIdleSessionTimeoutLimitsEnabled": true,
+      "MacCertificateAgentURL": "https://edge.idaptive.app/products/cloud-service/DeviceTrust/Mac/Mac-Device-Trust.dmg",
+      "Mobile.AutoSetup.OathOtp.Enabled": true,
+      "IsUserPortalBackButtonEnabled": false,
+      "LocalizationMappings": [
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.ar",
+          "Code": "ar"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.cs",
+          "Code": "cs"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.de",
+          "Code": "de"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.en",
+          "Code": "en"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.es",
+          "Code": "es"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.fr",
+          "Code": "fr"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.it",
+          "Code": "it"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.ja",
+          "Code": "ja"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.ko",
+          "Code": "ko"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.nl",
+          "Code": "nl"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.pl",
+          "Code": "pl"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.pt-br",
+          "Code": "pt-br"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.pt",
+          "Code": "pt"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.ro",
+          "Code": "ro"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.ru",
+          "Code": "ru"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.sk",
+          "Code": "sk"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.sr",
+          "Code": "sr"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.sv",
+          "Code": "sv"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.th",
+          "Code": "th"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.vi",
+          "Code": "vi"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.zh-cn",
+          "Code": "zh-cn"
+        },
+        {
+          "Mapping": {
+            "LoginBannerMessage": "WARNING! THIS SYSTEM IS FOR AUTHORIZED USE ONLY! The information on this computer and network is the property of a private corporation and is protected by intellectual property rights. You must be assigned an account on this computer to access information and are only allowed to access information as defined by the system administrators. Use of company resources should be for business purposes only and should be in compliance with the Code of Conduct and company policies and procedures. As the property of a private corporation, you activities may be monitored and/or recorded and you should have no expectation of privacy on this computer and its networks. All actions are monitored and recorded. Use of this computer implies consent to monitoring and recording."
+          },
+          "SaveTemplatePath": "/sys/login_banner/login_banner_mappings.zh",
+          "Code": "zh"
+        }
+      ],
+      "EnableScaWorkflowFeatureFlag": true,
+      "Identity.Compliance.SendNotificationDocLink": "https://docs.cyberark.com/IdentityCompliance/Latest/en/Content/Administrator/IdentityCertification/Identity-certification.htm#Sendaccessreviewnotificationstousers",
+      "Mobile.WPM.Mobile.Settings.Enable": false,
+      "InstallerUserId": "32681b46-1234-1234-1234-11de9725b37e",
+      "EnableButtonSanitization": true,
+      "TimeZoneFeatureEnabled": true,
+      "IdentityComplianceInShellEnabled": false,
+      "CompanyName": "CyberArk",
+      "Mobile.Integrations.JamfFF": true,
+      "supportEqualMatchWhenSearchingForMembers": false,
+      "SecuredItemsInputFieldsMaxLength": {},
+      "isAppPolicyRoleRulesEnabled": true,
+      "MobileLocationHistoryTrackingEnabled": false,
+      "NotifyUserLockedOutEnabled": true,
+      "DefaultNumberOfHoursInTimeChunk": 24,
+      "IsFIPSEnabled": false,
+      "Notifications": null,
+      "IdentityUPInShellEnabled": true,
+      "EnablePrivilegedAppsPersonal": true,
+      "Mobile.MFA.OTP.NumberMatching": true,
+      "MaxNumberOfAppsPerPage": 200,
+      "EnableO365GraphApi": true,
+      "WelcomeMessage": "This welcome text and logo can be configured by visiting\nhttps://abc1234.id.cyberark.cloud/manage, under 'Settings'.",
+      "EnableCompromisedPasswords": true,
+      "Provisioning.SCIM.ShowRoleMappingsCheckboxes": false,
+      "AllowCors": [
+        "*.cyberark.cloud"
+      ],
+      "Core.Policy.RadiusServers.Enabled": true,
+      "DefaultMfaChallenge": null,
+      "Mobile.Integrations.Intune": true,
+      "CompanySupportLink": null,
+      "EnablePurchasedLicenseMenu": false,
+      "SignUpRateLimitThreshold": 5,
+      "Core.UserAction.IdentityVerification.Enabled": true,
+      "FeatureImprovementDeviceDetail": true,
+      "SendPasswordChangeConfirmation": true,
+      "DynamicRoleExportMembersEnabled": true,
+      "MacAuthenticatorUrl": "https://edge.idaptive.app/products/cloud-service/Authenticator/CyberArkAuthenticator.dmg",
+      "isMfaSessionOobRetryEnabled": true,
+      "LoginSampleText": "user@domain",
+      "IdentityCompliance.BulkActionsEpicEnabled": true,
+      "TermsOfUseLink": null,
+      "IsSecureCloudAccessEnabled": true,
+      "DisableCommomADCheckForPvwa": true,
+      "IsSH256SingleLogOutAlgorithmEnabled": true,
+      "IsSmsGatewayEnabled": true,
+      "TransferOwnershipAPIEnabled": true,
+      "UrlPatternMatchingAdminApps": false,
+      "Uuid": "9f699fff-aac6-4df6-8dba-4cedf01e2455",
+      "IsFederationByAppsEnabled": false,
+      "saveMobileNumberToAttributeEnabled": true,
+      "IsProgressiveFactorEnrollmentEnabled": false,
+      "ObfuscateClientSecret": true,
+      "Core.MFA.UserPortal.StepUp.UI.ENABLED": true,
+      "IsSignUpCaptchaFeatureEnabled": false,
+      "SignUpRateLimitThresholdTime": 5,
+      "Icon": "data:image/png;base64,iVBOEXAMPLEAzakt+tE+rtEstlOkQJECH44CtQ82Zt75VKrirLti02/7e90XfvRS037nP3xWD0T8aPK1hJ774kWRAkUKFCnwMVLg/wE9faW2GEKZQwAAAABJRU5ErkJggg==",
+      "Core.CdsUser.StartDateEndDate.Enabled": true,
+      "Core.RememberMe.Enabled": true,
+      "EnablePrivilegedAppsAdmin": true,
+      "Core.MfaSession.PasskeyFF": true,
+      "Mobile.Samsung.Knox.Policies.Visible": false,
+      "WindowsDeviceTrustEnabled": true,
+      "EnableTenantsTabForPeopleWithTaskCheck": false,
+      "Core.Network.IPRange.Status.Enabled": true,
+      "EnableCyberarkTheme": false,
+      "DefaultLargeAppTiles": false,
+      "EnableModelRebuildEventForAllCalls": true,
+      "isTelephonyCreditsEnabled": false,
+      "DefaultContinueFailedSession": false,
+      "UserPortal.Federated.DevicesTab.Enabled": false,
+      "IsAuthorizedParametersEnabledForOIDC": false,
+      "Core.MFA.Network.Disallow.AddAll.IPAddress": true,
+      "IsAwsMarketplaceTenant": false,
+      "DefaultSafePageSizeForPrivilegeApps": 25,
+      "OtpCodeLength": 8,
+      "showDisplaynameColumnInSelector": true,
+      "EnableDomainAndURLRestrictions": true,
+      "LoginImage": null,
+      "EnableScaForMSAzurePortal": true,
+      "Core.Splunk.V2.Enabled": false,
+      "EnableMyAppsGroupByFilter": true,
+      "HideBEVersionInDownloads": true,
+      "RoleCreationByModalEnabled": true,
+      "EnableQRCode": true,
+      "TenantUrlDeprecationEnabled": false,
+      "TenantUrlDeprecationForceEnabled": true,
+      "AutoSearchEnabledForUserPortal": false,
+      "AllowIwaDefault": false,
+      "GoogleClientEnabled": true,
+      "GooglePlaySearchEnabled": true,
+      "isIwaClientIPRangeEnabled": false,
+      "EnableGenericWebAppsPersonal": true,
+      "UpdateRoleV2Transition": true,
+      "DisableParallelCallsForGetObjectByKey": true,
+      "ZsoCertRenewalWindow": 15,
+      "EnableHolderOFKeyAssertion": false,
+      "Core.App.Permissions.Grant.Restrict": true,
+      "EnableUsersRiskInfoFeature": true,
+      "LegacyExperienceICEnabled": true,
+      "CustomLoginWidgetURLChecked": false,
+      "ShowPagedRoleMembers": false,
+      "CustomLoginWidgetURL": null,
+      "EnableNewPasswordResetScreen": false,
+      "EnableSecuredItemsInTabsView": true,
+      "DeleteAdgroups": false,
+      "TOTPEnabledForWPM": true,
+      "IdentityFlowsInShellEnabled": false,
+      "EnableCustomLinkOnStandaloneLogin": true,
+      "CustomLinkUrl2": "",
+      "DisableUILocalCacheInAppRestrictions": false,
+      "E2EHybridEncryptionEnabledForSecuredItems": false,
+      "IsFido2AndOnDeviceSegregationEnabled": true,
+      "Core.MFA.Authentiflow.FF": true,
+      "DownloadAuthenticatorEnabled": true,
+      "Core.MfaSession.QRCodeFF": true,
+      "DefaultAccountPageSizeForPrivilegeApps": 100,
+      "ImportAccountEnabled": true,
+      "TransferOwnershipStatusIndicationEnabled": true,
+      "ImportSecuredNotesEnabled": true,
+      "RemoveTenantURLTabWhenIdentityInShell": true,
+      "EnableFolderSharing": true,
+      "IsForcedLocalClientModeEnabled": false,
+      "AllowUsersWithoutSuffix": false,
+      "EnableCyberarkThemeButtonOrderAlignment": false,
+      "IsPasswordPersistanceEnabled": true,
+      "DisableMFAHints": false,
+      "EnableCyberarkIcons": false,
+      "RestrictAPIPollingForGDS": true,
+      "DefaultLargeDashboardTiles": true,
+      "SwsWebAppTypeBlacklist": [
+        "Portal",
+        "Api"
+      ],
+      "PolicySessionCookieLifespanMaxHours": 48,
+      "EnableUmc": false,
+      "IdentityAsIdpForScaEnabled": true,
+      "Core.Roles.Dynamic.Enabled": true,
+      "IsViewFixedCredentialsFeatureEnabled": true,
+      "TenantFullName": "https://abc1234.id.cyberark.cloud",
+      "IsConnectorFailureNotifyEnabled": true,
+      "ManagedServicesInsideShell": [],
+      "Endpoints.ShowLocalAdmin.Password.Enabled": false,
+      "CustomProductName": "CyberArk Identity",
+      "PreloadRoleMemebership": false,
+      "IsCustomerIdentityReportsEnabled": false,
+      "IsIdleUserSessionTimeoutInPolicyEnabled": false,
+      "IsNgManaged": true,
+      "EnableSelfSignedCert": false,
+      "PagedMembersUiTimeout": 30000,
+      "Mobile.Common.Configure.SecureItems.Enabled": true,
+      "Core.Oath.Enroll.RequireMfa": true,
+      "DisablePictureEditing": true,
+      "EnableShellSaveAndLeaveButton": false,
+      "ThemeColor": "",
+      "EnableNewSystemDialogs": false,
+      "Core.Shell.Fido2.Registration.Enabled": true,
+      "IsSignUpCaptchaEnabled": false,
+      "IdentityCompliance.CampaignForRolesEnabled": true,
+      "EnableDelegateAdminAddWebApps": true,
+      "TenantCreationDate": "2022-08-10T16:21:35.7009750Z",
+      "Core.MfaSummary.AAL.Enabled": true,
+      "BackgroundColor": "#2F3564",
+      "EnablePassphraseGeneration": true,
+      "RoleQueryCaseSensitive": false,
+      "PrimaryIdentifierEnabled": false,
+      "DebounceThresholdInMilliSecondsForAutoSearch": 1000,
+      "EnableSmartCard": true,
+      "IdentityCompliance.SendEmailToEndUserEnabled": false,
+      "EnableMenuOnItemTiles": true,
+      "WindowsAuthenticatorUrl": "https://edge.idaptive.app/products/cloud-service/Authenticator/CyberArk-Authenticator.msi",
+      "LegacyExperienceEnabled": false,
+      "PrivacyPolicyLink": null,
+      "DisableSPSigningCertificateCA": false,
+      "HideTokenLifeTimeSectionInUI": true,
+      "PageTitle": "CyberArk Identity",
+      "NavigationVisibleTabs": {},
+      "TransferOwnershipUIUpdateEnabled": true,
+      "UserAttributesCustomizationEnabled": false,
+      "Core.MFA.CustomError.CannotSatisfyPasswordComplexity": "New password does not meet complexity requirements",
+      "Core.MfaSession.YubikeyOtpFF": true,
+      "SlackSystemEnabled": false,
+      "SmsSystemEnabled": true,
+      "PageIcon": "data:image/png;base64,iEXAMPLER0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6EXAMPLE3IlnbwPToge8ggngdNboHaLTY4PJasmJDkwWb7PoLQ+QgdZcYjbB6d5Cq0vSRC/Ba22FM5k35Bs1fQRE5Kcbi5v3UG32WHaMXeW+AhhN2iQDmzuDxI2kn7RhMRFdp/u4nqG7xTRPXugbWDaCQI7CFu3fw47kVL6HrYsS6cBir9bMBPVUPwPwoL6GyOeGDEAAAAASUVORK5CYII="
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

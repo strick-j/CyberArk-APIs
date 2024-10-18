@@ -1,0 +1,89 @@
+meta {
+  name: Delete tenant suffix
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/DeleteAliases
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Suffixes": [
+      "bruno_example_updated"
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Delete tenant suffix
+  - Removes the tenant suffixes.
+  - You need System Administrator Role or any role with the following Administrative Rights:
+    - Admin portal Login and User Management
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/DeleteAliases
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/DeleteAliases
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Suffixes | array of strings | yes | Pass list of unique suffixes |
+  
+  #### Request Body Example
+  ```
+  {
+    "Suffixes": [
+      "example"
+    ]
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "State": 1
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

@@ -1,0 +1,78 @@
+meta {
+  name: Delete tenant configuration
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/DeleteTenantConfig?key=example
+  body: none
+  auth: none
+}
+
+query {
+  key: example
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Delete tenant configuration
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/DeleteTenantConfig
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Query Parameters
+  | Name | Type | Description |
+  | :-- | :-- | :-- |
+  | key | string | The tenant configuration key to delete. |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/DeleteTenantConfig?key=example
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "Version": "24.9.215",
+      "PodRegion": "Us East",
+      "PodFqdn": "pod1009.idaptive.app",
+      "PodName": "pod1009",
+      "CompanyName": "CyberArk"
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

@@ -1,0 +1,69 @@
+meta {
+  name: Get tenant URLs
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantCnames/Get
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get tenant URLs
+  Resulting set contains Cname and type of Cname. Cname type can be one of following - System, Preferred, Other.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantCnames/Get
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantCnames/Get
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": [
+      {
+        "Cname": "abc1234.id.cyberark.cloud",
+        "CnameType": 1
+      }
+    ],
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}
