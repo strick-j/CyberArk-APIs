@@ -48,6 +48,7 @@ docs {
   | Request Header | Field Definition |
   | :-- | :-- |
   | Authorization | Token token=<HOST-FACTORY-TOKEN> **For example:** Authorization: Token token=2c0vfj61pmah3efbgpcz2x9vzcy1ycskfkyqy0kgk1fv014880f4 |
+  | content-type | application/x-www-form-urlencoded |
   
   #### Request Body
   The body must include the parameters:
@@ -58,14 +59,6 @@ docs {
   
   > **NOTE**
   > - You must specify the required annotations in the request, such as the authentication method. Hosts created from a host factory do not inherit annotations from the host factory.
-  
-  ### Example Request Body
-  ```
-  {
-    "id": "data/bruno/api-testing/api-testing-host-1",
-    "annotations": "host"
-  }
-  ```
   
   ### Response
   
