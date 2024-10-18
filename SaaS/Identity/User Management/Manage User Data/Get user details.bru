@@ -23,6 +23,7 @@ vars:pre-request {
 
 assert {
   res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
@@ -63,7 +64,7 @@ docs {
   
   #### Request Body
   | Parameter | Type | Required | Description |
-  | :-- | :-- |
+  | :-- | :-- | :-- | :-- |
   | ID | string | yes | The Unique Id of the Cloud user to fetch. The unique ID is generated when the user is created. Ex: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
   
   #### Request Body Example
@@ -94,7 +95,7 @@ docs {
       "Name": "bru.user@example.com",
       "ReportsTo": "Unassigned",
       "CreateDate": "/Date(1712846804359)/",
-      "MobileNumber": "8508032185",
+      "MobileNumber": "1238675309",
       "Alias": "example.com",
       "InEverybodyRole": true,
       "LastPasswordChangeDate": "/Date(1712846804359)/",

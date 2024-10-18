@@ -1,0 +1,103 @@
+meta {
+  name: Get user settings
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/GetUserSettings
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}",
+    "SettingsType": ""
+  }
+  
+}
+
+vars:pre-request {
+  user_id: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', bru.getEnvVar('testIdentityUserId'));
+    tools.log('User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Get user settings
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/GetUserSettings
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/GetUserSettings
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | ID | string | yes | The Unique Id of the Cloud user to fetch. The unique ID is generated when the user is created. Ex: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d 
+  | SettingsType | string | yes | The setting type to get. |
+  
+  #### Request Body Example
+  ```
+  {
+    "ID":"3639c48b-9b0c-4017-ba10-bf5fb70cfb3d"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "IsAggregate": false,
+      "Count": 0,
+      "Columns": [],
+      "FullCount": 0,
+      "Results": [],
+      "ReturnID": ""
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

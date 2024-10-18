@@ -1,10 +1,10 @@
 meta {
   name: Get users details
   type: http
-  seq: 2
+  seq: 4
 }
 
-get {
+post {
   url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/GetUsers
   body: none
   auth: none
@@ -12,6 +12,7 @@ get {
 
 assert {
   res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
