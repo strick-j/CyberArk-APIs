@@ -1,0 +1,96 @@
+meta {
+  name: Service Provider Config
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/ServiceProviderConfig
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+docs {
+  ## Service Provider Config
+  - An HTTP GET endpoint which returns a JSON structure that describes the SCIM specification features available on the CyberArk Identity Scim Server.
+  - This endpoint returns responses with a JSON object using a "schemas" attribute of "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig".
+  - Include the bearer token in the header for authorization when making requests to this endpoint. 
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/scim/v2/ServiceProviderConfig
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://abc1234.id.cyberark.cloud/scim/v2/ServiceProviderConfig
+  
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "schemas": [
+      "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"
+    ],
+    "patch": {
+      "supported": true
+    },
+    "bulk": {
+      "supported": false,
+      "maxOperations": 1,
+      "maxPayloadSize": 0
+    },
+    "filter": {
+      "supported": true,
+      "maxResults": 1000
+    },
+    "changePassword": {
+      "supported": false
+    },
+    "sort": {
+      "supported": false
+    },
+    "etag": {
+      "supported": false
+    },
+    "authenticationSchemes": [
+      {
+        "type": "oauthbearertoken",
+        "name": "OAuth Bearer Token",
+        "description": "Authentication scheme using the OAuth Bearer Token Standard"
+      }
+    ],
+    "meta": {
+      "resourceType": "ServiceProviderConfig",
+      "created": "2024-10-18T16:52:15.6505007Z",
+      "lastModified": "2024-10-18T16:52:15.6505007Z",
+      "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ServiceProviderConfig"
+    }
+  }
+  ```
+  
+  
+}

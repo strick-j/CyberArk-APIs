@@ -1,0 +1,196 @@
+meta {
+  name: Resource Types
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/ResourceTypes
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.boyd: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+docs {
+  ## Service Provider Config
+  - An HTTP GET to this endpoint is used to discover the types of resources available on a SCIM service provider (e.g., Users and Groups).
+  - Each resource type defines the endpoints, the core schema URI that defines the resource, and any supported schema extensions.
+  - Resource type resources are READ-ONLY and identified using the following schema URI - "urn:ietf:params:scim:schemas:core:2.0:ResourceType".
+  - Include the bearer token in the header for authorization when making requests to this endpoint. 
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/scim/v2/ResourceTypes
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://abc1234.id.cyberark.cloud/scim/v2/ResourceTypes
+  
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized |
+   
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "schemas": [
+      "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "totalResults": 6,
+    "itemsPerPage": 6,
+    "startIndex": 1,
+    "Resources": [
+      {
+        "name": "Container",
+        "endpoint": "/Containers",
+        "schema": "urn:ietf:params:scim:schemas:pam:1.0:Container",
+        "schemaExtensions": [
+          {
+            "schema": "urn:ietf:params:scim:schemas:cyberark:1.0:Safe",
+            "required": false
+          }
+        ],
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "Container",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.6010435Z",
+          "lastModified": "2024-10-18T16:54:52.6010435Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/Container"
+        }
+      },
+      {
+        "name": "ContainerPermission",
+        "endpoint": "/ContainerPermissions",
+        "schema": "urn:ietf:params:scim:schemas:pam:1.0:ContainerPermission",
+        "schemaExtensions": [
+          {
+            "schema": "urn:ietf:params:scim:schemas:cyberark:1.0:SafeMember",
+            "required": false
+          }
+        ],
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "ContainerPermission",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.6636711Z",
+          "lastModified": "2024-10-18T16:54:52.6636711Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/ContainerPermission"
+        }
+      },
+      {
+        "name": "PrivilegedData",
+        "endpoint": "/PrivilegedData",
+        "schema": "urn:ietf:params:scim:schemas:pam:1.0:PrivilegedData",
+        "schemaExtensions": [
+          {
+            "schema": "urn:ietf:params:scim:schemas:cyberark:1.0:PrivilegedData",
+            "required": false
+          }
+        ],
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "PrivilegedData",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.7261538Z",
+          "lastModified": "2024-10-18T16:54:52.7261538Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/PrivilegedData"
+        }
+      },
+      {
+        "name": "PrivilegedDataPermission",
+        "endpoint": "/PrivilegedDataPermissions",
+        "schema": "urn:ietf:params:scim:schemas:pam:1.0:PrivilegedDataPermission",
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "PrivilegedDataPermission",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.7417828Z",
+          "lastModified": "2024-10-18T16:54:52.7417828Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/PrivilegedDataPermission"
+        }
+      },
+      {
+        "name": "User",
+        "endpoint": "/Users",
+        "schema": "urn:ietf:params:scim:schemas:core:2.0:User",
+        "schemaExtensions": [
+          {
+            "schema": "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+            "required": false
+          },
+          {
+            "schema": "urn:scim:schemas:extension:custom:2.0",
+            "required": false
+          },
+          {
+            "schema": "urn:ietf:params:scim:schemas:pam:1.0:LinkedObject",
+            "required": false
+          }
+        ],
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "User",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.7417828Z",
+          "lastModified": "2024-10-18T16:54:52.7417828Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/User"
+        }
+      },
+      {
+        "name": "Group",
+        "endpoint": "/Groups",
+        "schema": "urn:ietf:params:scim:schemas:core:2.0:Group",
+        "schemaExtensions": [
+          {
+            "schema": "urn:ietf:params:scim:schemas:pam:1.0:LinkedObject",
+            "required": false
+          }
+        ],
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+        ],
+        "id": "Group",
+        "meta": {
+          "resourceType": "ResourceType",
+          "created": "2024-10-18T16:54:52.8198833Z",
+          "lastModified": "2024-10-18T16:54:52.8198833Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/ResourceTypes/Group"
+        }
+      }
+    ]
+  }
+  ```
+  
+  
+}

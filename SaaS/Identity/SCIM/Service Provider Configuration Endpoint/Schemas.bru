@@ -1,0 +1,1492 @@
+meta {
+  name: Schemas
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/Schemas
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+docs {
+  ## Schemas
+  - An HTTP GET endpoint which is used to retrieve information about resource schemas supported by SCIM server. 
+  - This endpoint "/Schemas" returns all supported schemas in ListResponse format. *
+  - These resources have a "schemas" attribute with the following schema URI - urn:ietf:params:scim:schemas:core:2.0:Schema.
+  - Include the bearer token in the header for authorization when making requests to this endpoint.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/scim/v2/Schemas
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://abc1234.id.cyberark.cloud/scim/v2/Schemas
+  
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "schemas": [
+      "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "totalResults": 11,
+    "itemsPerPage": 11,
+    "startIndex": 1,
+    "Resources": [
+      {
+        "name": "Container",
+        "description": "A Container is a logical grouping of privileged data (credentials, etc...) that can be used for organizational or operational purposes.",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "multiValued": false,
+            "description": "The name of the container.",
+            "required": true,
+            "caseExact": false,
+            "mutability": "immutable",
+            "returned": "default",
+            "uniqueness": "server"
+          },
+          {
+            "name": "displayName",
+            "type": "string",
+            "multiValued": false,
+            "description": "The display name of the container.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "server"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "multiValued": false,
+            "description": "The description of the container.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "multiValued": false,
+            "description": "The type of container.",
+            "required": false,
+            "canonicalValues": [
+              "Safe"
+            ],
+            "caseExact": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "owner",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "ID of the user that owns this container.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "A URI reference to the user that owns this container.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "User"
+                ]
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "The display name of the user that owns this container.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The user that owns this container.",
+            "required": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "privilegedData",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The ID of the privileged data.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "A URI reference to the PrivilegedData.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "User"
+                ]
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "The displayable value of the PrivilegedData.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "multiValued": false,
+                "description": "The type of the PrivilegedData.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": true,
+            "description": "The privileged data that resides in this container.",
+            "required": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "schemas",
+            "type": "string",
+            "multiValued": true,
+            "description": "Defines the model which is used. Can be more than one.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "multiValued": false,
+            "description": "The unique identifier of the container.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "always",
+            "uniqueness": "server"
+          },
+          {
+            "name": "meta",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "resourceType",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the resource type of the resource.",
+                "required": true,
+                "caseExact": true,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "created",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The DateTime that the resource was added to the service provider. This attribute MUST be a DateTime.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "lastModified",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The most recent DateTime that the details of this resource were updated at the service provider.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "location",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the resource being returned.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              }
+            ],
+            "multiValued": false,
+            "description": "A complex attribute containing resource metadata.",
+            "required": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:pam:1.0:Container",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7570554Z",
+          "lastModified": "2024-10-18T16:57:25.7570554Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:pam:1.0:Container"
+        }
+      },
+      {
+        "name": "CyberArkSafe",
+        "description": "Extension Schema from CyberArk Safe",
+        "attributes": [
+          {
+            "name": "NumberOfDaysRetention",
+            "type": "integer",
+            "multiValued": false,
+            "description": "The number of days that password versions are saved in the Safe.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "ManagingCPM",
+            "type": "string",
+            "multiValued": false,
+            "description": "The name of the CPM user who will manage the new Safe.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:cyberark:1.0:Safe",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7570554Z",
+          "lastModified": "2024-10-18T16:57:25.7570554Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:cyberark:1.0:Safe"
+        }
+      },
+      {
+        "name": "ContainerPermission",
+        "description": "ACL (Access Cotrol List) information that is attached to a container.",
+        "attributes": [
+          {
+            "name": "container",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The ID of the container that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "A URI reference to the container that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "Container"
+                ]
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the container.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "The display name of the container.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The container that these permissions apply to.",
+            "required": true,
+            "mutability": "immutable",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "user",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The ID of the user that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "A URI reference to the user that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "User"
+                ]
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "The display name of the user.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The User that these permissions apply to. Either this or group is required.",
+            "required": false,
+            "mutability": "immutable",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "group",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The ID of the group that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "A URI reference to the group that these permissions apply to.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "Group"
+                ]
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "The display name of the group.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The Group that these permissions apply to. Either this or user is required.",
+            "required": false,
+            "mutability": "immutable",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "rights",
+            "type": "string",
+            "multiValued": true,
+            "description": "The rights that the user or group has on this container.",
+            "required": true,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "schemas",
+            "type": "string",
+            "multiValued": true,
+            "description": "Defines the model which is used. Can be more than one.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "multiValued": false,
+            "description": "The unique identifier of the ContainerPermission.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "always",
+            "uniqueness": "server"
+          },
+          {
+            "name": "meta",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "resourceType",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the resource type of the resource.",
+                "required": true,
+                "caseExact": true,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "created",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The DateTime that the resource was added to the service provider. This attribute MUST be a DateTime.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "lastModified",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The most recent DateTime that the details of this resource were updated at the service provider.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "location",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the resource being returned.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              }
+            ],
+            "multiValued": false,
+            "description": "A complex attribute containing resource metadata.",
+            "required": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:pam:1.0:ContainerPermission",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7570554Z",
+          "lastModified": "2024-10-18T16:57:25.7570554Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:pam:1.0:ContainerPermission"
+        }
+      },
+      {
+        "name": "CyberArk ContainerPermission",
+        "description": "CyberArk attributes for SafeMember/ContainerPermission",
+        "attributes": [
+          {
+            "name": "membershipExpirationDate",
+            "type": "integer",
+            "multiValued": false,
+            "description": "The member's expiration date for this Safe.For members that do not have an expiration date, this value is not shown.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "memberType",
+            "type": "string",
+            "multiValued": false,
+            "description": "The member type.",
+            "required": false,
+            "canonicalValues": [
+              "User",
+              "Group",
+              "Role"
+            ],
+            "caseExact": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "searchIn",
+            "type": "string",
+            "multiValued": false,
+            "description": "Privilege Cloud (Vault) or the domain where the user or group was found.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "writeOnly",
+            "returned": "never",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:cyberark:1.0:SafeMember",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7688144Z",
+          "lastModified": "2024-10-18T16:57:25.7688144Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:cyberark:1.0:SafeMember"
+        }
+      },
+      {
+        "name": "PrivilegedData",
+        "description": "Privileged data is secret information that is protected by the PAM system (eg - a credential, an SSH key, etc...).",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "string",
+            "multiValued": false,
+            "description": "A descriptive name of PrivilegedData.For example, root@mylinuxhost.",
+            "required": true,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "multiValued": false,
+            "description": "A description of PrivilegedData.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "multiValued": false,
+            "description": "The type of PrivilegedData. The value will be dependent on what is supported by the PAM system. Example:-Password.",
+            "required": false,
+            "canonicalValues": [
+              "Password"
+            ],
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "schemas",
+            "type": "string",
+            "multiValued": true,
+            "description": "Defines the model which is used. Can be more than one.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "multiValued": false,
+            "description": "The unique identifier of the PrivilegedData.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "always",
+            "uniqueness": "server"
+          },
+          {
+            "name": "meta",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "resourceType",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the resource type of the resource.",
+                "required": true,
+                "caseExact": true,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "created",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The DateTime that the resource was added to the service provider. This attribute MUST be a DateTime.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "lastModified",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The most recent DateTime that the details of this resource were updated at the service provider.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "location",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the resource being returned.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              }
+            ],
+            "multiValued": false,
+            "description": "A complex attribute containing resource metadata.",
+            "required": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:pam:1.0:PrivilegedData",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7688144Z",
+          "lastModified": "2024-10-18T16:57:25.7688144Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:pam:1.0:PrivilegedData"
+        }
+      },
+      {
+        "name": "CyberArkPrivilegedData",
+        "description": "Custom Schema from CyberArk Privileged data",
+        "attributes": [
+          {
+            "name": "safe",
+            "type": "string",
+            "multiValued": false,
+            "description": "The unique name of the Safe where the account is located.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "immutable",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "remoteMachinesAccess",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "remoteMachines",
+                "type": "string",
+                "multiValued": false,
+                "description": "A list of remote machines.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "accessRestrictedToRemoteMachines",
+                "type": "boolean",
+                "multiValued": false,
+                "description": "Whether or not to restrict access only to specified remote machines.",
+                "required": true,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "A list of remote machines.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "properties",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "key",
+                "type": "string",
+                "multiValued": false,
+                "description": "Key to associate with the account.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "Value to associate with the account.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": true,
+            "description": "The object containing key-value pairs to associate with the account, as defined by the account platform.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:cyberark:1.0:PrivilegedData",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7788881Z",
+          "lastModified": "2024-10-18T16:57:25.7788881Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:cyberark:1.0:PrivilegedData"
+        }
+      },
+      {
+        "name": "User",
+        "description": "User Account",
+        "attributes": [
+          {
+            "name": "name",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "formatted",
+                "type": "string",
+                "multiValued": false,
+                "description": "The full name, formatted for display.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "familyName",
+                "type": "string",
+                "multiValued": false,
+                "description": "The family name of the User, or last name.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "givenName",
+                "type": "string",
+                "multiValued": false,
+                "description": "The given name of the User, or first name.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The components of the user's real name.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "displayName",
+            "type": "string",
+            "multiValued": false,
+            "description": "The name of the User, suitable for display to end-users.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "preferredLanguage",
+            "type": "string",
+            "multiValued": false,
+            "description": "Indicates the User's preferred written or spoken language. e.g., 'en_US'.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "active",
+            "type": "boolean",
+            "multiValued": false,
+            "description": "Whether or not the user is active.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "multiValued": false,
+            "description": "The User's cleartext password. This attribute is intended to be used as a means to specify an initial password when creating a new User or  to reset an existing User's password.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "writeOnly",
+            "returned": "never",
+            "uniqueness": "none"
+          },
+          {
+            "name": "emails",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "type",
+                "type": "string",
+                "multiValued": false,
+                "description": "A label indicating the email's type, e.g., 'work' or 'home' or 'other'.",
+                "required": false,
+                "canonicalValues": [
+                  "Work"
+                ],
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "primary",
+                "type": "boolean",
+                "multiValued": false,
+                "description": "A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g., the preferred mailing address or primary email address.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "Email addresses for the user.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": true,
+            "description": "Email addresses for the user.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "phoneNumbers",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "type",
+                "type": "string",
+                "multiValued": false,
+                "description": "A label indicating the phonenumber's type, e.g., 'work', 'home', 'mobile'.",
+                "required": false,
+                "canonicalValues": [
+                  "work",
+                  "home",
+                  "mobile"
+                ],
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "Phone number of the User.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": true,
+            "description": "Phone numbers for the User.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "groups",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "type",
+                "type": "string",
+                "multiValued": false,
+                "description": "A label indicating the group's type.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "A human-readable name, primarily used for display purposes.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The identifier of the User's group.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the corresponding 'Group' resource to which the user belongs.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "Group"
+                ]
+              }
+            ],
+            "multiValued": true,
+            "description": "A list of groups to which the user belongs.",
+            "required": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "userName",
+            "type": "string",
+            "multiValued": false,
+            "description": "Unique identifier for the User.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "server"
+          },
+          {
+            "name": "schemas",
+            "type": "string",
+            "multiValued": true,
+            "description": "Defines the model which is used. Can be more than one.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "multiValued": false,
+            "description": "Unique identifier for the User.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "always",
+            "uniqueness": "server"
+          },
+          {
+            "name": "meta",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "resourceType",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the resource type of the resource.",
+                "required": true,
+                "caseExact": true,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "created",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The DateTime that the resource was added to the service provider. This attribute MUST be a DateTime.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "lastModified",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The most recent DateTime that the details of this resource were updated at the service provider.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "location",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the resource being returned.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              }
+            ],
+            "multiValued": false,
+            "description": "A complex attribute containing resource metadata.",
+            "required": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:core:2.0:User",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7836483Z",
+          "lastModified": "2024-10-18T16:57:25.7836483Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User"
+        }
+      },
+      {
+        "name": "EnterpriseUser",
+        "description": "Enterprise User",
+        "attributes": [
+          {
+            "name": "organization",
+            "type": "string",
+            "multiValued": false,
+            "description": "Identifies the name of an organization.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "manager",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "The id of the SCIM resource representing the User's manager.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the SCIM resource representing the User's manager.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "User"
+                ]
+              },
+              {
+                "name": "displayName",
+                "type": "string",
+                "multiValued": false,
+                "description": "The displayName of the User's manager.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": false,
+            "description": "The User's manager.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7836483Z",
+          "lastModified": "2024-10-18T16:57:25.7836483Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+        }
+      },
+      {
+        "name": "CustomData",
+        "description": "Custom Data for User",
+        "attributes": [
+          {
+            "name": "customDataAttributes",
+            "type": "complex",
+            "multiValued": false,
+            "description": "Custom Attributes created in Identity.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:scim:schemas:extension:custom:2.0",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.7836483Z",
+          "lastModified": "2024-10-18T16:57:25.7836483Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:scim:schemas:extension:custom:2.0"
+        }
+      },
+      {
+        "name": "LinkedObject",
+        "description": "Linked Object attributes for external user or group",
+        "attributes": [
+          {
+            "name": "source",
+            "type": "string",
+            "multiValued": false,
+            "description": "The name of the external application on which the object lives.",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "nativeIdentifier",
+            "type": "string",
+            "multiValued": false,
+            "description": "The native identifier of the object on the external application (eg - the LDAP DN).",
+            "required": false,
+            "caseExact": false,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:pam:1.0:LinkedObject",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.794683Z",
+          "lastModified": "2024-10-18T16:57:25.794683Z",
+          "location": "https://aap1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:pam:1.0:LinkedObject"
+        }
+      },
+      {
+        "name": "Group",
+        "attributes": [
+          {
+            "name": "members",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "value",
+                "type": "string",
+                "multiValued": false,
+                "description": "Identifier of the member of this Group.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "$ref",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI corresponding to a SCIM resource that is a member of this Group.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none",
+                "referenceTypes": [
+                  "User",
+                  "Group"
+                ]
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "multiValued": false,
+                "description": "A label indicating the type of resource, e.g., 'User' or 'Group'.",
+                "required": false,
+                "canonicalValues": [
+                  "User",
+                  "Group"
+                ],
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "display",
+                "type": "string",
+                "multiValued": false,
+                "description": "Display Name of the member of this Group.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "immutable",
+                "returned": "default",
+                "uniqueness": "none"
+              }
+            ],
+            "multiValued": true,
+            "description": "A list of members of the Group.",
+            "required": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "displayName",
+            "type": "string",
+            "multiValued": false,
+            "description": "A human-readable name for the Group.",
+            "required": true,
+            "caseExact": false,
+            "mutability": "readWrite",
+            "returned": "default",
+            "uniqueness": "server"
+          },
+          {
+            "name": "schemas",
+            "type": "string",
+            "multiValued": true,
+            "description": "Defines the model which is used. Can be more than one.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "multiValued": false,
+            "description": "Unique identifier for the Group.",
+            "required": true,
+            "caseExact": true,
+            "mutability": "readOnly",
+            "returned": "always",
+            "uniqueness": "server"
+          },
+          {
+            "name": "meta",
+            "type": "complex",
+            "subAttributes": [
+              {
+                "name": "resourceType",
+                "type": "string",
+                "multiValued": false,
+                "description": "The name of the resource type of the resource.",
+                "required": true,
+                "caseExact": true,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "created",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The DateTime that the resource was added to the service provider. This attribute MUST be a DateTime.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "lastModified",
+                "type": "dateTime",
+                "multiValued": false,
+                "description": "The most recent DateTime that the details of this resource were updated at the service provider.",
+                "required": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "none"
+              },
+              {
+                "name": "location",
+                "type": "string",
+                "multiValued": false,
+                "description": "The URI of the resource being returned.",
+                "required": false,
+                "caseExact": false,
+                "mutability": "readOnly",
+                "returned": "default",
+                "uniqueness": "server"
+              }
+            ],
+            "multiValued": false,
+            "description": "A complex attribute containing resource metadata.",
+            "required": true,
+            "mutability": "readOnly",
+            "returned": "default",
+            "uniqueness": "none"
+          }
+        ],
+        "id": "urn:ietf:params:scim:schemas:core:2.0:Group",
+        "meta": {
+          "resourceType": "Schema",
+          "created": "2024-10-18T16:57:25.794683Z",
+          "lastModified": "2024-10-18T16:57:25.794683Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:Group"
+        }
+      }
+    ]
+  }
+  ```
+  
+  
+}
