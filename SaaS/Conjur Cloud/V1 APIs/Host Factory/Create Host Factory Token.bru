@@ -1,0 +1,110 @@
+meta {
+  name: Create Host Factory Token
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/host_factory_tokens
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  expiration: 2025-08-04T22:27:20+00:00
+  host_factory: conjur:host_factory:hf-db
+  count: 2
+  cidr: ["192.168.0.1","192.168.0.2"]
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+docs {
+  ## Create tokens
+  Creates one or more tokens which can be used to bootstrap host identity. Responds with a JSON document containing the tokens and their restrictions.
+  
+  If the tokens are created with a CIDR restriction, Conjur will only accept them from the allowlisted IP ranges.
+  
+  > **Permissions required**
+  > - execute privilege on the Host Factory.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/host_factory_tokens
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  None
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Token token=<CONJUR-ACCESS-TOKEN> **For example:** Authorization: Token token=2c0vfj61pmah3efbgpcz2x9vzcy1ycskfkyqy0kgk1fv014880f4 |
+  | content-type | application/x-www-form-urlencoded |
+  
+  
+  #### Request Body
+  The body must include the parameters:
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | expiration | ISO 8601 datetime string | yes | Expiration date of the token. **Example:** 2017-08-04T22:27:20+00:00 | 
+  | host_factory | string | yes | Fully qualified Host Factory id. **Example:** conjur:host_factory:hf-db | 
+  | count | integer | no | Number of tokens to create. **Example:** 2. **Default:** 1 | 
+  | cidr | Array | no | CIDR restriction(s) on token usage. **Example:** ["192.0.2.1","192.0.2.2"] | 
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Zero or more tokens were created and delivered in the response body |
+  | 403 | The authenticated user lacks the necessary privilege | 
+  | 404 | Conjur did not find the specified Host Factory |
+  | 422 | A request parameter was missing or invalid |
+  
+  #### 200 Created
+  ```
+  [
+    {
+      "expiration": "2017-08-04T22:27:20+00:00",
+      "cidr": [
+        "192.0.2.1/24",
+        "192.0.2.2/24"
+      ],
+      "token": "281s2ag1g8s7gd2ezf6td3d619b52t9gaak3w8rj0p38124n384sq7x"
+    },
+    {
+      "expiration": "2017-08-04T22:27:20+00:00",
+      "cidr": [
+        "192.0.2.1/24",
+        "192.0.2.2/24"
+      ],
+      "token": "2c0vfj61pmah3efbgpcz2x9vzcy1ycskfkyqy0kgk1fv014880f4"
+    }
+  ]
+  ```
+  
+  #### 404 Not Found
+  ```
+  {
+    "error": {
+      "code": "not_found",
+      "message": "Host_factory 'hf-db' not found in account 'conjur'",
+      "target": "host_factory",
+      "details": {
+        "code": "not_found",
+        "target": "id",
+        "message": "conjur:host_factory:hf-db"
+      }
+    }
+  }
+  ```
+}

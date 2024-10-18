@@ -1,0 +1,90 @@
+meta {
+  name: Create Host
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/host_factories/hosts
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  id: api-generated-host
+  annotation[puppet]: true
+  annotation[description]: new+db+host
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+docs {
+  ## Create a host
+  Creates a host using the Host Factory and returns a JSON description of it. If the host already exists, the API key of that host is rotated.
+  
+  Requires a Host Factory token which can be created using the Create tokens API. In practice, this token is usually provided automatically as part of Conjur integration with your host provisioning infrastructure.
+  
+  > **NOTE**
+  > - If the Host Factory token was created with a CIDR restriction, you must make this API request from a allowlisted address.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/host_factories/hosts
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  None
+  
+  ### Request
+  #### Request Header
+  A Host Factory token must be provided as part of an HTTP Authorization header.
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Token token=<HOST-FACTORY-TOKEN> **For example:** Authorization: Token token=2c0vfj61pmah3efbgpcz2x9vzcy1ycskfkyqy0kgk1fv014880f4 |
+  
+  #### Request Body
+  The body must include the parameters:
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | dentifier of the host to be created. It will be created within the account of the Host Factory. **Example:** brand-new-host | 
+  | annotations | object | no | Annotations to apply to the new host. **Example:** annotation[puppet]=true&annotation[description]=new+db+host| 
+  
+  > **NOTE**
+  > - You must specify the required annotations in the request, such as the authentication method. Hosts created from a host factory do not inherit annotations from the host factory.
+  
+  ### Example Request Body
+  ```
+  {
+    "id": "data/bruno/api-testing/api-testing-host-1",
+    "annotations": "host"
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 201 | A host was created, its definition is returned as a JSON document in the response body|
+  | 401 | The token was invalid, expired, or the CIDR restriction was not satisfied | 
+  | 422 | The request body was empty or a parameter was not formatted correctly |
+  
+  #### 201 Created
+  ```
+  {
+    "created_at": "2017-08-07T22:30:00.145+00:00",
+    "id": "conjur:host:brand-new-host",
+    "owner": "conjur:host_factory:hf-db",
+    "permissions": [],
+    "annotations": [],
+    "api_key": "rq5bk73nwjnm52zdj87993ezmvx3m75k3whwxszekvmnwdqek0r"
+  }
+  ```
+}
