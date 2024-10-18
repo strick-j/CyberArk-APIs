@@ -16,7 +16,7 @@ body:text {
 
 vars:pre-request {
   authenticator-type: authn-jwt
-  service-id: inf-github
+  service-id: example-service
 }
 
 assert {
@@ -25,9 +25,18 @@ assert {
 
 script:pre-request {
   const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings conjurTokenAuth.js tools
   await conjurTokenAuth.conjurLogin();
+  
+  // Sets service-id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('service-id', bru.getEnvVar('testConjurCloudServiceId'));
+    tools.log('Service-id: ' + bru.getVar('service-id'))
+  }
 }
 
 docs {
