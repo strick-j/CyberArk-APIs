@@ -11,7 +11,7 @@ get {
 }
 
 vars:pre-request {
-  pasAccountId: 212_5
+  pasAccountId: 100_2
 }
 
 assert {
@@ -21,12 +21,59 @@ assert {
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
   await platformTokenAuth.login();
+  
+  // Sets pasAccountId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasAccountId', bru.getEnvVar('testPrivilegeCloudAccountId'));
+    tools.log('Identifier: ' + bru.getVar('pasAccountId'))
+  }
 }
 
 docs {
+  # Get account details by Id
   This method returns information about an account identified by its ID.
   
   The user who runs this web service requires List Accounts permissions in the Safe where the account is located inside the Vault.
   
+  ### Request
+  #### URI Parameters
+  | Paramater | Location | Required |Description |
+  | :-- | :-- | :-- | :-- |
+  | pasAccountId | path | yes | Account Id **Example:** 212_6 |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  #### 200 OK
+  ```
+  {
+    "categoryModificationTime": 1729209625,
+    "platformId": "BRU-API-TEST-PLATFORM",
+    "safeName": "BRU-API-TEST-SAFE",
+    "id": "212_6",
+    "name": "Operating System-BRU-API-TEST-PLATFORM-example.local-bru.user3",
+    "address": "example.local",
+    "userName": "bru.user3",
+    "secretType": "password",
+    "platformAccountProperties": {
+      "LogonDomain": "EXAMPLE",
+      "Location": "AWS",
+      "OwnerName": "Bruno API Testing",
+      "Tags": "AWS; BRUNO"
+    },
+    "secretManagement": {
+      "automaticManagementEnabled": true,
+      "status": "success",
+      "lastModifiedTime": 1728518408,
+      "lastVerifiedTime": 1729209625
+    },
+    "createdTime": 1712778786
+  }
+  ```
 }
