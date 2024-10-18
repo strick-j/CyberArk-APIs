@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts?filter=safeName eq {{pasSafeName}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts
   body: none
   auth: none
 }
 
 query {
-  filter: safeName eq {{pasSafeName}}
+  ~filter: safeName eq {{pasSafeName}}
   ~search: 
   ~searchType: contains
   ~sort: UserName
