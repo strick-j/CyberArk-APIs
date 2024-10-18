@@ -27,7 +27,7 @@ body:json {
 
 assert {
   res.status: eq 201
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
@@ -51,7 +51,7 @@ script:post-response {
 }
 
 docs {
-  ## Create
+  ## Create user
   This api provisions new users to CyberArk Cloud Directory. * Refer this link for User Schema. * Refer this link to know more about SCIM POST operation.
   
   ### URL

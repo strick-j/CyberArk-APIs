@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/users?sortBy=userName&startIndex=5&count=1
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/users
   body: none
   auth: none
 }
 
 query {
-  sortBy: userName
-  startIndex: 5
-  count: 1
+  ~sortBy: userName
+  ~startIndex: 5
+  ~count: 1
   ~attributes: displayName, userName
   ~filter: name.formatted eq "John Doe"
   ~sortOrder: ascending
