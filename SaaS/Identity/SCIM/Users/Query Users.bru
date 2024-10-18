@@ -1,0 +1,144 @@
+meta {
+  name: Query Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/users?sortBy=userName&startIndex=5&count=1
+  body: none
+  auth: none
+}
+
+query {
+  sortBy: userName
+  startIndex: 5
+  count: 1
+  ~attributes: displayName, userName
+  ~filter: name.formatted eq "John Doe"
+  ~sortOrder: ascending
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+docs {
+  ## Query Users
+  - This api endpoint fetches all the users which are part of CyberArk Identity.
+  - Partial results can be returned when filter query attribute is supplied. e.g. users?filter=username eq 'test'. Currently supported filter attributes.
+    - userName
+    - emails.value
+  - Currently supported filter operators
+    - eq
+    - sw
+    - co
+    - ew
+  - Results can be sorted using sorting query parameters. e.g. users?sortBy=username&sortOrder=descending. Currently supported Sorting attributes
+    - userName
+    - name.familyName
+    - name.givenName
+    - name.formatted
+    - displayName
+    - active
+    - preferredLanguage
+    - emails.value
+  - Results can be paginated for limited and faster response. e.g. - users?startIndex=1&count=100
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/scim/v2/users
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URI Parameters
+  | Parameter | Type | Required | Location | Description |
+  | :-- | :-- | :-- | :-- | :-- |
+  | count | integer | no | query | Number of returned results |
+  | startIndex | integer | no | query | User result to start at |
+  | sortBy | string | no | query | Attribute to sort results by |
+  | sortOrder | string | no | query | asc or desc (ascending or descending) |
+  | attributes | arrary of strings | no | query | attributes to display in result | 
+  | filter | string | no | query | username eq 'test' Supported filter operations (eq, sw, co, ew) | 
+  
+  
+  #### Example URI
+  > GET https://abc1234.id.cyberark.cloud/scim/v2/users?sortBy=userName&attributes=displayName, userName
+  
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "schemas": [
+      "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "totalResults": 174,
+    "itemsPerPage": 1,
+    "startIndex": 5,
+    "Resources": [
+      {
+        "name": {
+          "formatted": "Example User"
+        },
+        "displayName": "Example User",
+        "active": true,
+        "emails": [
+          {
+            "type": "work",
+            "primary": true,
+            "value": "exampleuser@example.com"
+        ],
+        "groups": [
+          {
+            "display": "Slack Users",
+            "value": "d0e9e073_c6a9_49fc_a7dd_98598bdb7f15",
+            "$ref": "https://abc1234.id.cyberark.cloud/Scim/v2/Groups/d0e9e073_c6a9_49fc_a7dd_98598bdb7f15"
+          },
+          {
+            "display": "Privilege Cloud Users",
+            "value": "Privilege_Cloud_Users_ID",
+            "$ref": "https://abc1234.id.cyberark.cloud/Scim/v2/Groups/Privilege_Cloud_Users_ID"
+          }
+        ],
+        "userName": "exampleuser@example.com",
+        "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:User",
+          "urn:ietf:params:scim:schemas:pam:1.0:LinkedObject"
+        ],
+        "id": "d9247427-bf90-fd0e-209b-95205dcf82fb",
+        "meta": {
+          "resourceType": "User",
+          "created": "2024-10-18T17:21:19.3867407Z",
+          "lastModified": "2024-10-18T17:21:19.3867407Z",
+          "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Users/d9247427-bf90-fd0e-209b-95205dcf82fb"
+        },
+        "urn:ietf:params:scim:schemas:pam:1.0:LinkedObject": {
+          "source": "FDS",
+          "nativeIdentifier": "/C30B30B1-1234-123C-8D99-F6279EED7123/98d3d11b-1234-1234-1234-8cdb1fa6d478/d9247427-1243-1234-1234-95205dcf82fb"
+        }
+      }
+    ]
+  }
+  ```
+  
+  
+}

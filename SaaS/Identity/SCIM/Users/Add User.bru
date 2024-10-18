@@ -1,0 +1,145 @@
+meta {
+  name: Add User
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "userName": "scim.user.example@{{identityTenantSuffix}}",
+      "name": {
+          "familyName": "last",
+          "givenName": "first"
+      },
+      "password": "SaeP@$$w0rd12",
+      "active": true,
+      "schemas": [
+          "urn:ietf:params:scim:schemas:core:2.0:User"
+      ]
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson 
+}
+
+script:pre-request {
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', res.body.id);
+    tools.log('SCIM User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Create
+  This api provisions new users to CyberArk Cloud Directory. * Refer this link for User Schema. * Refer this link to know more about SCIM POST operation.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/scim/v2/users
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.cloud/scim/v2/users
+  
+  #### Required Request Body Parameters
+  | Parameter | Type | Description |
+  | :-- | :-- | :-- | 
+  | userName | string | unique user identifier with suffix |
+  | schemas | array of strings |  User core schema -urn:ietf:params:scim:schemas:core:2.0:User Extended schema - urn:ietf:params:scim:schemas:extension:enterprise:2.0:User Custom schema - urn:scim:schemas:extension:custom:2.0 |
+  
+  #### Request Body Example
+  ```
+  {
+    "name": {
+      "formatted": "string",
+      "familyName": "string",
+      "givenName": "string"
+    },
+    "displayName": "string",
+    "preferredLanguage": "string",
+    "active": true,
+    "userName": "string",
+    "emails": [
+      {
+        "type": "string",
+        "primary": "string",
+        "value": "string"
+      }
+    ],
+    "phoneNumbers": [
+      {
+        "type": "string",
+        "value": "string"
+      }
+    ],
+    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
+      "organization": "string",
+      "manager": {
+        "value": "string"
+      }
+    },
+    "urn:scim:schemas:extension:custom:2.0": {},
+    "schemas": [
+      "string"
+    ]
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 401 | Not Authorized |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "name": {
+      "formatted": "scim.user.example",
+      "familyName": "last",
+      "givenName": "first"
+    },
+    "displayName": "scim.user.example",
+    "active": true,
+    "userName": "scim.user.example@example.com",
+    "schemas": [
+      "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "id": "1dccc67c-6750-4c0a-b14f-0fee20015c9f",
+    "meta": {
+      "resourceType": "User",
+      "created": "2024-10-18T17:37:21.7805282Z",
+      "lastModified": "2024-10-18T17:37:21.7805282Z",
+      "location": "https://abc1234.id.cyberark.cloud/Scim/v2/Users/1dccc67c-6750-4c0a-b14f-0fee20015c9f"
+    }
+  }
+  ```
+  
+  
+}
