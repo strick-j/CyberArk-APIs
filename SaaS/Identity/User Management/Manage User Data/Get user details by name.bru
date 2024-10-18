@@ -1,0 +1,108 @@
+meta {
+  name: Get user details by name
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/GetUserByName
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "{{username}}"
+  }
+  
+}
+
+vars:pre-request {
+  username: example@example.com
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets username for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('username', bru.getEnvVar('testIdentityUserName'));
+    tools.log('Username: ' + bru.getVar('username'))
+  }
+}
+
+docs {
+  ## Get user details by name
+  Specified user must be you, you must be a system administrator, or have user management permissions.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/CDirectoryService/GetUserByName
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/UCDirectoryService/GetUserByName
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | username | string | no | User name of the cloud user to fetch (default=current user). |
+  
+  #### Request Body Example
+  ```
+  {
+    "username":"example@example.com"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "Uuid": "3639c48b-9b0c-4017-ba10-bf5fb70cfb3d",
+      "State": "None",
+      "LastModifiedDate": "/Date(1712846865880)/",
+      "DisplayName": "Bru User (API Testing)",
+      "Version": "1",
+      "Mail": "example@example.com",
+      "Name": "bru.user@example.com",
+      "ReportsTo": "Unassigned",
+      "CreateDate": "/Date(1712846804359)/",
+      "MobileNumber": "1238675309",
+      "Alias": "example.com",
+      "InEverybodyRole": true,
+      "LastPasswordChangeDate": "/Date(1712846804359)/",
+      "OauthClient": false
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```  
+}
