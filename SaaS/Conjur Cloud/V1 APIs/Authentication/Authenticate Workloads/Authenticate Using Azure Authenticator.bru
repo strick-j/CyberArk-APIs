@@ -1,11 +1,11 @@
 meta {
-  name: Authenticate Using JWT Authenticator
+  name: Authenticate Using Azure Authenticator
   type: http
-  seq: 4
+  seq: 3
 }
 
 post {
-  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn-jwt/{{service-id}}/conjur/{{login}}/authenticate
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn-azure/{{service-id}}/conjur/{{login}}/authenticate
   body: formUrlEncoded
   auth: none
 }
@@ -23,8 +23,8 @@ body:form-urlencoded {
 }
 
 vars:pre-request {
-  login: host%2Fdata%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
-  service-id: jwtwsexample
+  login: host%2Fdata%2Fazure-apps%2FazureVM.
+  service-id: azurewsexample
 }
 
 assert {
@@ -45,15 +45,13 @@ script:pre-request {
 }
 
 docs {
-  ## Authenticate using JWT Authenticator
-  This topic describes the JWT Authenticator REST API.
+  ## Authenticate using Azure Authenticator
+  This topic describes the Azure Authenticator API.
   
-  Use the JWT Authenticator API to send an authentication request from the workload with a JWT to Conjur Cloud.
-  
-  For more information about the JWT Authenticator, see Authenticate JWT.
+  Use the Azure Authenticator API to send an authentication request from the Azure instance to Conjur Cloud.
   
   ### URL
-  https://<subdomain>.secretsmgr.cyberark.com/api/api/authn-jwt/{service-id}/conjur/{login}/authenticate
+  https://<subdomain>.secretsmgr.cyberark.com/api/api/authn-azure/{service-id}/conjur/{login}/authenticate
   
   #### Resource Information
   | HTTP Method | POST |
@@ -63,13 +61,7 @@ docs {
   | Parameter | Type | Mandatory | Description | 
   | :-- | :-- | :-- | :-- |
   | service-id | string | yes | |
-  | login | string | no | The identity of the workload (host) in Conjur Cloud. This value should be the full name of the host and should include URL encoding for the forward slash (/), for example, **host%2Fjwt-apps%2Fmyapp**. **Required:** Required if the JWT Authenticator is defined without a token-app-property variable. If the JWT Authenticator is defined with a token-app-property variable, do not include the host-id in the URL. | 
-  
-  #### Example URL
-  - JWT Authenticator with **token-app-property** variable (no **host-id**):
-    > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/authn-jwt/example-service/conjur/authenticate
-  - JWT Authenticator without **token-app-property** variable - must include the **host-id**:
-    > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/authn-jwt/example-service/conjur/host%2Fdata%2Fmyapps%2Fexample-host/authenticate
+  | login | string | yes | The identity of the workload running on the Azure VM. This value should be the full host name and should include URL encoding for the forward slash (/), for example, host%2Fdata%2Fazure-apps%2FazureVM. | 
   
   #### Request Header Parameters
   | Parameter | Description |
@@ -77,7 +69,7 @@ docs {
   | Accept-Encoding | base64 |
   
   #### Request Body
-  The body must include the JWT:
+  The body must include the Azure access token for Azure instance.
   > jwt=eyJhbGciOiJSUzI1NiIs......uTonCA
   
   ### Example Responses

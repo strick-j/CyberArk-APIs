@@ -1,0 +1,96 @@
+meta {
+  name: Authenticate Using GCP Authenticator
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn-gcp/conjur/authenticate
+  body: formUrlEncoded
+  auth: none
+}
+
+headers {
+  Accept-Encoding: base64
+}
+
+body:text {
+  jwt=eyJhbGciOiJSUzI1NiIs......uTonCA
+}
+
+body:form-urlencoded {
+  jwt: eyJhbGciOiJSUzI1NiIs......uTonCA
+}
+
+vars:pre-request {
+  login: host%2Fdata%2Fazure-apps%2FazureVM.
+  service-id: azurewsexample
+}
+
+assert {
+  res.status: eq 200
+  res.body: isString
+}
+
+script:pre-request {
+  const tools = require('./tools/tools');
+  
+  // Sets host-api-key for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('host-api-key', bru.getEnvVar('testConjurCloudHostApiKey'));
+    tools.log('Host API Key: ' + bru.getVar('host-api-key'))
+  }
+}
+
+docs {
+  ## Authenticate using GCP Authenticator
+  This topic describes the GCP Authenticator API.
+  
+  Use the GCP Authenticator API to send an authentication request from a Google Cloud service to Conjur Cloud.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/api/authn-gcp/conjur/authenticate
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  None
+  
+  #### Request Header Parameters
+  | Parameter | Description |
+  | :-- | :-- |
+  | Accept-Encoding | base64 |
+  | Content-Type | application/x-www-form-urlencoded |
+  
+  #### Request Body
+  The body must include the Google JWT identity token for the Google Cloud service, for example:
+  > jwt=eyJhbGciOiJSUzI1NiIs......uTonCA
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  eyJwcm90ZWN0ZWQiOiJleUpoYkdjaU9pSmpiMjVxZFhJdWIzSm5MM05zYjNOcGJHOHZkaklpTENKcmFXUWlPaUk0T0dZek16QXEXAMPLEZjX3JlRlgxX29aWm5xd245Q01WEXAMPLEVWNLZ1hSLSJ9
+  ```
+  
+  #### 401 Error
+  ```
+  {
+    "error": {
+      "code": "unauthorized",
+      "message": "CONJ00016E Token expired"
+    }
+  }
+  ```
+  
+  #### Status Codes
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The response body is the access token |
+  | 400 | Bad request. Check that the body is correct. |
+  | 401 | The request lacks valid authentication credentials | 
+  
+}
