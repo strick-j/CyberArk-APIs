@@ -30,7 +30,7 @@ script:post-response {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('component_id', res.body.components[1].componentId);
+    bru.setVar('component_id', res.body.components[0].componentId);
     tools.log('Component Id: ' + bru.getVar('component_id'))
   }
   

@@ -6,13 +6,20 @@ meta {
 
 get {
   url: https://{{identityTenantName}}.connectormanagement.cyberark.cloud/api/components-catalog/{{component_name}}/versions/{{version}}/configuration
-  body: none
+  body: json
   auth: none
 }
 
+body:json {
+  {
+    "operationName": "upgrade",
+    "connectorId": "{{connector_id}}"
+  }
+}
+
 vars:pre-request {
-  component_name: Management Agent
-  version: 1.0.483.0
+  component_name: psm
+  version: stable
 }
 
 assert {
