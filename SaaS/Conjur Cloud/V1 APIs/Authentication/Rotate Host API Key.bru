@@ -37,7 +37,7 @@ docs {
   https://<subdomain>.secretsmgr.cyberark.com/api/authn/conjur/api_key?role=host:{host-id}
   
   #### Resource Information
-  | HTTP Method | POST |
+  | HTTP Method | PUT |
   | :-- | :-- |
   
   #### URL Parameters
@@ -46,7 +46,7 @@ docs {
   | host-id | string | yes | The ID of the host **Example:** data/myapps/example-host | 
   
   #### Example URI
-  > POST https://<subdomain>.secretsmgr.cyberark.cloud/api/authn/conjur/api_key?role=host:data%2Fmyapps%2Fexample-host
+  > PUT https://<subdomain>.secretsmgr.cyberark.cloud/api/authn/conjur/api_key?role=host:data%2Fmyapps%2Fexample-host
   
   > **NOTE**
   > - Any path included in the URL must be URL-encoded to be recognized by the Conjur Cloud API.

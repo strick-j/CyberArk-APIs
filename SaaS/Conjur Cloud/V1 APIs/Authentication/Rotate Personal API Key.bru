@@ -1,0 +1,77 @@
+meta {
+  name: Rotate Personal API Key
+  type: http
+  seq: 3
+}
+
+put {
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn/conjur/api_key
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  host-id: data%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
+}
+
+script:pre-request {
+  const conjurTokenAuth = require('./tools/conjurTokenAuth');
+  
+  // Perform authentication usings conjurTokenAuth.js tools
+  await conjurTokenAuth.conjurLogin();
+}
+
+docs {
+  ## Rotate personal API key
+  Replaces a role's current API key with a new randomly generated API key.
+  
+  ### URL
+  https://<subdomain>.secretsmgr.cyberark.com/api/authn/conjur/api_key
+  
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Parameters
+  None
+  
+  #### Example URI
+  > PUT https://<subdomain>.secretsmgr.cyberark.cloud/api/authn/conjur/api_key
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | basic <username>:<secret> Where <username>:<secret> is the base64-encoded, colon-delimited value of the user's username and password or API key. For example, to authorize a user with the name joesmith and password P@ssword1!, the header's value is: ***Basic am9lc21pdGg6UEBzc3dvcmQxIQ==*** |
+  
+  > **NOTE**
+  > - Requests that roate a role's own API key must use their API key.
+  
+  #### Request Body
+  None
+  
+  ### Example Request Body
+  None
+  
+  ### Response
+  
+  #### Response Header
+  Includes the following Content-Type response header, which indicates that the API belongs to Conjur Cloud API v2, and that the body is a JSON object
+  | Response Header | Field Definition |
+  | :-- | :-- |
+  | Content-Type | text/plain |
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | The response body is the API key |
+  | 401 | The credentials were not accepted | 
+  | 403 | The caller does not have sufficient permission to perform this action |
+  | 404 | The target role does not exist or the caller does not have permission to see the target's role |
+  | 405 | The target role does not have an API key |
+  
+  #### 200 Success
+  ```
+  14m9cf91wfsesv1kkhevg12cdywm2wvqy6s8sk53z1ngtazp1t9tykc
+  ```
+}
