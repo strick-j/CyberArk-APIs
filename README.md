@@ -284,6 +284,7 @@ Project Link: [https://github.com/strick-j/CyberArk-APIs](https://github.com/str
 ## Acknowledgments
 
 * [Joe Garcia](https://github.com/infamousjoeg)
+* [Bruno](https://www.usebruno.com/)
 * [Img Shields](https://shields.io)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
