@@ -122,6 +122,26 @@ Note: The various API endpoints are not yet fully implemented. This is a work in
 ## Roadmap
 
 - [ ] Add Self Hosted API Endpoints
+- [ ] Add Remaining SaaS API Endpoints
+  - [ ] Enpoint Privilege Manager
+  - [ ] Identity
+  - [ ] Secure Web Sessions
+- [ ] Add Changelog
+- [ ] Add more examples
+- [ ] Add development documentation
+- [ ] Ensure documentation is updated for endpoints
+  - [ ] SaaS
+    - [ ] Cloud Entitlements Manager
+    - [x] Conjur Cloud
+    - [x] Connector Managent
+    - [ ] Identity
+    - [ ] Privilege Cloud
+    - [x] Secrets Hub
+    - [x] Secure Cloud Access
+    - [x] Secure Infrastructure Access
+    - [ ] Secure Web Sessions
+  - [ ] Self Hosted
+    - [ ] PAM
 
 
 See the [open issues](https://github.com/strick-j/CyberArk-APIs/issues) for a full list of proposed features (and known issues).
