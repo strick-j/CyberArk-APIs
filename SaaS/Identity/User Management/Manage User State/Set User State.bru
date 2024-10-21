@@ -1,0 +1,97 @@
+meta {
+  name: Set User State
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/SetUserState
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{uuid}}",
+    "state": "Locked"
+  }
+  
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Set user state
+  - CyberArk Identity provides this API to lock, disable, or set a Cloud Directory account to expired.
+  - Only system administrator and users with user management permissions, can invoke this API.
+  Specified new state may either be 'None' or include one or more of the following values (comma separated): Locked, Disabled, or Expired.
+  - For example to lock an account, after too many failed logins, make a call with state as "Expired".
+  - You can reenable a locked account by setting the state to "None".
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/CDirectoryService/SetUserState
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/CDirectoryService/SetUserState
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | uuid | string | yes | The unique ID of the cloud user. The unique ID is generated when the user is created Ex: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
+  | state | string | yes | New state of the user to set. The states available are None, Locked, Disabled or Expired |
+  
+  #### Request Body Example
+  ```
+  {
+    "ID": "2e131860-09fb-497b-bb5a-179cbdf72bf2",
+    "state": "Locked"
+  }
+  
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": null,
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+  
+  
+}

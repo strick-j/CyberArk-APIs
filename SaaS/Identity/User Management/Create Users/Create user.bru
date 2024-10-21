@@ -1,0 +1,155 @@
+meta {
+  name: Create user
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/CreateUser
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "InEverybodyRole": true,
+    "SendSmsInvite": false,
+    "InSysAdminRole": false,
+    "Description": "Example Bru User Description",
+    "Name": "bru-gen@{{identityTenantId}}",
+    "MobileNumber": "1238675309",
+    "useAlternateMfaAccount": true,
+    "OrgPath": "",
+    "Password": "ExampLe1243@#",
+    "CmaRedirectedUserUuid": "string",
+    "ServiceUser": true,
+    "OfficeNumber": "1238675309",
+    "ReportsTo": "",
+    "SendEmailInvite": true,
+    "HomeNumber": "1238675309",
+    "DisplayName": "Bru Api Generated User",
+    "ForcePasswordChangeNext": true,
+    "PasswordNeverExpire": true,
+    "Mail": "example@example.com"
+  }
+}
+
+vars:pre-request {
+  user_id: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', bru.getEnvVar('testIdentityUserId'));
+    tools.log('User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Create user
+  - Invoke this API to create a new user.
+  - Only system administrator or users with user management rights can invoke this API.
+  - Specifying 'ServiceUser' will override the 'InEveryBodyRole' property if both are provided.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/CDirectoryService/CreateUser
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/CDirectoryService/CreateUser
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | InEverybodyRole | boolean | no | Place user in Everybody role (default=true) |
+  | SendSmsInvite | boolean | no | Send user an sms invite to enroll their mobile device in the protal (default=false) |
+  | InSysAdminRole | boolean | no | Place user in System Adminstrator role (default=false) |
+  | Description | string | no | Description of user (default=null) |
+  | Name | string | yes | Username of the user. The username can be 'username@suffix if suffix is required, else 'username'. The username can be optional only when Primary Identifier is provided. Ex: mark@aak7163 
+  | MobileNumber | string | no | User's mobile number (default=null); note this field is required if SendSmsInvite is true | 
+  | useAlternateMfaAccount | boolean | no | Does the user have an alternate MFA Account? |
+  | OrgPath | string | no | The organisation name to which the user is added |
+  | Password | string | no | Strong password of the user that meets the complexity requirements. Password must be at least 8 characters long, not be longer than 64 characters, contain at least one digit, contain at least one upper and one lower case letter. (default=randomly generated strong password) |
+  | CmaRedirectedUserUuid | string | no | Unique id of the redirected user |
+  | ServiceUser | boolean | no | User is a service user (default=false) |
+  | OfficeNumber | string | no | User's office number (default=null) |
+  | ReportsTo | string | no | Uuid of user this user reports to (default=null) |
+  | SendEmailInvite | boolean | no | Send user an email invite to login to the portal. (default=true) |
+  | HomeNumber | string | no | User's home number (default=null) |
+  | DisplayName | string | no | Display name of user (default=null) |
+  | PrimaryIdentifier | string | no | Identifier Type used while login |
+  | VerifyEmail | boolean | no | Enforce user to verify the registered email address |
+  | ForcePasswordChangeNext | boolean | no | Force password change at first login (default=true) |
+  | PasswordNeverExpire | boolean | no | User's password never expires (default=false) |
+  | mail | string | yes | Email address of user; Note this field is required if 'SendEmailInvite' is true, or 'VerifyEmail' is true. Ex: mark@yahoo.com |
+  
+  
+  #### Request Body Example
+  ```
+  {
+    "InEverybodyRole": true,
+    "SendSmsInvite": false,
+    "InSysAdminRole": false,
+    "Description": "string",
+    "Name": "string",
+    "MobileNumber": "string",
+    "useAlternateMfaAccount": true,
+    "OrgPath": "string",
+    "Password": "string",
+    "CmaRedirectedUserUuid": "string",
+    "ServiceUser": true,
+    "OfficeNumber": "string",
+    "ReportsTo": "string",
+    "SendEmailInvite": true,
+    "HomeNumber": "string",
+    "DisplayName": "string",
+    "PrimaryIdentifier": "string",
+    "VerifyEmail": true,
+    "ForcePasswordChangeNext": true,
+    "PasswordNeverExpire": true,
+    "Mail": "string"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": "4f59cf2f-e1b8-4ea7-9547-cc2836e17edf",
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

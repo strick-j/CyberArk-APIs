@@ -1,0 +1,91 @@
+meta {
+  name: Disable - Enable a user
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/SetCloudLock
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "user": "{{uuid}}",
+    "lockUser": true
+  }
+  
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Disable/enable a user
+  - Invoke this API if you want to lock the user account of a given user
+  - Only system administrator, users with user management rights, or the user itself can invoke this API.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/UserMgmt/SetCloudLock
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URI Parameters
+  | Parameter | Location | Type | Required | Description |
+  | :-- | :-- | :-- | :-- | :-- |
+  | uuid | query | string | yes | The name or uuid of the user to check. |
+  
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/UserMgmt/SetCloudLock
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | user| string | yes | The unique ID of the user. The unique ID is generated when the user is created. |
+  | lockUser | boolean | yes | This parameter specifies if the user account should be locked or not.The default value is 'false'. |
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": null,
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+  
+  
+}

@@ -1,0 +1,85 @@
+meta {
+  name: Check if user is locked out by policy
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/IsUserLockedOutByPolicy?user={{uuid}}
+  body: none
+  auth: none
+}
+
+query {
+  user: {{uuid}}
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Check if user is locked out by policy
+  - Use this API to check if a user can answer the MFA challenges and authenticates itself against CyberArk Identity.
+  - Only system administrators, users with user management rights, or the user itself can invoke this API.
+  - The user id of the user is passed as query parameter to the API request.
+  - Pass an empty string to test the currently logged-in user.
+  - Note that only administrative users can test other users.
+  - The server returns True if the user is locked out (i.e. cannot answer MFA challenges) and false otherwise.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/UserMgmt/IsUserLockedOutByPolicy?user={userid}
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URI Parameters
+  | Parameter | Location | Type | Required | Description |
+  | :-- | :-- | :-- | :-- | :-- |
+  | uuid | query | string | yes | The name or uuid of the user to check. |
+  
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/UserMgmt/IsUserLockedOutByPolicy?user=2e131860-09fb-497b-bb5a-179cbdf72bf2
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": null,
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+  
+  
+}

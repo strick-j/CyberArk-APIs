@@ -1,0 +1,78 @@
+meta {
+  name: Check if user is locked
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/IsUserCloudLocked?user={{uuid}}
+  body: none
+  auth: none
+}
+
+query {
+  user: {{uuid}}
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Check if user is locked
+  - You must be a system administrator or have user management permissions or user may be checking for him/herself.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/UserMgmt/IsUserCloudLocked?user={userid}
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URI Parameters
+  | Parameter | Location | Type | Required | Description |
+  | :-- | :-- | :-- | :-- | :-- |
+  | uuid | query | string | yes | The name or uuid of the user to check. |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/UserMgmt/IsUserCloudLocked?user=2e131860-09fb-497b-bb5a-179cbdf72bf2
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": null,
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+  
+  
+}
