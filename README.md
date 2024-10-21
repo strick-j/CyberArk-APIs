@@ -24,9 +24,9 @@
     <br />
     <a href="https://github.com/strick-j/CyberArk-APIs">View Demo</a>
     ·
-    <a href="https://github.com/strick-j/CyberArk-APIs/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/strick-j/CyberArk-APIs/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
     ·
-    <a href="https://github.com/strick-j/CyberArk-APIs/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/strick-j/CyberArk-APIs/issues/new?labels=enhancement&template=feature-request.md">Request Feature</a>
   </p>
 </div>
 
