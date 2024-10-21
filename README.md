@@ -165,7 +165,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Joe Strickland - [@twitter_handle](https://twitter.com/joestrick) - joseph.a.strickland@gmail.com
+Joe Strickland - [@joestrick](https://twitter.com/joestrick) - joseph.a.strickland@gmail.com
 
 Project Link: [https://github.com/strick-j/CyberArk-APIs](https://github.com/strick-j/CyberArk-APIs)
 
@@ -176,9 +176,8 @@ Project Link: [https://github.com/strick-j/CyberArk-APIs](https://github.com/str
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+* [Joe Garcia](https://github.com/infamousjoeg)
+* [Img Shields](https://shields.io)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
