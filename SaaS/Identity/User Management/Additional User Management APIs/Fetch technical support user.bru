@@ -1,0 +1,76 @@
+meta {
+  name: Fetch technical support user
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/CDirectoryService/GetTechSupportUser
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Users": [
+      "4f59cf2f-e1b8-4ea7-9547-cc2836e17edf"
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Fetch technical support user
+  You must be a system administrator or have user management permissions.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/CDirectoryService/GetTechSupportUser
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/CDirectoryService/GetTechSupportUser
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "Name": "techsupport_abc1234",
+      "PasswordExp": "/Date(1706584164935)/",
+      "Uuid": "fbedd14e-1234-1234-1234-1a3ecd9b3663"
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}
