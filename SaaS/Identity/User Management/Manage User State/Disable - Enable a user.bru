@@ -5,17 +5,14 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/SetCloudLock
-  body: json
+  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/SetCloudLock?user={{uuid}}&lockUser=true
+  body: none
   auth: none
 }
 
-body:json {
-  {
-    "user": "{{uuid}}",
-    "lockUser": true
-  }
-  
+query {
+  user: {{uuid}}
+  lockUser: true
 }
 
 vars:pre-request {
@@ -41,26 +38,20 @@ docs {
   - Only system administrator, users with user management rights, or the user itself can invoke this API.
   
   ### URL
-  https://<tenantShortId>.id.cyberark.com/UserMgmt/SetCloudLock
+  https://<tenantShortId>.id.cyberark.com/UserMgmt/SetCloudLock?user={uuid}&lockUser=true
   
   ### Request Details
   #### Request Method
   | HTTP Method | POST |
   | :-- | :-- |
   
-  #### URI Parameters
-  | Parameter | Location | Type | Required | Description |
-  | :-- | :-- | :-- | :-- | :-- |
-  | uuid | query | string | yes | The name or uuid of the user to check. |
-  
-  
   #### Example URI
-  > POST https://abc1234.id.cyberark.com/UserMgmt/SetCloudLock
+  > POST https://abc1234.id.cyberark.com/UserMgmt/SetCloudLock?user=2e131860-09fb-497b-bb5a-179cbdf72bf2&lockUser=true
   
   #### Request Body
   | Parameter | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | user| string | yes | The unique ID of the user. The unique ID is generated when the user is created. |
+  | user | string | yes | The unique ID of the user. The unique ID is generated when the user is created. |
   | lockUser | boolean | yes | This parameter specifies if the user account should be locked or not.The default value is 'false'. |
   
   ### Response Details
