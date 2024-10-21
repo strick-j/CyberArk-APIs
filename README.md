@@ -213,7 +213,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
   - [ ] Enpoint Privilege Manager
   - [ ] Identity
   - [ ] Secure Web Sessions
-- [ ] Add Changelog
+- [x] Add Changelog
 - [ ] Add more examples
 - [ ] Add development documentation
 - [ ] Ensure documentation is updated for endpoints
@@ -306,3 +306,4 @@ Project Link: [https://github.com/strick-j/CyberArk-APIs](https://github.com/str
 [linkedin-url]: https://linkedin.com/in/josephastrickland
 [product-screenshot]: images/bruno-screenshot.png
 [bruno-url]: https://www.usebruno.com/
+[tools]: https://github.com/strick-j/CyberArk-APIs/tree/main/tools
