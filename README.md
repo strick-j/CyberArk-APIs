@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/strick-j/CyberArk-APIs">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/api-repo-logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">CyberArk APIs Bruno</h3>
