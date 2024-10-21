@@ -1,0 +1,86 @@
+meta {
+  name: Get additional attributes
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/ExtData/GetColumns
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{uuid}}",
+    "IncludeNulls": false,
+    "Table": "Users"
+  }
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Get additional attributes
+  - This API is used to get the list of all the current attributes and their values for a CyberArk Identity user.
+  - Only system administrators, users with user management rights, or the user itself can invoke this API.
+  - When this API is invoked for a user, the list of all extensible attributes set for that particular user with their respective values is returned.
+  - Extended unset attributes (i.e., null values) for the user in this request are not returned in the response unless specified in the API request using parameter 'IncludeNulls'.
+  - For more details, please refer to Use extensible attributes.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/ExtData/GetColumns
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/ExtData/GetColumns
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Table| string | yes | Name of the table to examine |
+  | ID | string | yes | ID of the user to fetch list of attributes |
+  | IncludeNulls | boolean | no | Include columns with null values or not (default=false) |
+  
+  #### Example Request Body
+  ```
+  {
+    "ID": "2e131860-09fb-497b-bb5a-179cbdf72bf2",
+    "IncludeNulls": true,
+    "Table": "Users"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  
+  ```
+  
+  
+}

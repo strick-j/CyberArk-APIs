@@ -1,0 +1,118 @@
+meta {
+  name: Fetch Attributes for a specified user
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/UserMgmt/GetUserAttributes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "2e131860-09fb-497b-bb5a-179cbdf72bf2",
+    "directoryServiceUuid": ""
+  }
+}
+
+vars:pre-request {
+  uuid: 2e131860-09fb-497b-bb5a-179cbdf72bf2
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Fetch attributes for a specified user
+  Attributes will vary depending on the type of the directory service the user belongs to.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/UserMgmt/GetUserAttributes
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/UserMgmt/GetUserAttributes
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | ID | string | yes | User UUID to fetch attributes for (default=current user) |
+  | directoryServiceUuid | string | no | Directory service UUID of the user (default=null) |
+  
+  #### Example Request Body
+  ```
+  {
+    "ID": "2e131860-09fb-497b-bb5a-179cbdf72bf2",
+    "directoryServiceUuid": ""
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "ReadOnly": false,
+      "Description": "Example Bru User Description",
+      "directoryServiceUuid": "09B9A9B0-1234-1234-1234-65766D33B05E",
+      "ForcePasswordChangeNext": "False",
+      "DisplayName": "Bru Api Generated User",
+      "PasswordNeverExpire": true,
+      "PictureUri": null,
+      "CloudState": "Locked",
+      "OrgPath": null,
+      "InEverybodyRole": false,
+      "imageName": null,
+      "MobileNumber": "1238675309",
+      "LastModifiedDate": "/Date(1729539102263)/",
+      "LastPasswordChangeDate": "/Date(-62135596800000)/",
+      "CreateDate": "/Date(1729539067647)/",
+      "OfficeNumber": "1238675309",
+      "LockedByAdmin": true,
+      "SubjectToCloudLocks": true,
+      "Alias": "aap4212",
+      "HomeNumber": "1238675309",
+      "Name": "bru-gen@abc1234",
+      "PreferredCulture": "",
+      "Version": "1",
+      "Mail": "example@example.com",
+      "PreferredTimeZone": "",
+      "Uuid": "2e131860-09fb-497b-bb5a-179cbdf72bf2",
+      "State": "Locked, Disabled",
+      "ExternalUuid": "2e131860-09fb-497b-bb5a-179cbdf72bf2"
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

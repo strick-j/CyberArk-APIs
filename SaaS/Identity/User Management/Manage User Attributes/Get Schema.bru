@@ -1,0 +1,105 @@
+meta {
+  name: Get Schema
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/ExtData/GetSchema
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Table": "Users"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+docs {
+  ## Get Schema
+  - Use this API to obtain a list of the current attributes(columns) for a table in the Tenant's extended schema.
+  - Only system administrators, users with user management rights, or the user itself can invoke this API.
+  - When a user invokes this API for a given table, the list of all extensible attributes present in the table, along with their details, is returned.
+  - This API is necessary because all existing attributes must be included when adding/updating the Tenant schema.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/ExtData/GetSchema
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/
+  
+  #### Request Body
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Table| string | yes | Name of the table to examine |
+  
+  #### Example Request Body
+  ```
+  {
+    "Table": "Users"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "Columns": [
+        {
+          "Title": null,
+          "Name": "Termination_Flag",
+          "Description": "Flag is set when user is scheduled for termination",
+          "Type": "Bool",
+          "UserEditable": true
+        },
+        {
+          "Title": null,
+          "Name": "Secondary_Email",
+          "Description": null,
+          "Type": "Text",
+          "UserEditable": true
+        }
+      ],
+      "Indexes": [],
+      "ColumnLimit": 25,
+      "IndexLimit": 5
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}
