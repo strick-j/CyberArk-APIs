@@ -38,9 +38,6 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -116,7 +113,97 @@ Note: The various API endpoints are not yet fully implemented. This is a work in
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Usage: API Authentication
 
+The various APIs require authentication. The authentication header for most of the endpoints is automatically generated using the "Pre Request" script in Bruno. The following is an example of the Pre Request Script for one of the API endpoints:
+  
+   ```javascript
+   const platformTokenAuth = require('./tools/platformTokenAuth');
+
+   // Perform authentication usings platformToken.js tools
+   await platformTokenAuth.login();
+   ```
+
+In the example above, the Pre Request script specifically calls the platformTokenAuth.login() function. This function is defined in the platformTokenAuth.js file located in the [tools] folder. The platformTokenAuth.login() function is responsible for authenticating the user and generating the necessary headers for the API request.
+
+For authentication to work properly you must set the appropriate values in the .env file. For example, if the endpoint is configured to use Platform Token authentication you must set the following values in the .env file:
+   ```
+   PLATFORM_TOKEN_CLIENT_ID="user@example.com" 
+   PLATFORM_TOKEN_CLIENT_SECRET="ExamplePasssword1234"
+   ```
+
+If you are planning to use any of the SCIM endpoints you must set the following values in the .env file:
+   ```
+   SCIM_CLIENT_ID="scim-client"
+   SCIM_CLIENT_SECRET="scim-secret"
+   SCIM_APPLICATION_ID="scim-application"
+   SCIM_SCOPE="scim"
+   ```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Usage: API Troubleshooting and Testing
+
+The various APIs have the ability to be used in automated testing and troubleshooting. The APIs can be run in Bruno and the responses can be viewed in the response tab or within the developer view depending on .env variables. The responses can be used to troubleshoot issues with the API or to test the API in an automated fashion.
+
+There are two environment variables you may enable for test puporpses:
+  ```
+  TEST_FLAG=true
+  TEST_LOG_VERBOSE=true
+  ```
+
+The first variable, TEST_FLAG, will enable the test mode for the API. This will allow you to run the API in a test mode. Note that when TEST_FLAG is set to true variables configured with in the UI may be overwritten by test variables sourced from the .env file. The following example shows how variables may be set as part of the ***Pre Request*** script when the TEST_FLAG is set to true:
+  ```javascript
+  const tools = require('./tools/tools');
+
+  // Sets pasSafeUrlId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
+    tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))
+  }
+  ```
+
+The following example shows how variables may be set as part of the ***Post Response*** when the TEST_FLAG is set to true:
+  ```javascript
+  const tools = require('./tools/tools');
+
+  // Sets Connector Id, Component Name, and version for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('connector_id', res.body.components[0].connectorId);
+    bru.setVar('component_name', res.body.components[0].componentName);
+    bru.setVar('version', res.body.components[0].version);
+    tools.log('Connector Id: ' + bru.getVar('connector_id'))
+    tools.log('Component Name: ' + bru.getVar('component_name'))
+    tools.log('Version: ' + bru.getVar('version'))
+  }
+  ```
+
+The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. This will allow you to see the full errors within the developer console. This is useful for troubleshooting issues with the API. The example below logs errors anytime the response is not a 200 status code:
+
+  ```javascript
+  const tools = require('./tools/tools');
+
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.details) {
+      tools.log('Details: ' + res.body.details);
+    }
+  }
+  ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 ## Roadmap
