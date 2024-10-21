@@ -63,7 +63,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](https://github.com/strick-j/CyberArk-APIs)
 
 This project was built to help developers get started with CyberArk APIs. It is a collection of APIs that can be used to interact with CyberArk's services when using the Bruno API client. The project is open source and contributions are welcome.
 
@@ -197,5 +197,5 @@ Project Link: [https://github.com/strick-j/CyberArk-APIs](https://github.com/str
 [license-url]: https://github.com/strick-j/CyberArk-APIs/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/josephastrickland
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: images/bruno-screenshot.png
 [bruno-url]: https://www.usebruno.com/
