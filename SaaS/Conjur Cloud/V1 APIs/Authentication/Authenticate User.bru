@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn/conjur/{{host-id}}/authenticate
+  url: https://{{identityTenantName}}.secretsmgr.cyberark.cloud/api/authn-oidc/cyberark/conjur/authenticate
   body: formUrlEncoded
   auth: none
 }
@@ -16,10 +16,6 @@ headers {
 
 body:form-urlencoded {
   id_token: {{platformTokenBearerToken}}
-}
-
-vars:pre-request {
-  host-id: host%2Fdata%2Fbruno%2Fapi-testing%2Fapi-testing-host-1
 }
 
 assert {
