@@ -22,10 +22,10 @@ assert {
 }
 
 script:pre-request {
-  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const swsAuth = require('./tools/swsAuth');
   
-  // Perform authentication usings remoteAccessAuth.js tools
-  await remoteAccessAuth.login();
+  // Perform authentication usings swsAuth.js tools
+  await swsAuth.login();
 }
 
 script:post-response {
