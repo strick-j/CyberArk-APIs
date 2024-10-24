@@ -37,10 +37,10 @@ const remoteAccessAuth = {
   loginJWT: async function(raRegion = 'remoteAccessRegion', raTenantId = 'remoteAccessTenantId', jwtKey = 'remoteAccessJWT') {
     tools.log('Validating Remote Access JWT...');
     let now = moment();
-    let collectionVarnameForExpiryTime = 'tokenExpiry_ForToken_remoteAccessJWT';
-    let expiryTime = !!bru.getVar(collectionVarnameForExpiryTime) ? moment(bru.getVar(collectionVarnameForExpiryTime)) : now;
-    let difference = expiryTime.diff(now, 'milliseconds');
-    tools.log('Remote Access JWT expires in milliseconds: ' + difference);
+    let collectionVarnameForExpiryTimeJWT = 'tokenExpiry_ForToken_remoteAccessJWT';
+    let expiryTimeJWT = !!bru.getVar(collectionVarnameForExpiryTimeJWT) ? moment(bru.getVar(collectionVarnameForExpiryTimeJWT)) : now;
+    let differenceJWT = expiryTimeJWT.diff(now, 'milliseconds');
+    tools.log('Remote Access JWT expires in milliseconds: ' + differenceJWT);
 
     let tenantId = bru.getEnvVar(raTenantId);
     let region = bru.getEnvVar(raRegion);
@@ -52,7 +52,7 @@ const remoteAccessAuth = {
     }
 
     // if expiring within 10 seconds
-    if (difference < 10000 || !bru.getVar(collectionVarnameForExpiryTime) || !bru.getVar('activeRemoteAccessJWT') || bru.getVar('activeRemoteAccessJWT') != (tenantId + '_' + region) ) {
+    if (differenceJWT < 10000 || !bru.getVar(collectionVarnameForExpiryTimeJWT) || !bru.getVar('activeRemoteAccessJWT') || bru.getVar('activeRemoteAccessJWT') != (tenantId + '_' + region) ) {
       tools.log('Old token belongs to different environment or old token expired, requesting new one...');
       try {
         tools.log(`Attempting to generate JWT using Tenant ID: ${tenantId} and Region: ${region}`);
@@ -67,7 +67,7 @@ const remoteAccessAuth = {
         const token = this.generateJWT(tenantId, audience);
         tools.log('Remote Access JWT generated successfully. Setting variables...');
         bru.setVar(jwtKey, token);
-        bru.setVar(collectionVarnameForExpiryTime, moment().add(300, 'seconds').format());
+        bru.setVar(collectionVarnameForExpiryTimeJWT, moment().add(300, 'seconds').format());
         bru.setVar('activeRemoteAccessJWT', tenantId + '_' + region);
         tools.log('New Remote Access JWT generated and set.');
       } catch (error) {
@@ -94,23 +94,24 @@ const remoteAccessAuth = {
       console.error(error);
       throw error;
     }
-    
-    // Check to see if jwt is set, valid, expired, etc...
-    let jwt = bru.getVar(jwtKey)
-    if (!jwt) {
-      tools.log('No JWT found. Generating new JWT...');
-      await this.loginJWT();
-    } else if (tools.isJwtExpired(jwt)) {
-      tools.log('Remote Access JWT is expired. Generating new JWT')
-      await this.loginJWT();
-    }
-
-    let remoteAccessJWT = bru.getVar(jwtKey);
+  
     let tokenUrlRemoteAccess = 'https://auth.alero.io/auth/realms/serviceaccounts/protocol/openid-connect/token';
 
     // if expiring within 10 seconds
     if (difference < 10000 || !bru.getVar(collectionVarnameForExpiryTime) || !bru.getVar('activeRemoteAccessToken') || bru.getVar('activeRemoteAccessToken') != (tenantId + '_' + tokenUrlRemoteAccess) ) {
       tools.log('Old Remote Access Token belongs to different environment or old token expired, requesting new one...');
+      
+      // Check to see if jwt is set, valid, expired, etc...
+      let jwt = bru.getVar(jwtKey)
+      if (!jwt) {
+        tools.log('No JWT found. Generating new JWT...');
+        await this.loginJWT();
+      } else if (tools.isJwtExpired(jwt)) {
+        tools.log('Remote Access JWT is expired. Generating new JWT')
+        await this.loginJWT();
+      }
+
+    let remoteAccessJWT = bru.getVar(jwtKey);
       try {
         let resp = await axios({
           method: 'POST',
@@ -125,10 +126,9 @@ const remoteAccessAuth = {
             "client_assertion": encodeURIComponent(remoteAccessJWT),
           }
         });
-        tools.log(resp.data.access_token);
         bru.setVar(tokenKey, resp.data.access_token);
         bru.setVar(collectionVarnameForExpiryTime, moment().add(resp.data.expires_in, 'seconds').format());
-        bru.setVar('activeRemotAccessToken', tenantId + '_' + tokenUrlRemoteAccess);
+        bru.setVar('activeRemoteAccessToken', tenantId + '_' + tokenUrlRemoteAccess);
         tools.log('new Remote Access Token set. Token expires in: ' + resp.data.expires_in + ' seconds');
 
       } catch (error) {

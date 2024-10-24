@@ -37,10 +37,10 @@ const swsAuth = {
   loginJWT: async function(swsRegion = 'swsRegion', swsTenantId = 'swsTenantId', jwtKey = 'swsJWT') {
     tools.log('Validating Secure Web Sessions JWT...');
     let now = moment();
-    let collectionVarnameForExpiryTime = 'tokenExpiry_ForToken_swsJWT';
-    let expiryTime = !!bru.getVar(collectionVarnameForExpiryTime) ? moment(bru.getVar(collectionVarnameForExpiryTime)) : now;
-    let difference = expiryTime.diff(now, 'milliseconds');
-    tools.log('Secure Web Sessions Access JWT expires in milliseconds: ' + difference);
+    let collectionVarnameForExpiryTimeJWT = 'tokenExpiry_ForToken_swsJWT';
+    let expiryTimeJWT = !!bru.getVar(collectionVarnameForExpiryTimeJWT) ? moment(bru.getVar(collectionVarnameForExpiryTimeJWT)) : now;
+    let differenceJWT = expiryTimeJWT.diff(now, 'milliseconds');
+    tools.log('Secure Web Sessions Access JWT expires in milliseconds: ' + differenceJWT);
 
     let tenantId = bru.getEnvVar(swsTenantId);
     let region = bru.getEnvVar(swsRegion);
@@ -52,7 +52,7 @@ const swsAuth = {
     }
 
     // if expiring within 10 seconds
-    if (difference < 10000 || !bru.getVar(collectionVarnameForExpiryTime) || !bru.getVar('activeSwsJWT') || bru.getVar('activeSwsJWT') != (tenantId + '_' + region) ) {
+    if (differenceJWT < 10000 || !bru.getVar(collectionVarnameForExpiryTimeJWT) || !bru.getVar('activeSwsJWT') || bru.getVar('activeSwsJWT') != (tenantId + '_' + region) ) {
       tools.log('Old Secure Web Sessions token belongs to different environment or old token expired, requesting new one...');
       try {
         tools.log(`Attempting to generate new SWS JWT using Tenant ID: ${tenantId} and Region: ${region}`);
@@ -67,7 +67,7 @@ const swsAuth = {
         const token = this.generateJWT(tenantId, audience);
         tools.log('SWS JWT generated successfully. Setting variables...');
         bru.setVar(jwtKey, token);
-        bru.setVar(collectionVarnameForExpiryTime, moment().add(300, 'seconds').format());
+        bru.setVar(collectionVarnameForExpiryTimeJWT, moment().add(300, 'seconds').format());
         bru.setVar('activeSwsJWT', tenantId + '_' + region);
         tools.log('New SWS JWT generated and set.');
       } catch (error) {
