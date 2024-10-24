@@ -40,7 +40,7 @@ const swsAuth = {
     let collectionVarnameForExpiryTime = 'tokenExpiry_ForToken_swsJWT';
     let expiryTime = !!bru.getVar(collectionVarnameForExpiryTime) ? moment(bru.getVar(collectionVarnameForExpiryTime)) : now;
     let difference = expiryTime.diff(now, 'milliseconds');
-    tools.log('Remote Access JWT expires in milliseconds: ' + difference);
+    tools.log('Secure Web Sessions Access JWT expires in milliseconds: ' + difference);
 
     let tenantId = bru.getEnvVar(swsTenantId);
     let region = bru.getEnvVar(swsRegion);
@@ -68,7 +68,7 @@ const swsAuth = {
         tools.log('SWS JWT generated successfully. Setting variables...');
         bru.setVar(jwtKey, token);
         bru.setVar(collectionVarnameForExpiryTime, moment().add(300, 'seconds').format());
-        bru.setVar('activeRemoteAccessJWT', tenantId + '_' + region);
+        bru.setVar('activeSwsJWT', tenantId + '_' + region);
         tools.log('New SWS JWT generated and set.');
       } catch (error) {
         tools.log('login error: ' + error.message);
@@ -110,7 +110,7 @@ const swsAuth = {
 
     // if expiring within 10 seconds
     if (difference < 10000 || !bru.getVar(collectionVarnameForExpiryTime) || !bru.getVar('activeSwsToken') || bru.getVar('activeSwsToken') != (tenantId + '_' + tokenUrlSws) ) {
-      tools.log('Old Remote Access Token belongs to different environment or old token expired, requesting new one...');
+      tools.log('Old Secure Web Sessions Token belongs to different environment or old token expired, requesting new one...');
       try {
         let resp = await axios({
           method: 'POST',
