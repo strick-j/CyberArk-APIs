@@ -1,0 +1,94 @@
+meta {
+  name: Retrieve Activities
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/activities?activityTypes=PolicyLoaded, UserRoleChanged
+  body: none
+  auth: none
+}
+
+query {
+  activityTypes: PolicyLoaded, UserRoleChanged
+  ~fromTime: 0
+  ~toTime: 0
+  ~offset: 0
+  ~limit: 100
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await swsAuth.login();
+}
+
+docs {
+  ## Get SWS Tenant's Activities
+  Get list of SWS Activities, happened between specified period
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/activities
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | activityTypes | array of strings | yes | List of Activity Types to retrieve. **Available values:** RecreateTemplateRow, PolicyDeleted, PolicyConfigurationUpdated, PolicyLoaded, PolicyDefaultsPermissionsUpdated, PolicyMembersPermissionsUpdated, PolicyDisabled, PolicyEnabled, TenantUpdated, TenantStateChanged, TenantActivated, TenantLogin, UserDeletedFromTenant, UserJointTenant, UserRoleChanged, UserActivated, UserDeactivated, CompanyUserInvitationCreated, UserUsernameChanged, SettingsUpdated | 
+  | fromTime |  integer | no | From epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | toTime | integer | no | To epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "activities": [
+      {
+        "activityType": "RecreateTemplateRow",
+        "activityData": {
+          "id": "string",
+          "time": 0,
+          "initiatedById": "string",
+          "initiatedByName": "string",
+          "initiatedByRole": "string",
+          "invitationId": "string",
+          "initialStatus": "string",
+          "email": "string"
+        }
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+}

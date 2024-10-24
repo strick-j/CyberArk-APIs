@@ -1,0 +1,118 @@
+meta {
+  name: Retrieve Session By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/sessions/{{sessionId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  sessionId: vOeneIgB-6mTxsm_mIR8
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await swsAuth.login();
+  
+  // Sets SWS Session ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('sessionId', bru.getVar('swsSessionId'));
+    tools.log('SWS Session Id Set: ' + bru.getVar('sessionId'))
+  }
+}
+
+docs {
+  ## Get SWS Tenant's Session Recording Session
+  Retrieves a SWS Recording Session
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/sessions/{sessionId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | sessionId | string | no | The unique ID of the recording |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "session": {
+      "id": "vOeneIgB-6mTxsm_mIR8",
+      "startDatetime": 1685651430108,
+      "endDatetime": 1685651501886,
+      "durationSeconds": 71778,
+      "stepsCount": 6,
+      "flag": {
+        "datetime": 1685651635302,
+        "userFirstName": "John",
+        "userLastName": "Doe"
+      },
+      "application": {
+        "id": "11ed96a835ae22afae2a65ab4ca1234c",
+        "name": "Amazon Web Services (AWS) Console - 123612356123"
+      },
+      "user": {
+        "id": "11ed96a8481f5bdc9a7731f082a52b9f",
+        "fullName": "John Doe",
+        "username": "john.doe@example.com"
+      },
+      "tabIds": [
+        "1009966484"
+      ],
+      "securityLayers": [
+        {
+          "layer": "StepRecording",
+          "attributes": null
+        },
+        {
+          "layer": "ContinuousAuthentication",
+          "attributes": [
+            {
+              "attributeName": "InactivityTimeout",
+              "attributeValue": "600000"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+}

@@ -1,0 +1,88 @@
+meta {
+  name: Update User Status
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/users/{{userId}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+  "Activated"
+}
+
+vars:pre-request {
+  userId: 11ea1b784b114582836027890ec68e7e
+}
+
+assert {
+  res.body: isJson
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await swsAuth.login();
+  
+  // Sets SWS User ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('userId', bru.getVar('swsUserId'));
+    tools.log('SWS User Id Set: ' + bru.getVar('userId'))
+  }
+}
+
+docs {
+  ## Update SWS Tenant User Status
+  Updates the user's status
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/users/{userId}/status
+  
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | userId | string | yes | The unique ID of the user |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | status | string | yes | Activated, Deactivated |
+  
+  #### Request Body
+  ```
+  "Deactivated"
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+}

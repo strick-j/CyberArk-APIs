@@ -1,0 +1,123 @@
+meta {
+  name: Update SWS Policy Configuration
+  type: http
+  seq: 6
+}
+
+put {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/policies/{{policyId}}/configuration
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "policyConfiguration": {
+      "clipboardRestrictionEnabled": true,
+      "contextMenuRestrictionEnabled": true,
+      "downloadRestrictionEnabled": true,
+      "enforceEPM": false,
+      "watermarkEnabled": false,
+      "watermarkIncludesUserData": false,
+      "enforcePedometerLock": false,
+      "manualModeURLIncludeList": [
+        "online3.cashpro.bankofamerica.com"
+      ],
+      "appProtectionMode": "Automatic",
+      "excludedURLs": []
+    }
+  }
+}
+
+vars:pre-request {
+  policyId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await swsAuth.login();
+  
+  // Sets SWS Session ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('policyId', bru.getVar('swsPolicyId'));
+    tools.log('SWS Policy Id Set: ' + bru.getVar('policyId'))
+  }
+}
+
+docs {
+  ## Update SWS Policy Configuration
+  Updates SWS Policy Configuration
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/policies/{policyId}/configuration
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | yes | The unique ID of the policy |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  {
+    "policyConfiguration": {
+      "clipboardRestrictionEnabled": true,
+      "contextMenuRestrictionEnabled": true,
+      "downloadRestrictionEnabled": true,
+      "enforceEPM": false,
+      "watermarkEnabled": false,
+      "watermarkIncludesUserData": false,
+      "enforcePedometerLock": false,
+      "manualModeURLIncludeList": [
+        "online3.cashpro.bankofamerica.com"
+      ],
+      "appProtectionMode": "Automatic",
+      "excludedURLs": []
+    }
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 415 | Unsupported Media Type |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ```
+  
+  #### 415 Unsupported Media Type
+  ```
+  {
+    "type": "about:blank",
+    "title": "Unsupported Media Type",
+    "status": 415,
+    "detail": "Content-Type 'application/x-www-form-urlencoded;charset=UTF-8' is not supported.",
+    "instance": "/v2-edge/sws/policies/11ef8d80047289bfbc1047013b0c9008/status"
+  }
+  ```
+}

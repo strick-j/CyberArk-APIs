@@ -1,0 +1,72 @@
+meta {
+  name: Delete User By Id
+  type: http
+  seq: 1
+}
+
+delete {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/users/{{userId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  "Activated"
+}
+
+vars:pre-request {
+  userId: 11ea1b784b123482836027890ec68e7e
+}
+
+assert {
+  res.body: isJson
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await swsAuth.login();
+}
+
+docs {
+  ## Delete SWS Tenant User by ID
+  Updates the user's status
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/users/{userId}
+  
+  #### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | userId | string | yes | The unique ID of the user |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+}
