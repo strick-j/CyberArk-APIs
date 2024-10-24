@@ -32,7 +32,7 @@ script:pre-request {
   const swsAuth = require('./tools/swsAuth');
   const tools = require('./tools/tools');
   
-  // Perform authentication usings remoteAccessAuth.js tools
+  // Perform authentication usings swsAuth.js tools
   await swsAuth.login();
   
   // Sets SWS Session ID for testing based on environment flag and variables

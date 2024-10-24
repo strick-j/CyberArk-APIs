@@ -30,7 +30,7 @@ assert {
 script:pre-request {
   const swsAuth = require('./tools/swsAuth');
   
-  // Perform authentication usings remoteAccessAuth.js tools
+  // Perform authentication usings swsAuth.js tools
   await swsAuth.login();
 }
 
