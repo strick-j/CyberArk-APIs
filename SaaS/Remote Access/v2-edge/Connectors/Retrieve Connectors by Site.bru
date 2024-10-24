@@ -1,0 +1,101 @@
+meta {
+  name: Retrieve Connectors by Site
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/connectors/{{siteId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  siteId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access Site ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('siteId', bru.getEnvVar('testRemoteAccessSiteId'));
+    tools.log('Remote Access Site Id Set: ' + bru.getVar('siteId'))
+  }
+}
+
+docs {
+  ## Get Remote Access Tenant's Connectors - v2
+  Gets a list of tenant connectors per specified site.
+  
+  ### URL
+  https://api.alero.io/v2-edge/connectors/{siteId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | siteId | string | yes | The unique ID of the site |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "connectors": [
+      {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "createdAt": 0,
+        "version": "string",
+        "siteId": "string",
+        "connectorStatus": "Pending",
+        "connected": true,
+        "vendorLdapRunning": true,
+        "secureTunnelRunning": true,
+        "reverseProxyRunning": true,
+        "numOfApplications": 0,
+        "numOfUsers": 0,
+        "lastUpdateAt": 0,
+        "connectorCertificateExpiresAt": 0,
+        "vendorLdapInitialized": true,
+        "vendorLdapCertificateExpiresAt": 0
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+}

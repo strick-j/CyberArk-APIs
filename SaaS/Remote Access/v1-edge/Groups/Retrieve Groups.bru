@@ -1,0 +1,89 @@
+meta {
+  name: Retrieve Groups
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/groups
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 0
+  ~limit: 100
+  ~searchString: 
+  ~searchIn: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Get Remote Access Tenant's Groups - v1
+  Get list of Groups
+  
+  ### URL
+  https://api.alero.io/v1-edge/groups
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | searchString | string | no | The string to use in the search |
+  | searchIn | string | no | The field in which to perform the search | 
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "sites": [
+      {
+        "id": "string",
+        "displayName": "string",
+        "description": "string",
+        "type": "string",
+        "createdByUserId": "string",
+        "creationTime": 0,
+        "updatedByUserId": "string",
+        "updateTime": 0
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+}

@@ -1,0 +1,100 @@
+meta {
+  name: Create Group
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/groups
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name":"Example-API-Group",
+    "description":"Example Description - Group created via API"
+  }
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Remote Access Group ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('raGroupId', res.body.id);
+    tools.log('Remote Access Group Id Set: ' + bru.getVar('raGroupId'))
+  }
+}
+
+docs {
+  ## Create Remote Access Tenant's Group - v2
+  Create Group
+  
+  ### URL
+  https://api.alero.io/v2-edge/groups
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  None
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | name | string | no | Group Name |
+  | description | string | no | Group Description | 
+  
+  #### Request Body
+  ```
+  {
+    "name":"Example-API-Group",
+    "description":"Example Description - Group created via API"
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "id": "11ef923e17d92878aaf4e92e44a22867",
+    "name": "Example-API-Group",
+    "description": "Example Description - Group created via API",
+    "type": "ProvisionedByAlero",
+    "numOfInvitations": 0,
+    "numOfVendors": 0
+  }
+  ```
+}
