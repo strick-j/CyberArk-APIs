@@ -110,35 +110,53 @@ Within Bruno, you can navigate to the desired API endpoint and run the API. The 
 Note: The various API endpoints are not yet fully implemented. This is a work in progress.
 
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Usage: API Authentication
 
 The various APIs require authentication. The authentication header for most of the endpoints is automatically generated using the "Pre Request" script in Bruno. The following is an example of the Pre Request Script for one of the API endpoints:
   
-   ```javascript
-   const platformTokenAuth = require('./tools/platformTokenAuth');
+  ```javascript
+  const platformTokenAuth = require('./tools/platformTokenAuth');
 
-   // Perform authentication usings platformToken.js tools
-   await platformTokenAuth.login();
-   ```
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  ```
 
 In the example above, the Pre Request script specifically calls the platformTokenAuth.login() function. This function is defined in the platformTokenAuth.js file located in the [tools] folder. The platformTokenAuth.login() function is responsible for authenticating the user and generating the necessary headers for the API request.
 
 For authentication to work properly you must set the appropriate values in the .env file. For example, if the endpoint is configured to use Platform Token authentication you must set the following values in the .env file:
-   ```
-   PLATFORM_TOKEN_CLIENT_ID="user@example.com" 
-   PLATFORM_TOKEN_CLIENT_SECRET="ExamplePasssword1234"
-   ```
+  ```
+  PLATFORM_TOKEN_CLIENT_ID="user@example.com" 
+  PLATFORM_TOKEN_CLIENT_SECRET="ExamplePasssword1234"
+  ```
 
 If you are planning to use any of the SCIM endpoints you must set the following values in the .env file:
-   ```
-   SCIM_CLIENT_ID="scim-client"
-   SCIM_CLIENT_SECRET="scim-secret"
-   SCIM_APPLICATION_ID="scim-application"
-   SCIM_SCOPE="scim"
-   ```
+  ```
+  SCIM_CLIENT_ID="scim-client"
+  SCIM_CLIENT_SECRET="scim-secret"
+  SCIM_APPLICATION_ID="scim-application"
+  SCIM_SCOPE="scim"
+  ```
+
+If you are planning to use either the Remote Access or Secure Web Sessions endpoints you must set the following values in the .env file:
+  ```
+  # Remote Access Login Information
+  RA_BASE_URL="api.alero.io"
+  RA_TENANT_ID="12ed12ae1EXAMPLEfb8d6e1234"
+  RA_SERVICE_ACCOUNT_ID="11ef91EXAMPLE415dc11bf4"
+  RA_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\r\nMIIEEXAMPLEowIBAAEXAMPLEu6p44EHG5f7QqREXAMPLEQ\r\n-----END RSA PRIVATE KEY-----\r\n"
+  RA_REGION="us"
+
+  # Secure Web Sessions Login Information
+  SWS_BASE_URL="api.alero.io"  
+  SWS_TENANT_ID="12ed12ae1EXAMPLEfb8d6e1234"
+  SWS_SERVICE_ACCOUNT_ID="11ef91EXAMPLE415dc11bf4"
+  SWS_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\r\nMIIEEXAMPLEowIBAAEXAMPLEu6p44EHG5f7QqREXAMPLEQ\r\n-----END RSA PRIVATE KEY-----\r\n"
+  SWS_REGION="us"
+  ```
+You can find your Tenant ID by logging into your SWS or Remote Access portal. The Tenant ID is located in the URL of the portal. Your base URL will depend on your region and can be found in the documentation. The Service Account ID can be found in the Service Account ID and Private Key are part of the JSON file that gets created when you create a service account.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Usage: API Troubleshooting and Testing
@@ -226,7 +244,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
     - [x] Secrets Hub
     - [x] Secure Cloud Access
     - [x] Secure Infrastructure Access
-    - [ ] Secure Web Sessions
+    - [x] Secure Web Sessions
   - [ ] Self Hosted
     - [ ] PAM
 
