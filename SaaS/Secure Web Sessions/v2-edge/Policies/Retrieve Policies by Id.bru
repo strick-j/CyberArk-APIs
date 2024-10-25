@@ -1,0 +1,152 @@
+meta {
+  name: Retrieve Policies by Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/policies/{{policyId}}
+  body: none
+  auth: none
+}
+
+query {
+  ~searchString: 
+  ~securityLayers: SessionProtection, ContinuousAuthentication,
+  ~offset: 0
+  ~limit: 100
+  ~memberTypes: Group,  Role
+}
+
+vars:pre-request {
+  policyId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings swsAuth.js tools
+  await swsAuth.login();
+  
+  // Sets SWS Session ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('policyId', bru.getVar('swsPolicyId'));
+    tools.log('SWS Policy Id Set: ' + bru.getVar('policyId'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets SWS Member ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    if (res.body.members.members[0].id) {
+      bru.setVar('swsMemberId', res.body.members.members[0].id);
+      tools.log('SWS Member Id Set: ' + bru.getVar('swsMemberId'))
+    }
+  }
+}
+
+docs {
+  ## Get SWS Tenant's Policies
+  Retrieves details about a SWS policy, identified by its ID
+  
+  ### URL
+  https://api.alero.io/v2-edge/sws/policies/{policyId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | no | The unique ID of the policy |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | searchString | string | no | A free search string | 
+  | securityLayers | string | no | The security layer/s to include in the search criteria. **Available values:** SessionProtection, ContinuousAuthentication, StepRecording, SessionControl, None | 
+  | memberTypes | array of strings | no | The member type/s to include in the search criteria. **Available values:** Group, Role, User | 
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "policy": {
+      "policyId": "string",
+      "name": "string",
+      "description": "string",
+      "appKey": "string",
+      "active": true
+    },
+    "configuration": {
+      "clipboardRestrictionEnabled": true,
+      "contextMenuRestrictionEnabled": true,
+      "downloadRestrictionEnabled": true,
+      "enforceEPM": true,
+      "watermarkEnabled": true,
+      "watermarkIncludesUserData": true,
+      "enforcePedometerLock": true,
+      "manualModeURLIncludeList": [
+        "glo7seBkYHKr=VZ#Dyv@GEB3kmlLV_WYLgr"
+      ],
+      "appProtectionMode": "Automatic",
+      "excludedURLs": [
+        "YW%skYQmsKfz872JXja&oW%=_%kh.W&'/j#EOOa"
+      ]
+    },
+    "epmStatus": {
+      "active": true
+    },
+    "defaultSecurityLayers": [
+      "SessionProtection"
+    ],
+    "sessionControlRules": [
+      {
+        "id": "string",
+        "name": "string",
+        "actionType": "Blocked",
+        "createDatetime": 0,
+        "createUsername": "string",
+        "inputType": "Number",
+        "isActive": true,
+        "isEmailNotification": true,
+        "isPushNotification": true,
+        "labelName": "string",
+        "notificationEmail": "string",
+  
+  ```
+}

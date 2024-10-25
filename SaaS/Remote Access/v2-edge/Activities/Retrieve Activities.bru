@@ -1,0 +1,114 @@
+meta {
+  name: Retrieve Activities
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/activities?activityTypes=ApplicationDeleted, ApplicationUpdated, ApplicationEnabled, ApplicationDisabled
+  body: none
+  auth: none
+}
+
+query {
+  activityTypes: ApplicationDeleted, ApplicationUpdated, ApplicationEnabled, ApplicationDisabled
+  ~fromTime: 0
+  ~toTime: 0
+  ~offset: 0
+  ~limit: 100
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Get Remote Access Tenant's Activities - v2
+  Get list of Activities, happened between specified period
+  
+  ### URL
+  https://api.alero.io/v2-edge/activities
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | activityTypes | array of strings | yes | List of Activity Types to retrieve. **Available values:** ApplicationCreated, ApplicationDeleted, ApplicationUpdated, ApplicationEnabled, ApplicationDisabled, ApplicationUserLogin, ConnectorCreated, ConnectorDeleted, ConnectorInitializationExtended, ConnectorInitialized, ConnectorUpdated, ConnectorLdapUpdated, ConnectorLdapInitialized, ConnectorLdapStopped, GroupsCreated, GroupsDeleted, GroupsUpdated, SettingsUpdated, SiteCreated, SiteDeleted, SiteUpdated, TenantAliasUpdated, TenantCreated, TenantLogin, UserActivated, UserDeactivated, VendorActivated, VendorDeactivated, VendorUpdated, UserDeleteFromTenant, VendorDeleteFromTenant, UserJoinTenant, VendorJoinTenant, UserCreated, UserUpdated, UserRoleChanged, ApplicationVendorLogin, AppCertificateCreated, AppCertificateDeleted, AppCertificateUpdated, CompanyUserInvitationCreate, VendorInvitationCreate, ServiceAccountCreated, ServiceAccountDeleted, ServiceAccountActivated, ServiceAccountDeactivated, ApplicationLoginBlocked, DirectAccessUserResponse, DirectAccessConnectionDenied, OfflineAccessUserViewedPassword, IdaptiveVendorSync, IdaptiveRoleSync, CompanyInviterUpdated| 
+  | fromTime |  integer | no | From epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | toTime | integer | no | To epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "activities": [
+      {
+        "activityType": "ApplicationCreated",
+        "activityData": {
+          "id": "string",
+          "time": 0,
+          "initiatedById": "string",
+          "initiatedByName": "string",
+          "initiatedByRole": "string",
+          "certId": "string",
+          "siteId": "string",
+          "siteName": "string",
+          "displayName": "string",
+          "description": "string",
+          "creationTime": 0,
+          "updateTime": 0,
+          "createdByUserId": "string",
+          "updatedByUserId": "string",
+          "subjectName": "string",
+          "validFrom": 0,
+          "validTo": 0
+        }
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "type": "about:blank",
+    "title": "Bad Request",
+    "status": 400,
+    "detail": "Required parameter 'activityTypes' is not present.",
+    "instance": "/v2-edge/activities"
+  }
+  ```
+}

@@ -1,0 +1,85 @@
+meta {
+  name: Retrieve Sites
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/sites
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 0
+  ~limit: 100
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Get Remote Access Tenant's Sites - v1
+  Retrieves a list of tenant sites
+  
+  ### URL
+  https://api.alero.io/v1-edge/sites
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "sites": [
+      {
+        "id": "string",
+        "displayName": "string",
+        "description": "string",
+        "type": "string",
+        "createdByUserId": "string",
+        "creationTime": 0,
+        "updatedByUserId": "string",
+        "updateTime": 0
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+}

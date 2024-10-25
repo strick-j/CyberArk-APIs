@@ -1,0 +1,81 @@
+meta {
+  name: Add User to Vendor Team by Id
+  type: http
+  seq: 8
+}
+
+post {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/users/{{userId}}/teams/{{teamId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  userId: 
+  teamId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access User ID and Team ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('userId', bru.getVar('raUserId'));
+    bru.setVar('teamId', bru.getEnvVar('testRemoteAccessTeamId'))
+    tools.log('Remote Access User Id Set: ' + bru.getVar('userId'))
+    tools.log('Remote Access Team Id Set: ' + bru.getVar('teamId'))
+  }
+}
+
+docs {
+  ## Add Remote Access Tenant's User Vendor to Team Id - v2
+  Add Vendor Manager or User to a Team, User will become Vendor Manager if added to the team
+  
+  ### URL
+  https://api.alero.io/v2-edge/users/{userId}/teams/{{teamId}}
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | userId | string | yes | The unique ID of the user |
+  | teamId | string | yes | The unique ID of the team | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+}

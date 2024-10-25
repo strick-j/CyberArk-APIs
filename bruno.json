@@ -2,8 +2,18 @@
 	"version": "1",
 	"name": "CyberArk Rest APIs",
 	"type": "collection",
-	"ignore": [
-		"node_modules",
-		".git"
-	]
+	"scripts": {
+    "moduleWhitelist": [
+			"jsonwebtoken",
+			"buffer",
+			"crypto",
+			"jwt",
+			"axios",
+			"moment",
+			"form-data"
+		],
+    "filesystemAccess": {
+      "allow": true
+    }
+  }
 }

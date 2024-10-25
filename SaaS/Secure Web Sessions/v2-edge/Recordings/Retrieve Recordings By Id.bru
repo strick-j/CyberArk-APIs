@@ -1,0 +1,143 @@
+meta {
+  name: Retrieve Recordings By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{swsBaseUrl}}/v2-edge/sws/sessions/{{recordingId}}
+  body: none
+  auth: none
+}
+
+query {
+  ~freeSearch: 
+  ~fromTime: 
+  ~toTime: 
+  ~activityTypes: 
+  ~tabIds: 
+  ~isFlagged: true
+  ~offset: 5
+  ~limit: 100
+}
+
+vars:pre-request {
+  recordingId: vOeneIgB-6mTxsm_mIR8
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const swsAuth = require('./tools/swsAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings swsAuth.js tools
+  await swsAuth.login();
+  
+  // Sets SWS Recording ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('recordingId', bru.getVar('swsRecordingId'));
+    tools.log('SWS Recording Id Set: ' + bru.getVar('recordingId'))
+  }
+}
+
+docs {
+  ## Get SWS Tenant's Session Recording by Id
+  Retrieves a list of SWS Session Recording Steps, according to a query
+  ### URL
+  https://api.alero.io/v2-edge/sws/recordings/{recordingId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | recordingId | string | no | The unique ID of the recording |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | freeSearch | string | no | The free search string. Valid values: free text/patterns/wildcards |
+  | fromTime |  integer | no | From epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | toTime | integer | no | To epoch Time **Example:** 1669923609709. **Default:** 0 | 
+  | activityTypes | array of strings | no | List of Activity Types to retrieve. **Available values:** RecreateTemplateRow, PolicyDeleted, PolicyConfigurationUpdated, PolicyLoaded, PolicyDefaultsPermissionsUpdated, PolicyMembersPermissionsUpdated, PolicyDisabled, PolicyEnabled, TenantUpdated, TenantStateChanged, TenantActivated, TenantLogin, UserDeletedFromTenant, UserJointTenant, UserRoleChanged, UserActivated, UserDeactivated, CompanyUserInvitationCreated, UserUsernameChanged, SettingsUpdated | 
+  | tabIds | array of strings | no | Tab Ids |
+  | isFlagged | boolean | no | Whether or not the recording is flagged |
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "session": {
+      "id": "dU_wZooBDokzt0SJbXRr",
+      "startDatetime": 1693944147724,
+      "endDatetime": 1694027398123,
+      "durationSeconds": 83250399,
+      "stepsCount": 53,
+      "flag": null,
+      "application": {
+        "id": "11ee476110517e80bcf4a528c2b703e2",
+        "name": "AWS IAM Identity Center"
+      },
+      "user": {
+        "id": "null",
+        "fullName": "John Doe",
+        "username": "john.doe@example.com"
+      },
+      "tabIds": [
+        "1771502315",
+        "1771502318",
+        "1771502325",
+        "1771502544",
+        "1771502547",
+        "1771502550",
+        "1771502562",
+        "1771502720"
+      ],
+      "securityLayers": [
+        {
+          "layer": "StepRecording",
+          "attributes": null
+        },
+        {
+          "layer": "SessionProtection",
+          "attributes": [
+            {
+              "attributeName": "ClipboardRestrictionEnabled",
+              "attributeValue": "true"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+}

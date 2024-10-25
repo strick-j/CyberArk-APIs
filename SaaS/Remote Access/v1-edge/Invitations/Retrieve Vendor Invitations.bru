@@ -1,0 +1,118 @@
+meta {
+  name: Retrieve Vendor Invitations
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/invitations/vendor-invitations/
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 0
+  ~limit: 100
+  ~searchString: 
+  ~searchIn: 
+  ~createdBy: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Remote Access Invitation ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('raInvitationId', res.body.invitations[0].invitationId);
+    tools.log('Remote Access Vendor Invitation Id Set: ' + bru.getVar('raInvitationId'))
+  }
+  
+  
+}
+
+docs {
+  ## Get Remote Access Tenant's invitations - v1
+  Get Vendor Invitations
+  
+  ***NOTE: RECOMMEND USING V2 ENDPOINT***
+  
+  ### URL
+  https://api.alero.io/v1-edge/invitations/vendor-invitations/
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | createdBy | string | no | The ID of the Alero user who created the invitation |
+  | searchString | string | no | The string to use in the search |
+  | searchIn | string | no | The field in which to perform the search | 
+  | offset | integer | no | Starting activity offset. Default: 0 |
+  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "invitations": [
+      {
+        "companyName": "string",
+        "emailAddress": "string",
+        "expiredAt": 0,
+        "fullName": "string",
+        "groups": "string",
+        "invitationId": "string",
+        "phoneNumber": "+972546222111",
+        "phoneAndEmailAuth": true
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

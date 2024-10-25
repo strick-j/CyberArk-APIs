@@ -1,0 +1,91 @@
+meta {
+  name: Retrieve User by Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/users/{{userId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  userId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access User ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('userId', bru.getVar('raUserId'));
+    tools.log('Remote Access User Id Set: ' + bru.getVar('userId'))
+  }
+}
+
+docs {
+  ## Get Remote Access Tenant's User by Id - v1
+  Retrieves details of a user identified by ID
+  
+  ### URL
+  https://api.alero.io/v1-edge/users/{userId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | userId | string | yes | The unique ID of the user |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "id": "11ecb68a2f1b8f959cdd3bd0e898dfee",
+    "invitedBy": "11ea05580397eab9bc32856f0807c067",
+    "username": "example@example.com",
+    "firstName": "example",
+    "lastName": "user",
+    "phoneNumber": "+15111234567",
+    "phoneModel": "SM-G998U1",
+    "phoneOS": "14",
+    "role": "VendorManager",
+    "status": "Deactivated",
+    "lastLogin": 0,
+    "appVersion": "8.15.4"
+  }
+  ```
+}

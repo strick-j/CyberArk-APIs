@@ -1,0 +1,143 @@
+meta {
+  name: Delete Vendor by Id
+  type: http
+  seq: 4
+}
+
+delete {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/vendors/{{vendorId}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "id": "string",
+    "username": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "emailAddress": "string",
+    "phoneNumber": "string",
+    "phoneModel": "string",
+    "phoneOs": "string",
+    "canInvite": true,
+    "status": "string",
+    "appVersion": "string",
+    "phoneAndEmailAuth": false,
+    "companyName": "string",
+    "lastLogin": 0,
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "comments": "string",
+    "accessStartDate": 1672963200000,
+    "accessEndDate": 1743206399000,
+    "groups": [
+      {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "type": "string"
+      }
+    ],
+    "maxNumOfInvitedVendors": 10,
+    "invitedVendorsInitialStatus": "string",
+    "provisioningType": "string",
+    "emailConfirmedAt": 1669946614406,
+    "invitationId": "string",
+    "invitedBy": "string"
+  }
+}
+
+vars:pre-request {
+  vendorId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+}
+
+docs {
+  ## Delete Remote Access Tenant's Vendor by Id - v2
+  Deletes a vendor that is identified by ID
+  
+  ### URL
+  https://api.alero.io/v2-edge/vendors/{vendorId}
+  
+  #### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | vendorId | string | yes | The unique ID of the vendor |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "timestamp": 1729863245810,
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/v2-edge/vendors//"
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  {
+    "type": "about:blank",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "No endpoint GET /v2-edge/vendors/.",
+    "instance": "/v2-edge/vendors/"
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

@@ -1,0 +1,119 @@
+meta {
+  name: Create Invitation Pending Self Service Request
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/selfServiceRequests/{{requestId}}
+  body: none
+  auth: none
+}
+
+query {
+  ~searchString: 
+  ~searchIn: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Create Remote Access Tenant's Self Service Request by Id - v2
+  Creates a vendor invitation based on a pending self-service invitation request.
+  
+  ### URL
+  https://api.alero.io/v2-edge/selfServiceRequests/
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | requestId | string | no | The unique Id of the pending request |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  {
+    "initialStatus": "Activated",
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "canInvite": true,
+    "comments": "j",
+    "provisioningType": "ProvisionedByAlero",
+    "provisioningUsername": "W6c8?!SLs3",
+    "provisioningGroups": [
+      "!bk;jXGnIlJK_P|hF5!ZcB:_ZIWQN"
+    ],
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "customText": "F{.3@V~Z;bU:u!###`y1`G5p c1**2+NIlMgP",
+    "maxNumOfInvitedVendors": 2147483647,
+    "phoneAndEmailAuth": true,
+    "invitedVendorsInitialStatus": "Activated"
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "totalCount": 0,
+    "requests": [
+      {
+        "createdAt": 0,
+        "id": "string",
+        "emailAddress": "string",
+        "fullName": "string",
+        "phoneNumber": "string",
+        "companyName": "string",
+        "requestComments": "string",
+        "requestedAccessStartDate": 0,
+        "requestedAccessEndDate": 0
+      }
+    ]
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

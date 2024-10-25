@@ -1,0 +1,110 @@
+meta {
+  name: Create User Invitations
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/invitations/user-invitations
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "usersToInvite": [
+      {
+        "name": "John Cena",
+        "emailAddress": "john.cena@example.com"
+      }
+    ],
+    "initialStatus": "Deactivated",
+    "invitationExpirationTime": 0
+  }
+}
+
+assert {
+  res.body: isString
+  res.status: eq 201
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Create Remote Access Tenant's User Invitation - v2
+  Create User Invitation
+  
+  ### URL
+  https://api.alero.io/v2-edge/invitations/user-invitations/
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Query Parameters
+  No Parameters
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  {
+    "usersToInvite": [
+      {
+        "name": "John Cena",
+        "emailAddress": "john.cena@example.com"
+      }
+    ],
+    "initialStatus": "Deactivated",
+    "invitationExpirationTime": 0
+  }
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "invitations": [
+      {
+        "companyName": "string",
+        "emailAddress": "string",
+        "expiredAt": 0,
+        "fullName": "string",
+        "groups": "string",
+        "invitationId": "string",
+        "phoneNumber": "+972546222111",
+        "phoneAndEmailAuth": true
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

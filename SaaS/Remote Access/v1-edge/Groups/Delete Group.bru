@@ -1,0 +1,77 @@
+meta {
+  name: Delete Group
+  type: http
+  seq: 5
+}
+
+delete {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/groups/{{groupId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  groupId: 11ef923e17d92878aaf4e92e44a22867
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access Group ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('groupId', bru.getVar('raGroupId'));
+    tools.log('SWS User Id Set: ' + bru.getVar('groupId'))
+  }
+}
+
+docs {
+  ## Delete Remote Access Tenant's Group - v1
+  Delete Group
+  
+  ### URL
+  https://api.alero.io/v1-edge/groups/{groupId}
+  
+  #### Resource Information
+  | HTTP Method | Delete |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- |
+  | groupId | string | no | Unique ID of the Group |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+}

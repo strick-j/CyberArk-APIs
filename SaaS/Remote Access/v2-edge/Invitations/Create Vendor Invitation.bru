@@ -1,0 +1,168 @@
+meta {
+  name: Create Vendor Invitation
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/invitations/vendor-invitations
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "companyName": "Acme Inc.",
+    "emailAddress": "jane.doe@acme.inc",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "phoneNumber": "+17038675309",
+    "initialStatus": "Activated",
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "accessTimeDetails": {
+      "timeZone": "America/New_York",
+      "allowedDays": [
+        "MONDAY"
+      ],
+      "allDay": true,
+      "workingHoursStartSeconds": 0,
+      "workingHoursEndSeconds": 0
+    },
+    "canInvite": true,
+    "comments": "Example API User",
+    "provisioningType": "ProvisionedByAlero",
+    "provisioningUsername": "jane.doe.acme",
+    "provisioningGroups": [
+      "11eed1a0d4b9c199b12eff24c8069239"
+    ],
+    "applications": [
+      {
+        "siteId": "{{siteId}}",
+        "applicationId": "{{applicationId}}"
+      }
+    ],
+    "maxNumOfInvitedVendors": 2,
+    "phoneAndEmailAuth": true,
+    "invitedVendorsInitialStatus": "Activated",
+    "enableWebAppsAccess": true
+  }
+}
+
+vars:pre-request {
+  siteId: 
+  applicationId: 
+}
+
+assert {
+  res.body: isString
+  res.status: eq 201
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access Site ID and Application ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('siteId', bru.getEnvVar('testRemoteAccessSiteId'));
+    bru.setVar('applicationId', bru.getEnvVar('testRemoteAccessApplicationId'));
+    tools.log('Remote Access Site Id Set: ' + bru.getVar('siteId'))
+    tools.log('Remote Access Application Id Set: ' + bru.getVar('applicationId'))
+  }
+}
+
+docs {
+  ## Create Remote Access Tenant's Invitation - v2
+  Create Vendor Invitations
+  
+  ### URL
+  https://api.alero.io/v2-edge/invitations/vendor-invitations
+  
+  #### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  {
+    "companyName": "Texas Rangers",
+    "emailAddress": "chuck.norris@tx-rangers.app",
+    "firstName": "Chuck",
+    "lastName": "Norris",
+    "phoneNumber": "+172058655541",
+    "initialStatus": "Activated",
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "role": "Vendor",
+    "comments": "Walker Texas Ranger",
+    "provisioningType": "ProvisionedByAlero",
+    "provisioningUsername": "chuck.norris",
+    "provisioningGroups": [
+      "rQYAq~*a2vy-Znpt*$=d-k+G4uTORlywp@'`'Xx"
+    ],
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "customText": " 4\"NGB6vr$Me*GwX,dPp.^Xu",
+    "maxNumOfInvitedVendors": 2147483647,
+    "phoneAndEmailAuth": true,
+    "invitedVendorsInitialStatus": "Activated"
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "invitations": [
+      {
+        "companyName": "string",
+        "emailAddress": "string",
+        "expiredAt": 0,
+        "fullName": "string",
+        "groups": "string",
+        "invitationId": "string",
+        "phoneNumber": "+972546222111",
+        "phoneAndEmailAuth": true
+      }
+    ],
+    "totalCount": 0
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

@@ -1,0 +1,115 @@
+meta {
+  name: Update Vendor Status
+  type: http
+  seq: 5
+}
+
+put {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/vendors/{{vendorId}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+  "Activated"
+}
+
+vars:pre-request {
+  vendorId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access Vendor ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('vendorId', bru.getVar('raVendorId'));
+    tools.log('Remote Access Vendor Id Set: ' + bru.getVar('vendorId'))
+  }
+}
+
+docs {
+  ## Update Remote Access Tenant's Vendor by Id - v2
+  Updates the vendor's status
+  
+  ### URL
+  https://api.alero.io/v2-edge/vendors/{vendorId}
+  
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | vendorId | string | yes | The unique ID of the vendor |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  "Activated"
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "timestamp": 1729863245810,
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/v2-edge/vendors//"
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  {
+    "type": "about:blank",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "No endpoint GET /v2-edge/vendors/.",
+    "instance": "/v2-edge/vendors/"
+  }
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}
