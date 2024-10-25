@@ -1,0 +1,83 @@
+meta {
+  name: Delete User by Id
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/users/{{userId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  userId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+}
+
+docs {
+  ## Delete Remote Access Tenant's User by Id - v2
+  Deletes a user identified by ID
+  
+  ### URL
+  https://api.alero.io/v2-edge/users/{userId}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | userId | string | yes | The unique ID of the user |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "id": "11ecb68a2f1b8f959cdd3bd0e898dfee",
+    "invitedBy": "11ea05580397eab9bc32856f0807c067",
+    "username": "example@example.com",
+    "firstName": "example",
+    "lastName": "user",
+    "phoneNumber": "+15111234567",
+    "phoneModel": "SM-G998U1",
+    "phoneOS": "14",
+    "role": "VendorManager",
+    "status": "Deactivated",
+    "lastLogin": 0,
+    "appVersion": "8.15.4"
+  }
+  ```
+}

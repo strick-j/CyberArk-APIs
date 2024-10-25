@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{remoteAccessBaseUrl}}/v2-edge/vendors
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/users/
   body: none
   auth: none
 }
@@ -26,6 +26,20 @@ script:pre-request {
   
   // Perform authentication usings remoteAccessAuth.js tools
   await remoteAccessAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Remote Access User ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    if (res.body.users[0].id) {
+      bru.setVar('raUserId', res.body.users[0].id);
+      tools.log('Remote Access User Id Set: ' + bru.getVar('raUserId'))
+    }
+  }
 }
 
 docs {
@@ -67,25 +81,6 @@ docs {
   | 500 | Internal Server Error |
   
   #### 200 OK
-  ```
-  {
-    "invitations": [
-      {
-        "companyName": "string",
-        "emailAddress": "string",
-        "expiredAt": 0,
-        "fullName": "string",
-        "groups": "string",
-        "invitationId": "string",
-        "phoneNumber": "+972546222111",
-        "phoneAndEmailAuth": true
-      }
-    ],
-    "totalCount": 0
-  }
-  ```
-  
-  #### 405 Method Not Allowed
   ```
   {
     "users": [
