@@ -28,26 +28,20 @@ script:pre-request {
 }
 
 docs {
-  ## Get Remote Access Tenant's Self Service Requests - v2
-  Retrieves a list of pending self-service invitation requests
+  ## Create Remote Access Tenant's Self Service Request by Id - v2
+  Creates a vendor invitation based on a pending self-service invitation request.
   
   ### URL
   https://api.alero.io/v2-edge/selfServiceRequests/
   
   #### Resource Information
-  | HTTP Method | GET |
+  | HTTP Method | POST |
   | :-- | :-- |
   
-  #### URL Query Parameters
+  #### URL Path Parameters
   | Parameter | Type | Mandatory | Description | 
   | :-- | :-- | :-- | :-- | 
-  | inviteddBy | string | no | The ID of the Alero user who invited this vendor |
-  | searchString | string | no | The string to use in the search |
-  | searchIn | string | no | The field in which to perform the search | 
-  | fromTime | string | no | Epoch from time | 
-  | toTime | string | no | Epoch to time |
-  | offset | integer | no | Starting activity offset. Default: 0 |
-  | limit | integer | no | Limit number or returned Activities. Default: 100 | 
+  | requestId | string | no | The unique Id of the pending request |
   
   ### Request
   #### Request Header
@@ -56,7 +50,30 @@ docs {
   | Authorization | Bearer eyEXAMPLErQ |
   
   #### Request Body
-  None
+  ```
+  {
+    "initialStatus": "Activated",
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "canInvite": true,
+    "comments": "j",
+    "provisioningType": "ProvisionedByAlero",
+    "provisioningUsername": "W6c8?!SLs3",
+    "provisioningGroups": [
+      "!bk;jXGnIlJK_P|hF5!ZcB:_ZIWQN"
+    ],
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "customText": "F{.3@V~Z;bU:u!###`y1`G5p c1**2+NIlMgP",
+    "maxNumOfInvitedVendors": 2147483647,
+    "phoneAndEmailAuth": true,
+    "invitedVendorsInitialStatus": "Activated"
+  }
+  ```
   
   ### Response
   
