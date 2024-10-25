@@ -1,0 +1,140 @@
+meta {
+  name: Update Vendor by Phone Number
+  type: http
+  seq: 7
+}
+
+put {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/vendors/phone/{{phoneNumber}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "canInvite": true,
+    "invitedVendorsInitialStatus": "Activated",
+    "maxNumInvitedVendors": 2147483647,
+    "provisioningType": "ProvisionedByAlero",
+    "username": "CQ4*h_54feuFmXSU3K1MIPH8\"l?L@6vq'@\\|p@v6cMb\\Bj\"XJ*EebZNGew6-cV|daIlY?6I-*pYt|3aY!xsF",
+    "groups": [
+      "string"
+    ],
+    "comments": "ub40",
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "pvwaApplications": true
+  }
+}
+
+vars:pre-request {
+  phoneNumber: %2b15713905497
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+}
+
+docs {
+  ## Update Remote Access Tenant's Vendor details by Phone Number - v1
+  Updates a specific vendor's properties, that is identified by phone number
+  
+  ***NOTE: RECOMMEND USING V2 ENDPOINT***
+  
+  ### URL
+  https://api.alero.io/v1-edge/vendors/phone/{phoneNumber}
+  
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | phoneNumber | string | yes | The phone number that the user set when they registered for Alero, in international format. **Example:** +972058655541 **NOTE:** Phone Number "+" should be URL encoded (e.g. %2b) |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  {
+    "accessStartDate": 0,
+    "accessEndDate": 0,
+    "canInvite": true,
+    "invitedVendorsInitialStatus": "Activated",
+    "maxNumInvitedVendors": 2147483647,
+    "provisioningType": "ProvisionedByAlero",
+    "username": "CQ4*h_54feuFmXSU3K1MIPH8\"l?L@6vq'@\\|p@v6cMb\\Bj\"XJ*EebZNGew6-cV|daIlY?6I-*pYt|3aY!xsF",
+    "groups": [
+      "string"
+    ],
+    "comments": "ub40",
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "pvwaApplications": true
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "timestamp": 1729863245810,
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/v2-edge/vendors//"
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  "Vendor with phone number +1 123 456 7891 in not found"
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}
