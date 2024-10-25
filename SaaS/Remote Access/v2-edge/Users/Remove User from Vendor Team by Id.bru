@@ -26,7 +26,7 @@ script:pre-request {
   // Perform authentication usings remoteAccessAuth.js tools
   await remoteAccessAuth.login();
   
-  // Sets Remote Access User ID for testing based on environment flag and variables
+  // Sets Remote Access User ID and Team ID for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
