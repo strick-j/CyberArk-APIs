@@ -1,0 +1,145 @@
+meta {
+  name: Get Vendor by Phone Number
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/vendors/phone/{{phoneNumber}}
+  body: none
+  auth: none
+}
+
+body:json {
+  "Activated"
+}
+
+vars:pre-request {
+  phoneNumber: %2b15713905497
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access Vendor Phone Number for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('phoneNumber', encodeURIComponent(bru.getVar('raPhoneNumber')));
+    tools.log('Remote Access Vendor Phone Number Set: ' + bru.getVar('phoneNumber'))
+  }
+}
+
+docs {
+  ## Get Remote Access Tenant's Vendor details by Phone Number - v2
+  Retrieves a list of vendors identified by their unique phone number
+  
+  ### URL
+  https://api.alero.io/v2-edge/vendors/phone/{phoneNumber}
+  
+  #### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | phoneNumber | string | yes | The phone number that the user set when they registered for Alero, in international format. **Example:** +972058655541 **NOTE:** Phone Number "+" should be URL encoded (e.g. %2b) |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  {
+    "id": "11ecdba5595c71d596474f4a0184e998",
+    "username": "john.doe.acme.remote.access.example",
+    "firstName": "John",
+    "lastName": "Doe",
+    "emailAddress": null,
+    "phoneNumber": "+15718675309",
+    "phoneModel": "iPhone15,2",
+    "phoneOs": "16.0.2",
+    "canInvite": true,
+    "status": "Activated",
+    "appVersion": "8.0",
+    "phoneAndEmailAuth": false,
+    "companyName": "Acme",
+    "lastLogin": 0,
+    "applications": [
+      {
+        "siteId": "12ab123a9d30fd2baf123f2e48c141ce",
+        "applicationId": "12ab307a9d9abc1234567f173a1234d3"
+      }
+    ],
+    "comments": "",
+    "accessStartDate": 1672963200000,
+    "accessEndDate": 1743206399000,
+    "groups": [
+      {
+        "id": "11ed71e5265b99c1b93ecf6541a8c4b3",
+        "name": "Acme Safe Access",
+        "description": "Role for Acme Remote Access",
+        "type": "IdaptiveRole"
+      }
+    ],
+    "maxNumOfInvitedVendors": 10,
+    "invitedVendorsInitialStatus": "Activated",
+    "provisioningType": "None",
+    "emailConfirmedAt": 1669946614406,
+    "invitationId": "11ed71e53d67de14815699f66bea5d1d",
+    "invitedBy": "Chuck Norris"
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "timestamp": 1729863245810,
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/v2-edge/vendors//"
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  "Vendor with phone number +1 123 456 7891 in not found"
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}

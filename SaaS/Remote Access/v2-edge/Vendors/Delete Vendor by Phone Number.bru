@@ -1,0 +1,137 @@
+meta {
+  name: Delete Vendor by Phone Number
+  type: http
+  seq: 8
+}
+
+delete {
+  url: https://{{remoteAccessBaseUrl}}/v2-edge/vendors/phone/{{phoneNumber}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "string",
+    "username": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "emailAddress": "string",
+    "phoneNumber": "string",
+    "phoneModel": "string",
+    "phoneOs": "string",
+    "canInvite": true,
+    "status": "string",
+    "appVersion": "string",
+    "phoneAndEmailAuth": false,
+    "companyName": "string",
+    "lastLogin": 0,
+    "applications": [
+      {
+        "siteId": "string",
+        "applicationId": "string"
+      }
+    ],
+    "comments": "string",
+    "accessStartDate": 1672963200000,
+    "accessEndDate": 1743206399000,
+    "groups": [
+      {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "type": "string"
+      }
+    ],
+    "maxNumOfInvitedVendors": 10,
+    "invitedVendorsInitialStatus": "string",
+    "provisioningType": "string",
+    "emailConfirmedAt": 1669946614406,
+    "invitationId": "string",
+    "invitedBy": "string"
+  }
+}
+
+vars:pre-request {
+  phoneNumber: %2b15713905497
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+}
+
+docs {
+  ## Deletes aRemote Access Tenant's Vendor details by Phone Number - v2
+  Deletes a vendor that is identified by phone number
+  
+  ### URL
+  https://api.alero.io/v2-edge/vendors/phone/{phoneNumber}
+  
+  #### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | phoneNumber | string | yes | The phone number that the user set when they registered for Alero, in international format. **Example:** +972058655541 **NOTE:** Phone Number "+" should be URL encoded (e.g. %2b) |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "timestamp": 1729863245810,
+    "status": 400,
+    "error": "Bad Request",
+    "path": "/v2-edge/vendors//"
+  }
+  ```
+  
+  #### 404 Not Found
+  ```
+  "Vendor with phone number +1 123 456 7891 in not found"
+  ```
+  
+  #### 405 Method Not Allowed
+  ```
+  {
+    "type": "about:blank",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "Method 'GET' is not supported.",
+    "instance": "/v1-edge/invitations/vendor-invitations"
+  }
+  ```
+}
