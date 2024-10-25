@@ -1,3 +1,11 @@
+/*
+  Name: swsAuth.js
+  This module handles the authentication process for Secure Web Sessions (SWS) using JWT (JSON Web Tokens).
+  It includes functions to generate JWTs, validate them, and manage the login process with the created tokens.
+  It is leveraged by the pre-request scripts in Bruno to ensure that valid tokens are used for API requests.
+*/
+
+
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const moment = require('moment');
