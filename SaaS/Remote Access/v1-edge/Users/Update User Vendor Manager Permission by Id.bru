@@ -1,0 +1,145 @@
+meta {
+  name: Update User Vendor Manager Permission by Id
+  type: http
+  seq: 7
+}
+
+put {
+  url: https://{{remoteAccessBaseUrl}}/v1-edge/users/{{userId}}/vendor-manager-permission
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "accessPeriodStartDate": 0,
+    "accessPeriodEndDate": 0,
+    "allowedApps": [
+      {
+        "id": "11ed307a9d9abb0893947f173a3579d3",
+        "siteId": "11ed307a9d30fd2baf154f2e48c141ce"
+      }
+    ],
+    "accountActivation": "AUTOMATIC",
+    "maxInvitedVendors": 100000,
+    "userProvisioning": "ProvisionedByAlero",
+    "canInviteToWebApps": true,
+    "userGroups": [
+      "11eed1a0d4b9c199b12eff24c8069239"
+    ],
+    "idaptiveRoles": [
+      "11ed71e5265b99c1b93ecf6541a8c4b3"
+    ],
+    "provisioningUsername": "sample.alero.io",
+    "allowedEmailDomains": [
+      "example.com"
+    ],
+    "canDelegatePermissionsToExternalVendorManagers": true,
+    "canCreateGroups": true,
+    "canInviteToAllGroups": true,
+    "canInviteToAllApps": true
+  }
+}
+
+vars:pre-request {
+  userId: 
+}
+
+script:pre-request {
+  const remoteAccessAuth = require('./tools/remoteAccessAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings remoteAccessAuth.js tools
+  await remoteAccessAuth.login();
+  
+  // Sets Remote Access User ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('userId', bru.getVar('raUserId'));
+    tools.log('Remote Access User Id Set: ' + bru.getVar('userId'))
+  }
+}
+
+docs {
+  ## Add Remote Access Tenant's User Vendor Manager Permission by Id - v1
+  Updates Vendor Manager Permission to User
+  
+  **NOTE: This endpoint may be deprecated due to Vendor Teams addition**
+  
+  ### URL
+  https://api.alero.io/v1-edge/users/{userId}/vendor-manager-permission
+  
+  #### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### URL Path Parameters
+  | Parameter | Type | Mandatory | Description | 
+  | :-- | :-- | :-- | :-- | 
+  | userId | string | yes | The unique ID of the user |
+  
+  ### Request
+  #### Request Header
+  | Request Header | Field Definition |
+  | :-- | :-- |
+  | Authorization | Bearer eyEXAMPLErQ |
+  
+  #### Request Body
+  ```
+  {
+    "accessPeriodStartDate": 0,
+    "accessPeriodEndDate": 0,
+    "allowedApps": [
+      {
+        "id": "string",
+        "siteId": "string"
+      }
+    ],
+    "accountActivation": "AUTOMATIC",
+    "maxInvitedVendors": 100000,
+    "userProvisioning": "ProvisionedByAlero",
+    "canInviteToWebApps": true,
+    "userGroups": [
+      "string"
+    ],
+    "idaptiveRoles": [
+      "string"
+    ],
+    "provisioningUsername": "remote.access.example.com",
+    "allowedEmailDomains": [
+      "example.com"
+    ],
+    "canDelegatePermissionsToExternalVendorManagers": true,
+    "canCreateGroups": true,
+    "canInviteToAllGroups": true,
+    "canInviteToAllApps": true
+  }
+  ```
+  
+  ### Response
+  
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | OK |
+  | 400 | Custom Error |
+  | 401 | Unauthorized |
+  | 404 | Not Found |
+  | 500 | Internal Server Error |
+  
+  #### 200 OK
+  ```
+  ""
+  ```
+  
+  #### 403 Forbidden
+  ```
+  403 FORBIDDEN, 403 FORBIDDEN \"This API is disabled.\""
+  ```
+  
+  #### 400 Bad Request
+  ```
+  "User is not a Vendor Manager"
+  ```
+}
