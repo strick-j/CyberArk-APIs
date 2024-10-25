@@ -230,7 +230,8 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
 - [ ] Add Remaining SaaS API Endpoints
   - [ ] Enpoint Privilege Manager
   - [ ] Identity
-  - [ ] Secure Web Sessions
+  - [x] Secure Web Sessions
+  - [x] Remote Access
 - [x] Add Changelog
 - [ ] Add more examples
 - [ ] Add development documentation
@@ -245,6 +246,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
     - [x] Secure Cloud Access
     - [x] Secure Infrastructure Access
     - [x] Secure Web Sessions
+    - [x] Remote Access
   - [ ] Self Hosted
     - [ ] PAM
 
