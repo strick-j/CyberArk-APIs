@@ -16,11 +16,117 @@ query {
 
 assert {
   res.status: eq 200
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  ## Get onboarding rules
+  
+  > ***IMPORTANT***
+  > - The classic Discovery functionality will be deprecated in the near future. We advise that you transition to the new Discovery functionality and configure the corresponding APIs accordingly.
+  
+  This method returns information about all the defined onboarding rules.
+  
+  The user who runs this web service must belong to the Vault Admins group.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{?name=<rulename1,rulename2,...>/}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | ?name | string | no | A filter that specifies the rule name. Separate a list of names with commas. If none of the specified rules exist, the API returns an empty list. If a value for this parameter is not specified, the API returns all of the rules. **Valid Values:** A list of rule names, separated by commas. **Example:** ?name=rulename1,rulename2 |
+  
+  ### Example Request Body
+  None
+  
+  ### Response Parameters
+  | Parameter | Type | Description |
+  | :-- | :-- | :-- |
+  | value | array | A list of pending discovered accounts. |
+  | count | integer | The total number of results across all pages. |
+  | nextLink | string | An opaque URL to the next page of results. Should be present only when the requested page size (limit) is not specified, and there are more results than a single page, as defined by the server. The last page shouldn't have 'nextLink' in the response. If the limit in the request is too high, an error is returned. |
+  
+  #### Example Response
+  ```
+  {
+    "AutomaticOnboardingRules": [
+      {
+        "RuleId": 4,
+        "RuleName": "ExampleRule",
+        "RuleDescription": "Example Rule Description",
+        "RulePrecedence": 1,
+        "TargetPlatformId": "BRU-API-TEST-PLATFORM",
+        "TargetDeviceType": "Operating System",
+        "TargetSafeName": "BRU-API-TEST-SAFE",
+        "IsAdminIDFilter": false,
+        "MachineTypeFilter": "Server",
+        "SystemTypeFilter": "Windows",
+        "CreationTime": 1712683309,
+        "UserNameFilter": "Administrator",
+        "UserNameMethod": "Equals",
+        "AddressFilter": "192.168",
+        "AddressMethod": "Begins",
+        "AccountTypeFilter": "Local",
+        "AccountCategoryFilter": "Privileged",
+        "ReconcileAccountId": null,
+        "LastOnboardedTime": 0
+      },
+      {
+        "RuleId": 1,
+        "RuleName": "Onboard Local Corporate Admin Account",
+        "RuleDescription": "",
+        "RulePrecedence": 2,
+        "TargetPlatformId": "EXAMPLE",
+        "TargetDeviceType": "Operating System",
+        "TargetSafeName": "EXAMPLE",
+        "IsAdminIDFilter": false,
+        "MachineTypeFilter": "Server",
+        "SystemTypeFilter": "Windows",
+        "CreationTime": 1676050874,
+        "UserNameFilter": "lcladmin",
+        "UserNameMethod": "Begins",
+        "AddressFilter": null,
+        "AddressMethod": "Begins",
+        "AccountTypeFilter": "Local",
+        "AccountCategoryFilter": "Privileged",
+        "ReconcileAccountId": null,
+        "LastOnboardedTime": 1676068282
+      }
+    ],
+    "Total": 2
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
