@@ -1,29 +1,34 @@
 meta {
-  name: BYOK Status
+  name: Enable BYOK
   type: http
-  seq: 1
+  seq: 3
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok/enable
   body: none
   auth: none
 }
 
-script:pre-request {
-  // Perform authentication usings platformToken.js tools
-  const platformTokenAuth = require('./tools/platformTokenAuth');
-  await platformTokenAuth.login();
-}
-
 docs {
-  ## BYOK Status
-  This API retrieves the BYOK status of the system, access policy, current key in use, and customer details.
+  ## Enable BYOK
+  This API starts data encryption within Privilege Cloud using your KMS key.
   
-  | Call # | Retrieved Details |
-  | :-- | :-- |
-  | First Time Call | The policy to be used for the BYOK service in the encryption key. To be copied into your KMS key. Integration status with your key. The key currently in use for encryption: Your key or CyberArk KMS Key |
-  | Subsequent Calls | As in the initial response, with the addition of your customer details |
+  The result indicates that your key is used for data encryption within Privilege Cloud.
+  
+  > ***IMPORTANT***
+  > - The Enable BYOK API deactivates BYOK and the system encryption and decryption mechanisms are reset to use the CyberArk key.
+  > - This step takes about 20 minutes. During this time:
+  >   - The BYOK status indicates the key is being replaced and you cannot perform any BYOK-related action
+  >   - Ensure that the encryption key remains in the same location and is not modified in any way.
+  > - **To check your system is functioning properly:**
+  >   - After approximately 20 minutes, sign in to Privilege Cloud Portal or run the BYOK Status API to check your accounts are accessible, and continue working as usual.
+  
+  > ***WARNING***
+  > - When employing BYOK, the customer is solely responsible for safeguarding the encryption key.
+  > - In case CyberArk does not have access to your key, for example, in case of deletion, loss, or alteration of the key, you will not be able to access your encrypted data.
+  > - CyberArk does not store a copy of your encryption key, does not maintain any alternate means of accessing your encrypted data, and will not be able to recover your encrypted secrets or recorded sessions.
+  > - The Bring Your Own Key service is subject to the "Bring Your Own Key" provision in CyberArk's SaaS Terms of Service.
   
   > ***IMPORTANT***
   > - Customers that configured BYOK using Gen1 KMS policy (prior to May 2024)
@@ -37,24 +42,26 @@ docs {
   - Privilege Cloud Administrator Lite
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok/enable
   
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | POST | application/json |
   
   #### Request URL Parameters
   None
   
   ### Example Request Body
-  None
+  ```
+  {}
+  ```
   
   #### Example Response
   ```
   {
-    "message":"BYOK details.",
-    "status":"BYOK OFF",
+    "message":"BYOK is enabled and customer data is encrypted using the customer key.",
+    "status":"BYOK ON",
     "customer_key_details":{
       "key_arn":"<customer_key_arn>",
       "account":"<customer_account_id>",

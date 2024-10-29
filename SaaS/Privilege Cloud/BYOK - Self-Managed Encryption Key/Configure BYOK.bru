@@ -1,29 +1,23 @@
 meta {
-  name: BYOK Status
+  name: Configure BYOK
   type: http
-  seq: 1
+  seq: 2
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok/configure
   body: none
   auth: none
 }
 
-script:pre-request {
-  // Perform authentication usings platformToken.js tools
-  const platformTokenAuth = require('./tools/platformTokenAuth');
-  await platformTokenAuth.login();
-}
-
 docs {
-  ## BYOK Status
-  This API retrieves the BYOK status of the system, access policy, current key in use, and customer details.
+  ## Configure BYOK
+  This API configures your KMS key in the Privilege Cloud BYOK service. In response, Privilege Cloud verifies access to your key.
   
-  | Call # | Retrieved Details |
-  | :-- | :-- |
-  | First Time Call | The policy to be used for the BYOK service in the encryption key. To be copied into your KMS key. Integration status with your key. The key currently in use for encryption: Your key or CyberArk KMS Key |
-  | Subsequent Calls | As in the initial response, with the addition of your customer details |
+  The result indicates if Privilege Cloud successfully accessed your key, and that it can be used for data encryption within Privilege Cloud.
+  
+  > ***CAUTION***
+  > - Before running the Configure BYOK API, ensure that you there is no encryption key change in progress. This means that you have not run the Enable BYOK or Disable BYOK APIs in the last 20 minutes.
   
   > ***IMPORTANT***
   > - Customers that configured BYOK using Gen1 KMS policy (prior to May 2024)
@@ -37,23 +31,29 @@ docs {
   - Privilege Cloud Administrator Lite
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok/configure
   
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | POST | application/json |
   
-  #### Request URL Parameters
-  None
+  #### Request Body Parameters
+  | Parameter | Type | Description |
+  | :-- | :-- | :-- |
+  | kms_arn | string | The arn of your KMS as copied from AWS KMS. |
   
   ### Example Request Body
-  None
+  ```
+  {
+    "kms_arn": "arn:string"
+  }
+  ```
   
   #### Example Response
   ```
   {
-    "message":"BYOK details.",
+    "message":"Customer key is verified and set successfully.",
     "status":"BYOK OFF",
     "customer_key_details":{
       "key_arn":"<customer_key_arn>",

@@ -1,29 +1,27 @@
 meta {
-  name: BYOK Status
+  name: Disable BYOK
   type: http
-  seq: 1
+  seq: 4
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok/disable
   body: none
   auth: none
 }
 
-script:pre-request {
-  // Perform authentication usings platformToken.js tools
-  const platformTokenAuth = require('./tools/platformTokenAuth');
-  await platformTokenAuth.login();
-}
-
 docs {
-  ## BYOK Status
-  This API retrieves the BYOK status of the system, access policy, current key in use, and customer details.
+  ## Disable BYOK
+  This API stops data encryption within Privilege Cloud using your AWS key.
   
-  | Call # | Retrieved Details |
-  | :-- | :-- |
-  | First Time Call | The policy to be used for the BYOK service in the encryption key. To be copied into your KMS key. Integration status with your key. The key currently in use for encryption: Your key or CyberArk KMS Key |
-  | Subsequent Calls | As in the initial response, with the addition of your customer details |
+  As a result of this action, Privilege Cloud stops using your encryption key and switches to the Privilege Cloud encryption key.
+  
+  > ***IMPORTANT***
+  > - The Disable BYOK API deactivates BYOK and the system encryption and decryption mechanisms are reset to use the CyberArk key.
+  > - This step takes about 15 minutes. During this time:
+  >   - The BYOK status indicates the key is being replaced and you cannot perform any BYOK-related action
+  >   - Ensure that the encryption key remains in the same location and is not modified in any way.
+  > - System functionality is stopped and returns to full operational functionality within a short while.
   
   > ***IMPORTANT***
   > - Customers that configured BYOK using Gen1 KMS policy (prior to May 2024)
@@ -37,23 +35,25 @@ docs {
   - Privilege Cloud Administrator Lite
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok/disable
   
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | POST | application/json |
   
   #### Request URL Parameters
   None
   
   ### Example Request Body
-  None
+  ```
+  {}
+  ```
   
   #### Example Response
   ```
   {
-    "message":"BYOK details.",
+    "message":"BYOK is disabled. Customer data is encrypted using the CyberArk key.",
     "status":"BYOK OFF",
     "customer_key_details":{
       "key_arn":"<customer_key_arn>",
