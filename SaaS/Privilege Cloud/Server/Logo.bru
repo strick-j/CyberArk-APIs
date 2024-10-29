@@ -1,18 +1,21 @@
 meta {
-  name: Verify
+  name: Logo
   type: http
   seq: 3
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/verify
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/PasswordVault/WebServices/PIMServices.svc/Logo?type={{imageType}}
   body: none
   auth: none
 }
 
-assert {
-  res.status: eq 200
-  res.body: isJson
+query {
+  type: {{imageType}}
+}
+
+vars:pre-request {
+  imageType: square
 }
 
 script:pre-request {
@@ -32,11 +35,11 @@ script:post-response {
 }
 
 docs {
-  ## Verify
-  This method returns the display name of the Vault configured in the ServerDisplayName configuration parameter.
+  ## Logo
+  This method returns the configuration of the logo that is displayed in the CyberArk SafeShare logon screen and account settings.
   
   > ***IMPORTANT***
-  > - Gen1 API is deprecated in Q1 2024. Make sure to replace it with Gen2 API.
+  > - This API has been deprecated in Q1 2024.
   
   ### Request URL
   https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/verify/
@@ -52,7 +55,9 @@ docs {
   | GET | application/json |
   
   #### Request URL Parameters
-  None
+  | Parameter | Required | Description | 
+  | :-- | :-- | :-- |
+  | imageType | yes | The requested logo type: Square or Watermark. |
   
   ### Example Request Body
   None
