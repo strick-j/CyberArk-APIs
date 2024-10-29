@@ -26,15 +26,179 @@ script:pre-request {
 }
 
 script:post-response {
-  // Save first returned Discovered Account Id in Session Collection.
-  // Used in subsequent calls.
-  if (res.body.value[0]) {
-    bru.setVar("pasClassicDiscoveredAccountId", res.body.value[0].id)
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  //Sets pasCliassicDiscoveredAccountID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    if (res.body.value[0]) {
+      bru.setVar("pasClassicDiscoveredAccountId", res.body.value[0].id)
+    }
+    tools.log('Classic Discovery Account Id: ' + bru.getVar('pasClassicDiscoveredAccountId'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
   }
 }
 
 docs {
+  ## Get discovered accounts
+  
+  > ***IMPORTANT***
+  > - The classic Discovery functionality will be deprecated in the near future. We advise that you transition to the new Discovery functionality and configure the corresponding APIs accordingly.
+  > - This method returns a list of all the discovered accounts from the Pending Accounts list.
+  
   This method returns a list of all the discovered accounts from the Pending Accounts list.
   
   The user who runs this web service must belong to the Vault Admins group.
+  
+  > **NOTE**
+  > Discovered accounts that were onboarded either manually or automatically, according to predefined rules, won't be returned using this method.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/DiscoveredAccounts/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | filter | string | no | Search for accounts using filters (see Filter parameters for details): platformType, privileged, accountEnabled **Example:** platformType eq Windows Server Local AND privileged eq true AND accountEnabled eq true |
+  | search | string | no | Searches according to the REST standard (search="search word"). Search is supported for userName and address. **Example:** search=admin |
+  | searchType | string | no | The type of search to perform. The keyword can either be contained within the account property values, or at the beginning of the value specified in the Search parameter. When using a keyword at the beginning of a value, performance is enhanced. **Valid Values:** contains (default or startswith) **Example:** searchtype=contains | 
+  | offset | integer  | no | The offset of the first returned accounts into the list of results. **Default Value:** 0 |
+  | limit | integer | no | The maximum number of returned accounts. If not specified, the server limits the results to 100. The maximum number that can be specified is 1000. **Default Value:** 1000 |
+  
+  #### Request Filter Parameters
+  | Filter | Type | Description |
+  | :-- | :-- | :-- |
+  | platformType | string | Whether to return only the accounts of a specific platform. **Valid Values:** Windows Server Local, Windows Desktop Local, Windows Domain, Unix, Unix SSH Key, AWS, AWS Access Keys, Azure Password Management |
+  | privilged | boolean | Whether to return only privileged accounts or not |
+  | accountEnabled | boolean | Whether to return only enabled accounts or no |
+  
+  ### Example Request Body
+  None
+  
+  ### Response Parameters
+  | Parameter | Type | Description |
+  | :-- | :-- | :-- |
+  | value | array | A list of pending discovered accounts. |
+  | count | integer | The total number of results across all pages. |
+  | nextLink | string | An opaque URL to the next page of results. Should be present only when the requested page size (limit) is not specified, and there are more results than a single page, as defined by the server. The last page shouldn't have 'nextLink' in the response. If the limit in the request is too high, an error is returned. |
+  
+  #### Example Response
+  ```
+  {
+    "value": [
+      {
+        "id": "18_5",
+        "name": "win8.example.com-administrator-e7626445-404b-4647-9b23-c4f08513a688",
+        "userName": "administrator",
+        "address": "win8.example.com",
+        "accountEnabled": true,
+        "osGroups": "Backup Operators,IIS_IUSRS,Network Configuration Operators",
+        "platformType": "Windows Server Local",
+        "domain": "example.com",
+        "lastLogonDateTime": 1530635686,
+        "lastPasswordSetDateTime": 1530635786,
+        "passwordNeverExpires": false,
+        "osVersion": "Windows Server 2012 R2 Standard",
+        "privileged": false,
+        "userDisplayName": "User Display Name",
+        "description": "User Description",
+        "passwordExpirationDateTime": 1530645686,
+        "osFamily": "Server",
+        "organizationalUnit": "CN=Users,DC=example,DC=com",
+        "platformTypeAccountProperties": {
+          "SID": "S-1-5-21-304654729-3147011263-1431158397-3154"
+        },
+        "additionalProperties": {
+          "AccountType": "Local",
+          "Port": 445,
+          "UserDN": "CN=administrator,CN=Users,DC=example,DC=com",
+          "CreationMethod": "WebService"
+        },
+        "numberOfDependencies": 2
+      },
+      {
+        "id": "18_6",
+        "name": "win10.example.com-administrator-e7626445-404b-4647-9b23-c4f08513a690",
+        "userName": "administrator",
+        "address": "win10.example.com",
+        ...
+      },
+      {
+        "id": "18_7",
+        "name": "example.com-amazon_accesskey_user-e7626445-404b-4647-9b23-c4f08513a850",
+        "userName": "amazon_accesskey_user",
+        "address": "example.com",
+        "discoveryDate": 1530635688,
+        "platformType": "AWS Access Keys",
+        "privileged": true,
+        "platformTypeAccountProperties": {
+          "awsAccessKeyID": "ASASASASSA",
+          "awsAccountID": "123123123123"
+        }
+      },
+      {
+        "id": "18_8",
+        "name": "example.com-amazon_dashboard_user-e7626445-404b-4647-9b23-c4f08513a855",
+        "userName": "amazon_dashboard_user",
+        "address": "example.com",
+        "discoveryDate": 1530635655,
+        "platformType": "AWS",
+        "privileged": true,
+        "platformTypeAccountProperties": {
+          "awsAccountID": "123123123123"
+        }
+      },
+      {
+        ...
+      }
+    ],
+    "count": 500,
+    "nextLink": api/DiscoveredAccounts?search=administrator&offset=100
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
