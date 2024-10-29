@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{pasAppId}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Applications/{{appId}}
   body: none
   auth: none
 }
 
 vars:pre-request {
-  pasAppId: example-app
+  appId: example-app
 }
 
 assert {
@@ -33,8 +33,8 @@ script:pre-request {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasAppId', bru.getEnvVar('testPrivilegeCloudAppId'));
-    tools.log('Application Id: ' + bru.getVar('pasAppId'))
+    bru.setVar('appId', bru.getEnvVar('testPrivilegeCloudAppId'));
+    tools.log('Application Id: ' + bru.getVar('appId'))
   }
 }
 
@@ -62,7 +62,68 @@ script:post-response {
 }
 
 docs {
+  ## Get application details
   This method returns information about a specific application.
   
   The user who runs this web service requires Audit Users permissions in Privilege Cloud.
+  
+  > **NOTE**
+  > - You cannot search for an application whose name includes @. To find these applications, list all applications, then find the specific application in the returned applications list.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/WebServices/PIMServices.svc/Applications/{AppID}/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | AppId | string | no | The name of the application about which information is returned. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "application": {
+      "AccessPermittedFrom": 0,
+      "AccessPermittedTo": 24,
+      "AllowExtendedAuthenticationRestrictions": false,
+      "AppID": "BRUNO-APP-TEST",
+      "BusinessOwnerEmail": "bruno-api-test@cyberark.com",
+      "BusinessOwnerFName": "Bruno",
+      "BusinessOwnerLName": "Testing",
+      "BusinessOwnerPhone": "555-555-1212",
+      "Description": "Testing DevOps Deployments with CyberArk",
+      "Disabled": false,
+      "ExpirationDate": null,
+      "Location": "\\"
+    }
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
