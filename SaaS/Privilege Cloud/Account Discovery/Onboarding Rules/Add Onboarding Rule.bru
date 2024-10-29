@@ -78,6 +78,12 @@ docs {
   
   The user who runs this web service must belong to the Vault Admins group.
   
+  > **Note**
+  > - Before you run this API, do the following:
+  >   - Create the Safe and the reconcile account according to the rule’s definition.
+  >   - Associate the reconcile account with the platform that is defined in the rule.
+  >   - Make sure that the user whose credentials will be used for this session is a member of the Safe specified in the TargetSafeName parameter with the Add accounts permission.
+  
   ### Request URL
   https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{?name=<rulename1,rulename2,...>/}
   

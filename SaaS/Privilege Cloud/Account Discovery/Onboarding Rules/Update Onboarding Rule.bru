@@ -75,10 +75,10 @@ docs {
   
   > **NOTE**
   > - For all non-mandatory parameters, if a value is not provided, the default value is used and will overwrite the current value in the database.
+  > - All parameter values are case insensitive, except for UserNameFilter, which is case sensitive when SystemTypeFilter equals Unix.
   
-  All parameter values are case insensitive, except for UserNameFilter, which is case sensitive when SystemTypeFilter equals Unix.
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{?name=<rulename1,rulename2,...>/}
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{id}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
