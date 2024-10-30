@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/licenses/pcloud/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/licenses/pcloud/
   body: none
   auth: none
 }
@@ -46,21 +46,98 @@ script:post-response {
 }
 
 docs {
+  ## User licenses report
   This API returns information about usage of the Privilege Cloud user licenses defined in your system.
   
   The number of user licenses of each type are configured in your Privilege Cloud system at the time of setup. A license is in use in one of the following scenarios:
-    - A user is connected using a license
-    - A user is added to a Safe using a license
+  - A user is connected using a license
+  - A user is added to a Safe using a license
   
-  User license types
-    - Privileged Basic User
-    - Privileged Standard Lite User
-    - Privileged Standard User
-    - Privileged External User
+  **User License Types:**
+  - Privileged Basic User
+  - Privileged Standard Lite User
+  - Privileged Standard User
+  - Privileged External User
   
-  Required user permissions
-  To run this API, the user must be assigned to one of the following roles:
-    - Privilege Cloud Administrator
-    - Privilege Cloud Basic Administrator
-    - Privilege Cloud Lite Administrator
+  **Required User Permissions:**
+  - Privilege Cloud Administrator
+  - Privilege Cloud Basic Administrator
+  - Privilege Cloud Lite Administrator
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/licenses/pcloud/
+  
+  > **NOTE**
+  > - The URL is case sensitive. Ensure the URL is entered using lower case characters.
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "componentName": "Privilege Cloud",
+    "optionalSummary": {
+      "name": "License consumption",
+      "used": "85",
+      "total": "4805"
+    },
+    "licensesData": [
+      {
+        "licencesElements": [
+          {
+            "name": "Privileged Basic User",
+            "used": "0",
+            "total": "1500"
+          },
+          {
+            "name": "Privileged Standard User",
+            "used": "63",
+            "total": "250"
+          },
+          {
+            "name": "Privileged External User",
+            "used": "4",
+            "total": "1500"
+          },
+          {
+            "name": "Privileged Standard Lite User",
+            "used": "0",
+            "total": "1500"
+          },
+          {
+            "name": "Credential Providers Application",
+            "used": "18",
+            "total": "55"
+          }
+        ],
+        "licenseSubCategory": "User Types"
+      }
+    ]
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
