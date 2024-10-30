@@ -1,0 +1,208 @@
+meta {
+  name: Add a New Scan Definition
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-definitions
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bru Demo Scan",
+    "type": "WIN_NIX_DOMAIN",
+    "properties": {
+      "ou": "DC=example,DC=local",
+      "domain": "example.local"
+    },
+    "recurrenceType": "immediate",
+    "credentials": [
+      {
+        "name": "domain admin",
+        "type": "account",
+        "properties": {
+          "account_id": "63_5"
+        }
+      }
+    ],
+    "tags": []
+  }
+}
+
+vars:pre-request {
+  scanDefinitionId: 
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Sets Scan Definition Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.id) {
+      tools.log('Setting Variables');
+      bru.setVar('pasScanDefinitionId', res.body.id);
+      tools.log('Scan Definition Id: ' + bru.getVar('pasScanDefinitionId'))
+    }
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
+  }
+}
+
+docs {
+  ## Add a New Scan definition
+  This method creates a new scan definition to discover accounts in target machines.
+  
+  > ***IMPORTANT***
+  > - You can define up to 500 scan definitions.
+  > - The number of servers and server users per scan affect the duration of the scan.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-definitions
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Body Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | name | string | yes | The name of the scan definition. **Valid Values:** Up to 100 alphanumeric characters including spaces and underscore, dash, period, and at signs (_ - . @). Must begin and end with a valid character and not a space. Any spaces at the beginning or end of the name are removed. |
+  | type | string | yes | The scan type to use for this scan definition. **Valid Values:** WIN_NIX_LIST, WIN_NIX_DOMAIN |
+  | properties | key-value list | yes | A list of properties that define the scan. |
+  | credentials | string or string list (key value dictionary) | yes | The credentials used to run the scan and access the target(s). |
+  | networkId | string | no | The network selected by the customer. The network must be defined in Connector Management and must be assigned to a connector pool with at least one connector. You can retrieve the list of networks that are defined in Connector Management using the List Networks API. ***NOTE:*** Required when using **List** scan type |
+  | tags | string | no | User-defined tags that are added to accounts discovered in this scan. ags are defined in separate sections per scan type:  one for domain scan and one for machine list scan. For domain scan: Up to 20 tags per scan definition, separated by comma. For list scan: 10 tags defined in the machine list + 10 tags in the domain scan definition. Combined these reach the maximum allowed number of tags per scan. |
+  | recurrenceType | string | yes | Determines the recurrence policy of the scan. **Valid Values:** Immediate, Scheduled, Recurring |
+  
+  #### Example Request Body
+  ```
+  {
+    "name": "Bru Demo Scan",
+    "type": "WIN_NIX_DOMAIN",
+    "properties": {
+      "ou": "DC=example,DC=local",
+      "domain": "example.local"
+    },
+    "recurrenceType": "immediate",
+    "credentials": [
+      {
+        "name": "domain admin",
+        "type": "account",
+        "properties": {
+          "account_id": "63_5"
+        }
+      }
+    ],
+    "tags": []
+  }
+  ```
+  
+  ### Response
+  #### Example Response (201 Created)
+  ```
+  {
+    "id": "fe79bca3-e1e2-490e-a1d2-8aecf9606292",
+    "name": "Bru Demo Scan",
+    "type": "WIN_NIX_DOMAIN",
+    "properties": {
+      "domain": "example.local",
+      "ou": "DC=example,DC=local"
+    },
+    "recurrenceType": "IMMEDIATE",
+    "credentials": [
+      {
+        "name": "domain admin",
+        "type": "account",
+        "properties": {
+          "account_id": "63_5"
+        }
+      }
+    ],
+    "creationTime": "2024-10-30T19:16:24Z",
+    "updateTime": "2024-10-30T19:16:24Z",
+    "tags": []
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  {
+    "code": "400",
+    "message": "Bad Request",
+    "description": "There are errors in the following field(s): 'type'. Make any needed corrections and try again.",
+    "errors": [
+      {
+        "code": "DS_INVALID_VALUE",
+        "message": "[windwos_domain] is not a valid scan type.",
+        "field": "type"
+      }
+    ]
+  }
+  ```
+  
+  #### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

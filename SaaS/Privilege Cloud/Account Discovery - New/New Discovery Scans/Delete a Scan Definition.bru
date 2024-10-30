@@ -1,48 +1,64 @@
 meta {
-  name: Get All Discovery Rule Sets
+  name: Delete a Scan Definition
   type: http
-  seq: 1
+  seq: 3
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
-  body: none
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-definitions/{{scanDefinitionId}}
+  body: json
   auth: none
 }
 
-query {
-  ~offset: 0
-  ~limit: 50
-  ~sort: id - asc
-  ~search: example
+body:json {
+  {
+    "name": "Bru Demo Scan",
+    "type": "WIN_NIX_DOMAIN",
+    "properties": {
+      "ou": "DC=example,DC=local",
+      "domain": "example.local"
+    },
+    "recurrenceType": "immediate",
+    "credentials": [
+      {
+        "name": "domain admin",
+        "type": "account",
+        "properties": {
+          "account_id": "63_5"
+        }
+      }
+    ],
+    "tags": []
+  }
+}
+
+vars:pre-request {
+  scanDefinitionId: 
 }
 
 assert {
-  res.status: eq 200
-  res.body: isJson
-  res.body.totalCount: isNumber
+  res.status: eq 204
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets Scan Definition Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('scanDefinitionId', bru.getVar('pasScanDefinitionId'));
+    tools.log('Scan Definition Id: ' + bru.getVar('scanDefinitionId'))
+  }
 }
 
 script:post-response {
   // Log on error
   const tools = require('./tools/tools');
-  
-  // Sets Discovered Rule Set for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    if (res.body.items[0].id) {
-      tools.log('Setting Variables');
-      bru.setVar('pasRuleSetId', res.body.items[0].id);
-      tools.log('Rule Set Id: ' + bru.getVar('pasRuleSetId'))
-    }
-  }
   
   // Log on error
   if (res.status != 200) {
@@ -64,17 +80,20 @@ script:post-response {
 }
 
 docs {
-  ## Get all discovery rule sets
-  This method returns information about all the defined discovery rule sets.
+  ## Delete a Scan definition
+  This method deletes discovery scan definition based on the scan definition ID.
+  
+  All items that are related to the scan definition are deleted from the system, unless they are defined in another scan definition. Deleted items include:
+  - History of scan instances related to the deleted scan definition
+  - Tags unique to the deleted scan definition
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-definitions
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -84,48 +103,32 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | DELETE | application/json |
   
   #### Request URL Parameters
-  | Parameter | Type | Required | Description
-  | :-- | :-- | :-- | :-- | 
-  | search | string | no | Search in the name and the content of the rule set. **Example:** search=admin |
-  | offset | integer  | no | Offset of the first rule set that is returned in the collection of results. **Default Value:** 0 |
-  | limit | integer | no | The maximum number of rule sets that are returned. **Default Value:** 50 |
-  | sort | string | no | Sort according to one of the following properties followed by asc or desc to control the sort direction. **Valid Values:** id, name, status, rulesCount, actionsPerformed, lastModificationTime **Default Value:** id - ascending|
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Body Parameters
+  None
   
   #### Example Request Body
   None
   
   ### Response
-  #### Example Response
+  #### Example Response (204 No Content)
+  ```
+  ""
+  ```
+  
+  #### Example Response (404 Not Found)
   ```
   {
-    "items": [
-      {
-        "id": "4a201ef2-e823-46c8-8ddd-3520715f7b8c",
-        "name": "Example Local Windows Server Accounts",
-        "status": "INACTIVE",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
-        },
-        "lastModificationTime": "2024-06-03T20:54:30"
-      },
-      {
-        "id": "d8fca8b3-1129-4cb8-b8c4-5099336a370b",
-        "name": "Bru Rule Set Example",
-        "status": "DRAFT",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
-        },
-        "lastModificationTime": "2024-04-11T18:19:06"
-      }
-    ],
-    "totalCount": 2,
-    "nextCursor": "",
-    "prevCursor": ""
+    "code": "404",
+    "message": "Not Found",
+    "description": "The specified discovery scan/account is not found in your system."
   }
   ```
   

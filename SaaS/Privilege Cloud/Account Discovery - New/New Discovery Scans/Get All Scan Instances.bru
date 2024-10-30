@@ -1,20 +1,13 @@
 meta {
-  name: Get All Discovery Rule Sets
+  name: Get All Scan Instances
   type: http
-  seq: 1
+  seq: 6
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-instances
   body: none
   auth: none
-}
-
-query {
-  ~offset: 0
-  ~limit: 50
-  ~sort: id - asc
-  ~search: example
 }
 
 assert {
@@ -34,13 +27,13 @@ script:post-response {
   // Log on error
   const tools = require('./tools/tools');
   
-  // Sets Discovered Rule Set for testing based on environment flag and variables
+  // Sets Scan Instance Id for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
-    if (res.body.items[0].id) {
+    if (res.body.items[11].id) {
       tools.log('Setting Variables');
-      bru.setVar('pasRuleSetId', res.body.items[0].id);
-      tools.log('Rule Set Id: ' + bru.getVar('pasRuleSetId'))
+      bru.setVar('pasScanInstanceId', res.body.items[0].id);
+      tools.log('Scan Instance Id: ' + bru.getVar('pasScanInstanceId'))
     }
   }
   
@@ -64,17 +57,16 @@ script:post-response {
 }
 
 docs {
-  ## Get all discovery rule sets
-  This method returns information about all the defined discovery rule sets.
+  ## Get all scan definitions
+  This method retrieves details about all scans that have been run for all scan definitions.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-instances
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -86,13 +78,8 @@ docs {
   | :-- | :-- |
   | GET | application/json |
   
-  #### Request URL Parameters
-  | Parameter | Type | Required | Description
-  | :-- | :-- | :-- | :-- | 
-  | search | string | no | Search in the name and the content of the rule set. **Example:** search=admin |
-  | offset | integer  | no | Offset of the first rule set that is returned in the collection of results. **Default Value:** 0 |
-  | limit | integer | no | The maximum number of rule sets that are returned. **Default Value:** 50 |
-  | sort | string | no | Sort according to one of the following properties followed by asc or desc to control the sort direction. **Valid Values:** id, name, status, rulesCount, actionsPerformed, lastModificationTime **Default Value:** id - ascending|
+  #### Request Query Parameters
+  None
   
   #### Example Request Body
   None
@@ -103,29 +90,81 @@ docs {
   {
     "items": [
       {
-        "id": "4a201ef2-e823-46c8-8ddd-3520715f7b8c",
-        "name": "Example Local Windows Server Accounts",
-        "status": "INACTIVE",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
+        "id": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
+        "scanDefinitionId": "6f9f2a9c-c495-449d-8a53-e10418eb17f3",
+        "credentials": [
+          {
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
+          }
+        ],
+        "type": "windows_domain",
+        "properties": {
+          "ou": "OU=Servers,DC=example,DC=local",
+          "domain": "example.local"
         },
-        "lastModificationTime": "2024-06-03T20:54:30"
+        "creationTime": "2024-06-03T20:04:22Z",
+        "updateTime": "2024-06-03T20:12:01Z",
+        "status": "COMPLETED",
+        "result": {
+          "scanID": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
+          "scanResult": "Success",
+          "scanStartTime": "2024-03-6--20-05-05",
+          "engineVersion": "1.0.0.0",
+          "totalScanDuration": "0:2:45",
+          "totalDiscoveredAccounts": 54,
+          "totalMachinesRequested": 4,
+          "machinesScannedSuccessfully": 4,
+          "machinesScannedWithErrors": 0
+        },
+        "reason": "Success",
+        "tags": [],
+        "networkId": null,
+        "connectorId": null,
+        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
       },
       {
-        "id": "d8fca8b3-1129-4cb8-b8c4-5099336a370b",
-        "name": "Bru Rule Set Example",
-        "status": "DRAFT",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
+        "id": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
+        "scanDefinitionId": "12ec6ab2-fffc-4683-903d-070ef3337c2b",
+        "credentials": [
+          {
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
+          }
+        ],
+        "type": "windows_domain",
+        "properties": {
+          "ou": "OU=DemoScan,OU=Windows,OU=Servers,DC=example,DC=local",
+          "domain": "example.local"
         },
-        "lastModificationTime": "2024-04-11T18:19:06"
+        "creationTime": "2024-06-03T20:10:54Z",
+        "updateTime": "2024-06-03T20:12:16Z",
+        "status": "COMPLETED",
+        "result": {
+          "scanID": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
+          "scanResult": "Success",
+          "scanStartTime": "2024-03-6--20-11-18",
+          "engineVersion": "1.0.0.0",
+          "totalScanDuration": "0:0:17",
+          "totalDiscoveredAccounts": 19,
+          "totalMachinesRequested": 1,
+          "machinesScannedSuccessfully": 1,
+          "machinesScannedWithErrors": 0
+        },
+        "reason": "Success",
+        "tags": [],
+        "networkId": null,
+        "connectorId": null,
+        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
       }
     ],
-    "totalCount": 2,
-    "nextCursor": "",
-    "prevCursor": ""
+    "totalCount": 2
   }
   ```
   

@@ -1,7 +1,7 @@
 meta {
   name: Add a Discovered Account
   type: http
-  seq: 4
+  seq: 5
 }
 
 put {
@@ -44,11 +44,133 @@ script:pre-request {
   await platformTokenAuth.login();
 }
 
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets discoveredAccount-id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.id) {
+      tools.log('Setting Variables');
+      bru.setVar('pasDiscoveredAccountId', res.body.id);
+      tools.log('Added Discovered Account Id: ' + bru.getVar('pasDiscoveredAccountId'))
+    }
+  }
+}
+
 docs {
+  ## Add a discovered Account
   This method adds a specific account from the list of discovered accounts for local endpoint Windows and MacOS accounts to the Discovered Accounts list.
   
-  Required permissions:
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Discovery Source |
   
-  To run this API, the user must be assigned to the following role:
-    - Privilege Cloud Discovery Source
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovered-accounts/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | PUT | application/json |
+  
+  #### Request Path Parameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Body Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | type | string | yes | The type of the account. **Valid Values:** windows, linux, mac |
+  | subType | string | yes | The subType of the account. **Valid Values:** loosely |
+  | identifiers | key value dictionary | yes | List of properties that define the uniqueness of the account. |
+  | isPrivileged | bool | no | Whether the user is privileged on the target. **Valid Values:** True/False/Null **Default Value:** Null |
+  | customProperties | key value dictionary | no | List of additional account properites |
+  | tags | string or list of strings | no | List of tag(s) assigned to the discovered account by the scan definition. **Valid Values:** Max. string length: 100 characters; Max list size: 20 strings |
+  | source | string | yes | The service which discovered the account |
+  
+  #### Example Request Body
+  ```
+  {
+    "type": "windows",
+    "subType": "loosely",
+    "identifiers": {
+      "address": "test-computer.cyberark.com",
+      "username": "account1"
+    },
+    "isPrivileged": true,
+    "source": "EPM",
+    "customProperties": {
+      "groups": [
+        "administrators",
+        "users"
+      ],
+      "enabled": true,
+      "osVersion": "Windows 10 Pro",
+      "description": "Admin user2",
+      "displayName": "Administrator2"
+    }
+  }
+  ```
+  
+  ### Response
+  #### Example Response
+  ```
+  {
+    "id": "fcdab1c0-75da-4c21-841f-110903c0abd7",
+    "type": "windows",
+    "subType": "loosely",
+    "identifiers": {
+      "address": "test-computer.cyberark.com",
+      "username": "account1"
+    },
+    "isPrivileged": true,
+    "customProperties": {
+      "groups": [
+        "administrators",
+        "users"
+      ],
+      "enabled": true,
+      "osVersion": "Windows 10 Pro",
+      "description": "Admin user2",
+      "displayName": "Administrator2"
+    },
+    "tags": null,
+    "result": "DISCOVERED_ACCOUNT_ADDED"
+  }
+  ```
+  
+  #### Example Response (403 Forbidden)
+  ```
+  {
+    "code": "403",
+    "message": "Forbidden",
+    "description": "You are not authorized to perform this action"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

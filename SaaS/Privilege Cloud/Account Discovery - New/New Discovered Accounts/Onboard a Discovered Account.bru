@@ -1,11 +1,11 @@
 meta {
   name: Onboard a Discovered Account
   type: http
-  seq: 5
+  seq: 6
 }
 
 post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{pasDiscoveredAccountId}}/onboard
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{discoveredAccount-Id}}/onboard
   body: json
   auth: none
 }
@@ -25,6 +25,7 @@ body:json {
 vars:pre-request {
   pasSafeName: BRU-API-TEST-SAFE
   pasPlatformId: BRU-API-TEST-PLATFORM
+  discoveredAccount-Id: 
 }
 
 assert {
@@ -33,9 +34,19 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Set discoveredAccount-Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('discoveredAccount-id', bru.getVar('pasDiscoveredAccountId'));
+    tools.log('Discovered Account Id: ' + bru.getVar('discoveredAccount-id'))
+  }
 }
 
 docs {
@@ -45,4 +56,100 @@ docs {
   
   To run this API, the user must be assigned to the following role:
     - Privilege Cloud Discovery Source
+    
+    ## Add a discovered Account
+  This method adds a specific account from the list of discovered accounts for local endpoint Windows and MacOS accounts to the Discovered Accounts list.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovered-accounts/{discoveredAccount-Id}/onboard
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Path Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | discoveredAccount-Id | string | yes | The unique identifier of the discovered account. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Body Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | coreAttribtues | key value dictionary | yes | Defines which policies will apply to the account. Available properties: safeName, platformId |
+  | additionalProperties | key value dictionary | no | Additional properties that will be applied to the account and are not taken from the identifiers or customProperties of the discovered account. |
+  | resetSecret | boolean | no | Whether the account should be immediately rotated (reconcile or change depending on the type) **Valid Values:** True/False **Default Value:** True |
+  | secret | string | no | The account's initial secret value. **Default Value:** Null |
+  | customProperties | key value dictionary | no | List of additional account properites |
+  | tags | string | no | List of tag(s) assigned to the discovered account by the scan definition. |
+  
+  #### Example Request Body
+  ```
+  {
+    "coreAttributes": {
+      "safeName":"BRU-API-TEST-SAFE",
+      "platformId":"BRU-API-TEST-PLATFORM"
+    },
+    "additionalProperties":{},
+    "secret":"password123!@#",
+    "resetSecret":false
+  }
+  ```
+  
+  ### Response
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": "fcdab1c0-75da-4c21-841f-110903c0abd7",
+    "accountId": "212_19"
+  }
+  ```
+  
+  #### Example Response (403 Forbidden)
+  ```
+  {
+    "code": "403",
+    "message": "Forbidden",
+    "description": "You are not authorized to perform this action"
+  }
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  {
+    "code": "404",
+    "message": "Not Found",
+    "description": "Account ec7731a3-0b12-4a64-b17f-9b547e4d2a14 does not exist"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
