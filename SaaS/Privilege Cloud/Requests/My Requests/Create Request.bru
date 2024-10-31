@@ -41,7 +41,7 @@ script:pre-request {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountIdReq'));
+    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountIdReq1'));
     tools.log('Account Id: ' + bru.getVar('accountId'))
   }
 }
@@ -195,6 +195,14 @@ docs {
   {
     "ErrorCode": "PASWS041E",
     "ErrorMessage": "You are not authorized to perform this action."
+  }
+  ```
+  
+  #### Example Response (409 Conflict)
+  ```
+  {
+    "ErrorCode": "PASWS099E",
+    "ErrorMessage": "Cannot create request. EPVPA050E A request for the object Operating System-BRU-API-TEST-PLATFORM-REQ-example.local-bru.user2 was already sent."
   }
   ```
   
