@@ -1,28 +1,29 @@
 meta {
-  name: Get Safe Member
+  name: Get Safe by Plaftform Id
   type: http
-  seq: 4
+  seq: 3
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{safeUrlId}}/members/{{safeMemberName}}/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/{{platformId}}/safes
   body: none
   auth: none
 }
 
 query {
-  ~useCache: true
+  ~search: 
+  ~sort: UserName
+  ~offset: 0
+  ~limit: 1000
 }
 
 vars:pre-request {
-  safeUrlId: example-safe
-  safeMemberName: example@example.com
+  platformId: 
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.safeNumber: isNumber
 }
 
 script:pre-request {
@@ -32,14 +33,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets safeMemberName and safeUrlId for testing based on environment flag and variables
+  // Sets platformId for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('safeMemberName', bru.getEnvVar('testPrivilegeCloudUserName'));
-    bru.setVar('safeUrlId', bru.getEnvVar('testSafeName'));
-    tools.log('MemberName: ' + bru.getVar('safeMemberName'))
-    tools.log('SafeName: ' + bru.getVar('safeUrlId'))
+    bru.setVar('platformId', bru.getEnvVar('testPlatformName'));
+    tools.log('Platform Name: ' + bru.getVar('platformId'))
   }
 }
 
@@ -67,13 +66,11 @@ script:post-response {
 }
 
 docs {
-  ## Get Safe Member
-  This method returns a member of a Safe.
-  
-  The user who runs this web service must have **View Safe Members** permissions in the Safe
+  ## Get Safes by Platform Id
+  This method returns Safes according to the platform ID
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/{SafeUrlId}/Members/{safeMemberName}
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Platforms/{PlatformID}/Safes/
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -88,52 +85,42 @@ docs {
   #### Request Path Parameters
   | Parameter | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | safeUrlId | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
-  | safeMemberName | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
+  | platformId | string | yes | The ID of the platform for which you want to return safes. |
   
   #### Request Query Parameters
-  None
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | safeName | string | no | You can search for a safe using a partial string. **Example:** /safes?Safe=<safeName>/ |
+  
   
   ### Example Request Body
   None
   
-  #### Example Response (200 OK)
+  #### Example Response
   ```
   {
-    "safeUrlId": "BRU-API-TEST-SAFE",
-    "safeName": "BRU-API-TEST-SAFE",
-    "safeNumber": 212,
-    "memberId": "de17be2b-a17f-45c0-a22d-dd6fc50a9aae",
-    "memberName": "bru.user@example.com",
-    "memberType": "User",
-    "membershipExpirationDate": 1667472534,
-    "isExpiredMembershipEnable": true,
-    "isPredefinedUser": false,
-    "isReadOnly": false,
-    "permissions": {
-      "useAccounts": false,
-      "retrieveAccounts": false,
-      "listAccounts": false,
-      "addAccounts": false,
-      "updateAccountContent": false,
-      "updateAccountProperties": false,
-      "initiateCPMAccountManagementOperations": false,
-      "specifyNextAccountContent": false,
-      "renameAccounts": false,
-      "deleteAccounts": false,
-      "unlockAccounts": false,
-      "manageSafe": false,
-      "manageSafeMembers": false,
-      "backupSafe": false,
-      "viewAuditLog": false,
-      "viewSafeMembers": false,
-      "accessWithoutConfirmation": false,
-      "createFolders": false,
-      "deleteFolders": false,
-      "moveAccountsAndFolders": false,
-      "requestsAuthorizationLevel1": false,
-      "requestsAuthorizationLevel2": false
-    }
+    "value": [
+      "BRU-API-TEST-SAFE",
+      "BRU-API-TEST-SAFE-ACCESS",
+      "CONNECTOR",
+      "CONNECTOR_Accounts",
+      "Notification Engine",
+      "PasswordManager",
+      "PasswordManager_Accounts",
+      "PasswordManagerShared",
+      "PSM",
+      "PSMPADBridgeCustom",
+      "PSMPADBUserProfile",
+      "PSMRecordings",
+      "PSMUniversalConnectors",
+      "PSMUnmanagedSessionAccounts",
+      "PVWAPublicData",
+      "PVWATicketingSystem",
+      "SharedAuth_Internal",
+      "TelemetryConfig",
+      "VaultInternal"
+    ],
+    "count": 18
   }
   ```
   

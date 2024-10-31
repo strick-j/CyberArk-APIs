@@ -5,20 +5,17 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{safeUrlId}}?includeAccounts=true
   body: none
   auth: none
 }
 
 query {
-  ~search: 
-  ~sort: UserName
-  ~offset: 0
-  ~limit: 1000
+  includeAccounts: true
 }
 
 vars:pre-request {
-  pasSafeUrlId: example-safe
+  safeUrlId: example-safe
 }
 
 assert {
@@ -35,12 +32,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets pasSafeMemberName for testing based on environment flag and variables
+  // Sets safeUrlId for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
-    tools.log('SafeName: ' + bru.getEnvVar('testSafeName'))
+    bru.setVar('safeUrlId', bru.getEnvVar('testSafeName'));
+    tools.log('Safe Name: ' + bru.getVar('safeUrlId'))
   }
 }
 
@@ -68,5 +65,115 @@ script:post-response {
 }
 
 docs {
-  This method returns information about a specific Safe in the Vault.
+  ## Get Safe Details
+  This method returns information about a specific Safe in Privilege Cloud.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/{safeUrlId}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | safeUrlId | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
+  
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | includeAccounts | boolean | no | Whether or not to return accounts for each Safe as part of the response. If not sent, the value is **False**. |
+  | useCache | boolean | no | Whether or not to retrieve the cache from a session. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "safeUrlId": "BRU-API-TEST-SAFE",
+    "safeName": "BRU-API-TEST-SAFE",
+    "safeNumber": 212,
+    "description": "BRUNO API TESTING SAFE - DO NOT DELETE",
+    "location": "\\",
+    "creator": {
+      "id": "f1a63804-e6e8-49ec-a0a6-0cfbd3f0849f",
+      "name": "joe.strickland@pineappledev.app"
+    },
+    "olacEnabled": false,
+    "managingCPM": "CONNECTOR1",
+    "numberOfVersionsRetention": null,
+    "numberOfDaysRetention": 7,
+    "autoPurgeEnabled": false,
+    "creationTime": 1712676477,
+    "lastModificationTime": 1730359928259315,
+    "accounts": [],
+    "isExpiredMember": false
+  }
+  ```
+  
+  #### Example Response - includeAccounts=true (200 OK)
+  ```
+   ={
+    "safeUrlId": "BRU-API-TEST-SAFE",
+    "safeName": "BRU-API-TEST-SAFE",
+    "safeNumber": 212,
+    "description": "BRUNO API TESTING SAFE - DO NOT DELETE",
+    "location": "\\",
+    "creator": {
+      "id": "f1a63804-e6e8-49ec-a0a6-0cfbd3f0849f",
+      "name": "joe.strickland@pineappledev.app"
+    },
+    "olacEnabled": false,
+    "managingCPM": "CONNECTOR1",
+    "numberOfVersionsRetention": null,
+    "numberOfDaysRetention": 7,
+    "autoPurgeEnabled": false,
+    "creationTime": 1712676477,
+    "lastModificationTime": 1730359928259315,
+    "accounts": [
+      {
+        "id": "212_5",
+        "name": "Operating System-BRU-API-TEST-PLATFORM-example.local-bru.user1"
+      },
+      {
+        "id": "212_6",
+        "name": "Operating System-BRU-API-TEST-PLATFORM-example.local-bru.user3"
+      },
+      {
+        "id": "212_19",
+        "name": "Operating System-BRU-API-TEST-PLATFORM-test-computer.cyberark.com-account1"
+      },
+      {
+        "id": "212_10",
+        "name": "Operating System-AWS-NIX-KEY-U-example.local-root"
+      }
+    ],
+    "isExpiredMember": false
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

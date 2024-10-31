@@ -1,28 +1,26 @@
 meta {
-  name: Get Safe Member
+  name: Search for a Safe
   type: http
   seq: 4
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{safeUrlId}}/members/{{safeMemberName}}/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/WebServices/PIMServices.svc/Safes?query={{safeUrlId}}
   body: none
   auth: none
 }
 
 query {
-  ~useCache: true
+  query: {{safeUrlId}}
 }
 
 vars:pre-request {
-  safeUrlId: example-safe
-  safeMemberName: example@example.com
+  safeUrlId: 
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.safeNumber: isNumber
 }
 
 script:pre-request {
@@ -32,14 +30,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets safeMemberName and safeUrlId for testing based on environment flag and variables
+  // Sets safeUrlId for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('safeMemberName', bru.getEnvVar('testPrivilegeCloudUserName'));
     bru.setVar('safeUrlId', bru.getEnvVar('testSafeName'));
-    tools.log('MemberName: ' + bru.getVar('safeMemberName'))
-    tools.log('SafeName: ' + bru.getVar('safeUrlId'))
+    tools.log('Safe Name: ' + bru.getVar('safeUrlId'))
   }
 }
 
@@ -67,13 +63,11 @@ script:post-response {
 }
 
 docs {
-  ## Get Safe Member
-  This method returns a member of a Safe.
-  
-  The user who runs this web service must have **View Safe Members** permissions in the Safe
+  ## Search for a Safe
+  This method returns information about the Safes in Privilege Cloud that meet the criteria specified in the search query. It is demonstrated in the sample code.
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/{SafeUrlId}/Members/{safeMemberName}
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/WebServices/PIMServices.svc/Safes?query
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -85,55 +79,36 @@ docs {
   | :-- | :-- |
   | GET | application/json |
   
-  #### Request Path Parameters
+  #### Request Query Parameters
   | Parameter | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | safeUrlId | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
-  | safeMemberName | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
+  | query | string | yes | The search query. |
   
-  #### Request Query Parameters
-  None
   
   ### Example Request Body
   None
   
-  #### Example Response (200 OK)
+  #### Example Response
   ```
   {
-    "safeUrlId": "BRU-API-TEST-SAFE",
-    "safeName": "BRU-API-TEST-SAFE",
-    "safeNumber": 212,
-    "memberId": "de17be2b-a17f-45c0-a22d-dd6fc50a9aae",
-    "memberName": "bru.user@example.com",
-    "memberType": "User",
-    "membershipExpirationDate": 1667472534,
-    "isExpiredMembershipEnable": true,
-    "isPredefinedUser": false,
-    "isReadOnly": false,
-    "permissions": {
-      "useAccounts": false,
-      "retrieveAccounts": false,
-      "listAccounts": false,
-      "addAccounts": false,
-      "updateAccountContent": false,
-      "updateAccountProperties": false,
-      "initiateCPMAccountManagementOperations": false,
-      "specifyNextAccountContent": false,
-      "renameAccounts": false,
-      "deleteAccounts": false,
-      "unlockAccounts": false,
-      "manageSafe": false,
-      "manageSafeMembers": false,
-      "backupSafe": false,
-      "viewAuditLog": false,
-      "viewSafeMembers": false,
-      "accessWithoutConfirmation": false,
-      "createFolders": false,
-      "deleteFolders": false,
-      "moveAccountsAndFolders": false,
-      "requestsAuthorizationLevel1": false,
-      "requestsAuthorizationLevel2": false
-    }
+    "SearchSafesResult": [
+      {
+        "Description": "BRUNO API TESTING SAFE - DO NOT DELETE",
+        "ManagingCPM": "CONNECTOR1",
+        "NumberOfDaysRetention": 7,
+        "NumberOfVersionsRetention": null,
+        "OLACEnabled": false,
+        "SafeName": "BRU-API-TEST-SAFE"
+      },
+      {
+        "Description": "BRUNO API TESTING SAFE - DO NOT DELETE",
+        "ManagingCPM": "CONNECTOR1",
+        "NumberOfDaysRetention": 7,
+        "NumberOfVersionsRetention": null,
+        "OLACEnabled": false,
+        "SafeName": "BRU-API-TEST-SAFE-ACCESS"
+      }
+    ]
   }
   ```
   
