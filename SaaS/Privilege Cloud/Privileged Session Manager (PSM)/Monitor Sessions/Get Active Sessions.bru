@@ -1,0 +1,165 @@
+meta {
+  name: Get Active Sessions
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/livesessions
+  body: none
+  auth: none
+}
+
+query {
+  ~limit: 25
+  ~sort: RiskScore
+  ~offset: 0
+  ~fromTime: 1514808001
+  ~toTime: 1515326399
+  ~activities: regedit
+  ~search: 
+  ~safe: 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save SessionId in Session Collection
+    if (res.body.LiveSessions[0].SessionID) {
+      bru.setVar('pasLiveSessionId', res.body.LiveSessions[0].SessionID);
+    }
+    // Save SessionGUID in Session Collection
+    if (res.body.LiveSessions[0].SessionGuid) {
+      bru.setVar('pasLiveSessionGUID', res.body.LiveSessions[0].SessionGuid);
+    }
+  }
+}
+
+docs {
+  ## Get active sessions
+  This method returns details of active sessions.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/LiveSessions?Limit={#}&Sort={Recording property}&offset={#}&Search={Search text}&Safe={Search text}&FromTime={UTC}&ToTime={UTC}&Activities={text}/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | search | string | no | Returns lives sessions that are filtered by properties that contain the specified search text. |
+  | offset | integer | no | Determines which recording results will be returned, according to a specific place in the returned list. This value defines the recording's place in the list and how many results will be skipped. **Default Value:** 0|
+  | limit | integer | no |Determines the number of lives sessions that are returned in the list. The maximum value is defined in the MaxRecords property in Options à Privileged Session Management à General Setting à Search Properties. **Default Value:** 25 |
+  | sort | string | no | The sort can be done by each property on the recording file: RiskScore, FileName, SafeName, FolderName, PSMVaultUserName, FromIP, RemoteMachine, Client, Protocol,	AccountUserName, AccountAddress, AccountPlatformID, PSMStartTime, TicketID. The sort can be in ascending or descending order. To sort in descending order, specify "-" (dash) before the recording property by which to sort. |
+  | safe | string | no | Returns lives sessions that use accounts from a specific Safe. |
+  | fromTime | string | no | Returns live sessions from a specific date. |
+  | toTime | string | no | Returns live sessions before a specific date. |
+  | Activities | string | no | Returns lives sessions with specific activities. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "LiveSessions": [
+      {
+        "CanTerminate": false,
+        "CanMonitor": true,
+        "CanSuspend": false,
+        "SessionID": "42_3284",
+        "SessionGuid": "23fe598b-2e8b-42ff-bc2f-759ad221cf79",
+        "SafeName": "PSMRecordings",
+        "FolderName": "Root",
+        "IsLive": true,
+        "FileName": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session",
+        "Start": 1730403100,
+        "End": 0,
+        "Duration": 21,
+        "User": "example@example.local",
+        "RemoteMachine": "dc01.example.local",
+        "ProtectionDate": 0,
+        "ProtectedBy": "",
+        "ProtectionEnabled": false,
+        "AccountUsername": "bru-user-1",
+        "AccountPlatformID": "WIN-DOMAIN-ADMIN",
+        "AccountAddress": "example.local",
+        "PIMSuCommand": "",
+        "PIMSuCWD": "",
+        "ConnectionComponentID": "PSM-RDP",
+        "PSMRecordingEntity": "SessionRecording",
+        "TicketID": "",
+        "FromIP": "10.100.100.111",
+        "Protocol": "RDP",
+        "Client": "RDP",
+        "RiskScore": -1,
+        "Severity": "",
+        "IncidentDetails": null,
+        "RawProperties": {
+          "Address": "example.local",
+          "ConnectionComponentID": "PSM-RDP",
+          "DeviceType": "Operating System",
+          "EntityVersion": "1.0",
+          "ExpectedRecordingsList": "23fe598b-1234-1234-1234-759ad221cf79.WIN.txt,23fe598b-2e8b-42ff-bc2f-759ad221cf79.VID.avi",
+          "PSMClientApp": "mstsc.exe",
+          "PSMPasswordID": "3",
+          "PSMProtocol": "RDP",
+          "PSMRecordingEntity": "SessionRecording",
+          "PSMRemoteMachine": "dc01.example.local",
+          "PSMSafeID": "64",
+          "PSMSourceAddress": "10.100.100.111",
+          "PSMStartTime": "1730403100",
+          "PSMStatus": "Placeholder",
+          "PSMVaultUserName": "example@example.local",
+          "PolicyID": "WIN-DOMAIN-ADMIN",
+          "ProviderID": "PSMApp_CONNECTOR",
+          "UserName": "bru-user-1",
+          "Safe": "PSMRecordings",
+          "Folder": "Root",
+          "Name": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session"
+        },
+        "RecordingFiles": [],
+        "RecordedActivities": [],
+        "VideoSize": null,
+        "TextSize": null,
+        "DetailsUrl": "Livesessiondetails.aspx?Data=UFNNUmVjb3JEXAMPLEXkZhbHNlXkBeXkBeEXAMPLE2dFcnI9TXNnSW5mbz0%3d"
+      }
+    ],
+    "Total": 1
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

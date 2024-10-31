@@ -1,21 +1,17 @@
 meta {
-  name: Suspend Active Session
+  name: Get Active Session Activities
   type: http
-  seq: 2
+  seq: 3
 }
 
-post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/livesessions/{{sessionGuid}}/suspend
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/livesessions/{{liveSessionId}}/activities
   body: none
   auth: none
 }
 
 vars:pre-request {
-  sessionGuid: 
-}
-
-assert {
-  res.status: eq 200
+  liveSessionId: 
 }
 
 script:pre-request {
@@ -25,21 +21,21 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets sessionGuid for testing based on environment flag and variables
+  // Sets liveSessionId for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('sessionGuid', bru.getVar('pasLiveSessionGUID'));
-    tools.log('Live Session GUID: ' + bru.getVar('sessionGuid'))
+    bru.setVar('liveSessionId', bru.getVar('pasLiveSessionId'));
+    tools.log('Live Session Id: ' + bru.getVar('liveSessionId'))
   }
 }
 
 docs {
-  ## Suspend an active session
-  This method enables the system to suspend an active PSM sessions with either of the following actions:
+  ## Get active session activities
+  This method returns the activity details of an active session.
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/LiveSessions/{sessionGuid}/suspend
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/LiveSessions/{liveSessionId}/activities
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -49,7 +45,7 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | POST | application/json |
+  | GET | application/json |
   
   #### Request Query Parameters
   None
@@ -59,6 +55,77 @@ docs {
   
   #### Example Response (200 OK)
   ```
+  {
+    "Activities": [
+      {
+        "ActivityText": "explorer.exe, Program Manager",
+        "ActivityType": 3,
+        "ActivityId": "5976176",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:00:35"
+        }
+      },
+      {
+        "ActivityText": "explorer.exe, Window",
+        "ActivityType": 3,
+        "ActivityId": "5976181",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:00:43"
+        }
+      },
+      {
+        "ActivityText": "cmd.exe, Command Prompt",
+        "ActivityType": 3,
+        "ActivityId": "5976419",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:14:18"
+        }
+      },
+      {
+        "ActivityText": "cmd.exe, Command Prompt - regedit",
+        "ActivityType": 3,
+        "ActivityId": "5976420",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:14:20"
+        }
+      },
+      {
+        "ActivityText": "cmd.exe, Command Prompt",
+        "ActivityType": 3,
+        "ActivityId": "5976422",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:14:24"
+        }
+      },
+      {
+        "ActivityText": "regedit.exe, Registry Editor",
+        "ActivityType": 3,
+        "ActivityId": "5976423",
+        "Formats": [
+          "vid"
+        ],
+        "Offsets": {
+          "vid": "00:14:24"
+        }
+      }
+    ],
+    "Total": 6
+  }
   ```
   
   ### Response Codes
