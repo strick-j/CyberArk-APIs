@@ -22,7 +22,7 @@ query {
 
 assert {
   res.status: eq 200
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
@@ -32,8 +32,110 @@ script:pre-request {
 }
 
 script:post-response {
-  // Save Discovered Accounts Id in collection for use in subsequent steps
-  if (res.body.items[0]) {
-    bru.setVar("pasDiscoveredAccountId", res.body.items[0].id)
+  const tools = require('./tools/tools');
+  
+  // Sets Discovered Rccount ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.items[0].id) {
+      tools.log('Setting Variables');
+      bru.setVar("pasDiscoveredAccountId", res.body.items[0].id)
+      tools.log('Discovered Account Id: ' + bru.getVar('pasRuleSetId'))
+    }
   }
+}
+
+docs {
+  ## Get all discoverd Accounts
+  This method returns a list of all discovered accounts from local endpoint Windows and MacOS accounts.
+  
+  This method complements the original method that discovers accounts for Pending Accounts list.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovered-accounts/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | search | string | no | Search in the name and the content of the rule set. **Example:** search=admin |
+  | searchOnAllFields | boolean | no | Whether the search is performed in customProperties values as well. **Default Value:** false |
+  | offset | integer  | no | Offset of the first rule set that is returned in the collection of results. **Default Value:** 0 |
+  | limit | integer | no | The maximum number of rule sets that are returned. **Default Value:** 50 |
+  | sort | string | no | Sort according to one of the following properties followed by asc or desc to control the sort direction. **Valid Values:** id, name, status, rulesCount, actionsPerformed, lastModificationTime **Default Value:** id - ascending |
+  | filter | string | no | Filter according to REST standard. Following are supported filters: type, subtype, isPrivileged - allow multiple selection. **Example:** filter=type EQ windows AND subtype EQ loosely |
+  | extendedDetails | boolean | no | Whether to retrieve extended details from the discovered account's activities |
+  
+  #### Example Request Body
+  None
+  
+  ### Response
+  #### Example Response
+  ```
+  {
+   "items": [
+      {
+        "id": "9d963737-b704-4c63-bba9-17d8236691f6",
+        "type": "Windows",
+        "subType": "loosely",
+        "identifiers": {
+          "username": "user1",
+          "address": "test-computer.cyber-ark.com"
+        },
+        "source": "test-source",
+        "isPrivileged": true,
+        "customProperties": {
+          "groups": [
+            "administrators",
+            "users"
+          ],
+          "enabled": true,
+          "osFamily": "Workstation",
+          "osVersion": "Windows 10 Pro",
+          "description": "Admin user2",
+          "displayName": "Administrator2"
+        },
+        "creationTime": "2022-10-18T13:41:54",
+        "updateTime": "2022-10-18T13:41:54"
+      },
+      {
+        ...
+      }
+    ],
+    "totalCount": 1769,
+    "nextCursor": "api/discoveredAccounts?offset=50&limit=50", 
+    "prevCursor": ""
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

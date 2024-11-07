@@ -56,10 +56,71 @@ script:post-response {
 }
 
 docs {
+  ## Generate an MFA caching SSH key for another user
   This method can be triggered by a strong user to generate an MFA caching SSH key for a specific user to be used connecting to targets via PSM for SSH.
   
   The user who runs this method requires the following permission in the Vault:
-    - Reset Users' Passwords
+  - Reset Users' Passwords
   
   In addition, the user who runs this web service must be in the same Vault Location or higher as the user whose public SSH keys are retrieved.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/api/Users/{userid}/Secret/SSHKeys/Cache/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | userid | string | no | The name of the user whose MFA caching SSH key will be generated. This username is not case-sensitive. Specify the name of any user in the Vault. |
+  
+  #### Request Body Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | formats | string | no | The list of formats to output the key, separated by commas. The list contains all or part of the values: {PPK, PEM, OpenSSH} **Default Value:** PEM |
+  | keyPassword | string | no | The passphrase to protect the private key on generation. **Default Value:** No Passphrase |
+  
+  ### Example Request Body
+  ```
+  {
+      "formats": ["PEM"], // ["PPK", "PEM", "OpenSSH"] Optional - Default PEM
+      "keyPassword": "Cyberark1" // Optional - Default: No Passphrase
+  }
+  ```
+  
+  #### Example Response
+  ```
+  {
+    "value": [
+      {
+        "format": "PEM",
+        "privateKey": "-----BEGIN RSA PRIVATE KEY-----\r\nProc-Type: 4,ENCRYPTED\r\nDEK-Info: AES-256-CBC,3E291AB28B80BFF55A36FC25B17DA510\r\n\r\nydwMCEgXQCt+6K8TCs9zqWNtp2G5+kUF1IXAK8OlMnva6CWKj6pFi3obcCqLKYr4\r\nEXAMPLED/avN5K/\r\nUQ6EXAMPLEPRQl9eG93fTnlPEXAMPLEqkbz55k\r\n-----END RSA PRIVATE KEY-----\r\n",
+        "keyAlg": "RSA"
+      }
+    ],
+    "creationTime": 1730231906,
+    "expirationTime": 1730260706,
+    "publicKey": "ssh-rsa AAEXAMPLE1yc2EAEXAMPLEYX//w== CyberArk Auto-generated Key",
+    "count": 1
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

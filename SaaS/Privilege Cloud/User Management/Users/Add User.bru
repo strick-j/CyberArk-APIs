@@ -1,7 +1,7 @@
 meta {
   name: Add User
   type: http
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -114,9 +114,170 @@ script:post-response {
 }
 
 docs {
-  This method adds a new user to Privilege Cloud.
+  ## Add a user
+  This method adds a new user to the Vault.
   
   To run this Web service, you must have the following permissions:
-    - Add Users
-    - Update Users
+  - Add Users
+  - Update Users
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/users/
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  ```
+  {
+      "username":"newUser",
+      "userType": "EPVUser",
+      "initialPassword": "MyPassword123",
+      "authenticationMethod": ["AuthTypePass"],
+      "location": "\\",
+      "unAuthorizedInterfaces": ["PSM", "PSMP"],
+      "expiryDate": 1577836800,
+      "vaultAuthorization": ["AddSafes", "AuditUsers" ],
+      "enableUser": true,
+      "changePassOnNextLogon": true,
+      "passwordNeverExpires": true,
+      "description": "This user is privileged",
+      "businessAddress":
+       {
+       "workStreet": "Hapssagot 9",
+       "workCity": "Petah Tikva",
+       "workState": "Israel",
+       "workZip": "9999999",
+       "workCountry": "Israel"
+       },
+      "internet":
+       {
+       "homePage": "Cyberark.com",
+       "homeEmail": "user@gmail.com",
+       "businessEmail": "user@cyberark.com",
+       "otherEmail": "user2@gmail.com"
+       },
+      "phones": {
+       "homeNumber": "555123456",
+       "businessNumber": "555456789",
+       "cellularNumber": "555789789",
+       "faxNumber": "999999",
+       "pagerNumber": "111111"
+    },
+    "personalDetails": {
+      "street": "Dizzengof 56",
+      "city": "Tel Aviv",
+      "state": "Israel",
+      "zip": "123456",
+      "country": "Israel",
+      "title": "Mr. VIP",
+      "organization": "CyberArk",
+      "department": "R&D",
+      "profession": "software development",
+      "firstName": "John",
+      "middleName": "Doe",
+      "lastName": "Smith"
+    },
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "enableUser": true,
+    "changePassOnNextLogon": true,
+    "expiryDate": 1577836800,
+    "suspended": false,
+    "lastSuccessfulLoginDate": 1730835784,
+    "unAuthorizedInterfaces": [
+      "PSMP",
+      "PSM"
+    ],
+    "authenticationMethod": [
+      "AuthTypePass"
+    ],
+    "passwordNeverExpires": true,
+    "distinguishedName": "newUser@cyberark",
+    "description": "This user is privileged",
+    "businessAddress": {
+      "workStreet": "Hapssagot 9",
+      "workCity": "Petah Tikva",
+      "workState": "Israel",
+      "workZip": "9999999",
+      "workCountry": "Israel"
+    },
+    "internet": {
+      "homePage": "Cyberark.com",
+      "homeEmail": "user@gmail.com",
+      "businessEmail": "user@cyberark.com",
+      "otherEmail": "user2@gmail.com"
+    },
+    "phones": {
+      "homeNumber": "555123456",
+      "businessNumber": "555456789",
+      "cellularNumber": "555789789",
+      "faxNumber": "999999",
+      "pagerNumber": "111111"
+    },
+    "personalDetails": {
+      "street": "Dizzengof 56",
+      "city": "Tel Aviv",
+      "state": "Israel",
+      "zip": "123456",
+      "country": "Israel",
+      "title": "Mr. VIP",
+      "organization": "Cyber ark",
+      "department": "R&D",
+      "profession": "software development",
+      "firstName": "John",
+      "middleName": "Doe",
+      "lastName": "Smith"
+    },
+    "id": 465,
+    "username": "newUser",
+    "source": "CyberArk",
+    "userType": "EPVUser",
+    "componentUser": false,
+    "groupsMembership": [],
+    "vaultAuthorization": [
+      "AddSafes",
+      "AuditUsers"
+    ],
+    "location": "\\"
+  }
+  ```
+  
+  #### Example Response (409 Conflict)
+  ```
+  {
+    "ErrorCode": "ITATS013E",
+    "ErrorMessage": "Vault User / Group / Directory Map newUser has already been defined."
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

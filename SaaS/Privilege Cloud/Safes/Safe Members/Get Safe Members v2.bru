@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}/members?filter=memberType eq user
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{safeUrlId}}/members?filter=memberType eq user
   body: none
   auth: none
 }
@@ -19,7 +19,7 @@ query {
 }
 
 vars:pre-request {
-  pasSafeUrlId: example-safe
+  safeUrlId: example-safe
 }
 
 assert {
@@ -35,12 +35,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets pasSafeMemberName for testing based on environment flag and variables
+  // Sets safeUrlId for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeName'));
-    tools.log('SafeName: ' + bru.getVar('pasSafeUrlId'))
+    bru.setVar('safeUrlId', bru.getEnvVar('testSafeName'));
+    tools.log('Safe Name: ' + bru.getVar('safeUrlId'))
   }
 }
 
@@ -65,4 +65,210 @@ script:post-response {
       tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
     }
   }
+}
+
+docs {
+  ## Get all Safe members - v2
+  ***Recommended Endpoint for Get All Safe Members is v2***
+  This method returns a list of the members of a Safe.
+  
+  The user who runs this web service must have View Safe Members permissions in the Safe.
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/{SafeUrlId}/Members/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Path Parameters
+  | safeUrlId | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | filter | string | yes | The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | filter | string | no | Filters are according to the REST standard. Search for Safe members using the following filters. Multiple filters can be applied using the AND operator. memberType - returns all members according to the type (user or group) (**Default:** both. **Example:** filter= memberType eq user). membershipExpired - returns either expired members or members that are not expired. (**Default:** both **Example:** filter=membershipExpired eq true) includePredefinedUsers - includes predefined users in the returned list. (**Default:** False, non-predefined users only. Example: filter=includePredefinedUsers eq true) |
+  | offset | integer | no | Offset of the first member that is returned in the collection of results. **Default Value:** 0|
+  | limit | integer | no | The maximum number of members that are returned. When used together with the offset parameter, this value determines the number of Safes to return, starting from the first Safe that is returned. **Default Value:** 25 |
+  | search | string | no | Searches according to the Safe name. Search is performed according to the REST standard (search="search word"). |
+  | sort | string| no | Sorts according to the memberName property in ascending order (default) or descending order to control the sort direction. asc: ascending or desc: descending. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "value": [
+      {
+        "safeUrlId": "BRU-API-TEST-SAFE",
+        "safeName": "BRU-API-TEST-SAFE",
+        "safeNumber": 212,
+        "memberId": "f1a63804-e6e8-49ec-a0a6-0cfbd3f0849f",
+        "memberName": "example@example.com",
+        "memberType": "User",
+        "membershipExpirationDate": null,
+        "isExpiredMembershipEnable": false,
+        "isPredefinedUser": false,
+        "isReadOnly": true,
+        "permissions": {
+          "useAccounts": true,
+          "retrieveAccounts": true,
+          "listAccounts": true,
+          "addAccounts": true,
+          "updateAccountContent": true,
+          "updateAccountProperties": true,
+          "initiateCPMAccountManagementOperations": true,
+          "specifyNextAccountContent": true,
+          "renameAccounts": true,
+          "deleteAccounts": true,
+          "unlockAccounts": true,
+          "manageSafe": true,
+          "manageSafeMembers": true,
+          "backupSafe": true,
+          "viewAuditLog": true,
+          "viewSafeMembers": true,
+          "accessWithoutConfirmation": true,
+          "createFolders": true,
+          "deleteFolders": true,
+          "moveAccountsAndFolders": true,
+          "requestsAuthorizationLevel1": true,
+          "requestsAuthorizationLevel2": false
+        }
+      },
+      {
+        "safeUrlId": "BRU-API-TEST-SAFE",
+        "safeName": "BRU-API-TEST-SAFE",
+        "safeNumber": 212,
+        "memberId": "233",
+        "memberName": "CONNECTOR1",
+        "memberType": "User",
+        "membershipExpirationDate": null,
+        "isExpiredMembershipEnable": false,
+        "isPredefinedUser": false,
+        "isReadOnly": false,
+        "permissions": {
+          "useAccounts": true,
+          "retrieveAccounts": true,
+          "listAccounts": true,
+          "addAccounts": true,
+          "updateAccountContent": true,
+          "updateAccountProperties": true,
+          "initiateCPMAccountManagementOperations": true,
+          "specifyNextAccountContent": true,
+          "renameAccounts": true,
+          "deleteAccounts": true,
+          "unlockAccounts": true,
+          "manageSafe": false,
+          "manageSafeMembers": false,
+          "backupSafe": false,
+          "viewAuditLog": true,
+          "viewSafeMembers": false,
+          "accessWithoutConfirmation": false,
+          "createFolders": true,
+          "deleteFolders": true,
+          "moveAccountsAndFolders": true,
+          "requestsAuthorizationLevel1": false,
+          "requestsAuthorizationLevel2": false
+        }
+      },
+      {
+        "safeUrlId": "BRU-API-TEST-SAFE",
+        "safeName": "BRU-API-TEST-SAFE",
+        "safeNumber": 212,
+        "memberId": "3638b514-5d70-4264-b7b6-15b1767b8702",
+        "memberName": "example@cyberark.cloud.1234",
+        "memberType": "User",
+        "membershipExpirationDate": null,
+        "isExpiredMembershipEnable": false,
+        "isPredefinedUser": false,
+        "isReadOnly": true,
+        "permissions": {
+          "useAccounts": true,
+          "retrieveAccounts": true,
+          "listAccounts": true,
+          "addAccounts": true,
+          "updateAccountContent": true,
+          "updateAccountProperties": true,
+          "initiateCPMAccountManagementOperations": true,
+          "specifyNextAccountContent": true,
+          "renameAccounts": true,
+          "deleteAccounts": true,
+          "unlockAccounts": true,
+          "manageSafe": true,
+          "manageSafeMembers": true,
+          "backupSafe": true,
+          "viewAuditLog": true,
+          "viewSafeMembers": true,
+          "accessWithoutConfirmation": true,
+          "createFolders": true,
+          "deleteFolders": true,
+          "moveAccountsAndFolders": true,
+          "requestsAuthorizationLevel1": true,
+          "requestsAuthorizationLevel2": false
+        }
+      },
+      {
+        "safeUrlId": "BRU-API-TEST-SAFE",
+        "safeName": "BRU-API-TEST-SAFE",
+        "safeNumber": 212,
+        "memberId": "111",
+        "memberName": "SecretsHub",
+        "memberType": "User",
+        "membershipExpirationDate": null,
+        "isExpiredMembershipEnable": false,
+        "isPredefinedUser": false,
+        "isReadOnly": false,
+        "permissions": {
+          "useAccounts": true,
+          "retrieveAccounts": true,
+          "listAccounts": true,
+          "addAccounts": false,
+          "updateAccountContent": false,
+          "updateAccountProperties": false,
+          "initiateCPMAccountManagementOperations": false,
+          "specifyNextAccountContent": false,
+          "renameAccounts": false,
+          "deleteAccounts": false,
+          "unlockAccounts": false,
+          "manageSafe": false,
+          "manageSafeMembers": false,
+          "backupSafe": false,
+          "viewAuditLog": false,
+          "viewSafeMembers": true,
+          "accessWithoutConfirmation": true,
+          "createFolders": false,
+          "deleteFolders": false,
+          "moveAccountsAndFolders": false,
+          "requestsAuthorizationLevel1": false,
+          "requestsAuthorizationLevel2": false
+        }
+      }
+    ],
+    "count": 4
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -1,0 +1,186 @@
+meta {
+  name: Get All Scan Instances
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-instances
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.totalCount: isNumber
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Sets Scan Instance Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.items[11].id) {
+      tools.log('Setting Variables');
+      bru.setVar('pasScanInstanceId', res.body.items[0].id);
+      tools.log('Scan Instance Id: ' + bru.getVar('pasScanInstanceId'))
+    }
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
+  }
+}
+
+docs {
+  ## Get all scan definitions
+  This method retrieves details about all scans that have been run for all scan definitions.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-instances
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Example Request Body
+  None
+  
+  ### Response
+  #### Example Response
+  ```
+  {
+    "items": [
+      {
+        "id": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
+        "scanDefinitionId": "6f9f2a9c-c495-449d-8a53-e10418eb17f3",
+        "credentials": [
+          {
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
+          }
+        ],
+        "type": "windows_domain",
+        "properties": {
+          "ou": "OU=Servers,DC=example,DC=local",
+          "domain": "example.local"
+        },
+        "creationTime": "2024-06-03T20:04:22Z",
+        "updateTime": "2024-06-03T20:12:01Z",
+        "status": "COMPLETED",
+        "result": {
+          "scanID": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
+          "scanResult": "Success",
+          "scanStartTime": "2024-03-6--20-05-05",
+          "engineVersion": "1.0.0.0",
+          "totalScanDuration": "0:2:45",
+          "totalDiscoveredAccounts": 54,
+          "totalMachinesRequested": 4,
+          "machinesScannedSuccessfully": 4,
+          "machinesScannedWithErrors": 0
+        },
+        "reason": "Success",
+        "tags": [],
+        "networkId": null,
+        "connectorId": null,
+        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
+      },
+      {
+        "id": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
+        "scanDefinitionId": "12ec6ab2-fffc-4683-903d-070ef3337c2b",
+        "credentials": [
+          {
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
+          }
+        ],
+        "type": "windows_domain",
+        "properties": {
+          "ou": "OU=DemoScan,OU=Windows,OU=Servers,DC=example,DC=local",
+          "domain": "example.local"
+        },
+        "creationTime": "2024-06-03T20:10:54Z",
+        "updateTime": "2024-06-03T20:12:16Z",
+        "status": "COMPLETED",
+        "result": {
+          "scanID": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
+          "scanResult": "Success",
+          "scanStartTime": "2024-03-6--20-11-18",
+          "engineVersion": "1.0.0.0",
+          "totalScanDuration": "0:0:17",
+          "totalDiscoveredAccounts": 19,
+          "totalMachinesRequested": 1,
+          "machinesScannedSuccessfully": 1,
+          "machinesScannedWithErrors": 0
+        },
+        "reason": "Success",
+        "tags": [],
+        "networkId": null,
+        "connectorId": null,
+        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
+      }
+    ],
+    "totalCount": 2
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

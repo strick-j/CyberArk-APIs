@@ -1,0 +1,114 @@
+meta {
+  name: Logo
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/PasswordVault/WebServices/PIMServices.svc/Logo?type={{imageType}}
+  body: none
+  auth: none
+}
+
+query {
+  type: {{imageType}}
+}
+
+vars:pre-request {
+  imageType: square
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  if (res.status != 200) {
+    tools.log('Error Code: ' + res.body.ErrorCode);
+    tools.log('Error Message: ' + res.body.ErrorMessage);
+  }
+}
+
+docs {
+  ## Logo
+  This method returns the configuration of the logo that is displayed in the CyberArk SafeShare logon screen and account settings.
+  
+  > ***IMPORTANT***
+  > - This API has been deprecated in Q1 2024.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/verify/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  | Parameter | Required | Description | 
+  | :-- | :-- | :-- |
+  | imageType | yes | The requested logo type: Square or Watermark. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  { 
+    "ServerName":"Vault",
+    "ServerID":"2320db5a-e5a7-11ed-8329-b8351f0014d0",
+    "AuthenticationMethods": [
+      {
+        "Id": "windows",
+        "Enabled": false
+      },
+      {
+        "Id": "cyberark",
+        "Enabled": true
+      },
+      {
+        "Id": "radius",
+        "Enabled": false
+      },
+      {
+        "Id": "ldap",
+        "Enabled": true
+      },
+      {
+        "Id": "saml",
+        "Enabled": false
+      }
+    ],
+    "ApplicationName":"PasswordVault",
+    "Features": {
+      "CredentialRotation": true
+    }
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

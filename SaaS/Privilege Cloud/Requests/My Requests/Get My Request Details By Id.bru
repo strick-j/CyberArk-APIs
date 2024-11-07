@@ -5,22 +5,35 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/myrequests/{{pasRequestId}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/myrequests/{{requestId}}
   body: none
   auth: none
+}
+
+vars:pre-request {
+  requestId: 
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.RequestID: isString 
+  res.body.RequestID: isString
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets Request Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('requestId', bru.getVar('pasRequestId'));
+    tools.log('Request Id: ' + bru.getVar('requestId'))
+  }
   
 }
 
@@ -48,5 +61,141 @@ script:post-response {
 }
 
 docs {
-  This method returns a list of the end user's requests
+  ## Get my Request Details by Id
+  This method returns details of all the requests in My Requests list.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/MyRequests/{requestId}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | requestId | string | yes | The request's unique ID, composed of the SafeName and internal RequestID. |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "RequestID": "BRU-API-TEST-SAFE-ACCESS_5",
+    "SafeName": "BRU-API-TEST-SAFE-ACCESS",
+    "RequestorUserName": "example@cyberark.cloud.1234",
+    "RequestorReason": "Access requested via CyberArk Web Services",
+    "UserReason": "Access requested via CyberArk Web Services",
+    "CreationDate": 1730392723,
+    "Operation": "Retrieve password BRU-API-TEST-PLATFORM-REQ-bru.user2-example.local",
+    "ExpirationDate": 1732984723,
+    "OperationType": 4,
+    "AccessType": "OneTime",
+    "ConfirmationsLeft": 1,
+    "AccessFrom": 0,
+    "AccessTo": 0,
+    "Status": 1,
+    "StatusTitle": "Waiting: 1 more user(s) must confirm the request",
+    "InvalidRequestReason": 0,
+    "CurrentConfirmationLevel": 1,
+    "RequiredConfirmersCountLevel2": 1,
+    "TicketingSystemProperties": {
+      "Name": null,
+      "Number": null,
+      "Status": null
+    },
+    "AdditionalInfo": {},
+    "AccountDetails": {
+      "AccountID": "217_3",
+      "Properties": {
+        "Address": "example.local",
+        "Safe": "BRU-API-TEST-SAFE-ACCESS",
+        "Folder": "Root",
+        "Name": "Operating System-BRU-API-TEST-PLATFORM-REQ-example.local-bru.user2",
+        "PolicyID": "BRU-API-TEST-PLATFORM-REQ",
+        "PlatformName": "BRU-API-TEST-PLATFORM-REQ",
+        "DeviceType": "Operating System",
+        "LastVerifiedDate": "1730073608000",
+        "LastModifiedDate": "1730332821000",
+        "LastModifiedBy": "N/A",
+        "LastUsedDate": "1712778477000",
+        "LastUsedBy": "N/A",
+        "Tags": "AWS; BRUNO",
+        "UserName": "bru.user2",
+        "Location": "AWS",
+        "LogonDomain": "EXAMPLE",
+        "OwnerName": "Bruno API Testing",
+        "LockedBy": "",
+        "CPMDisabled": "",
+        "CPMStatus": "success",
+        "ManagedByCPM": "True",
+        "DeletedBy": "",
+        "DeletionDate": "0",
+        "ImmediateCPMTask": "NoTask",
+        "LastCPMTask": "ChangeTask",
+        "CreationDate": "1712777622",
+        "IsSSHKey": "False",
+        "IsIrregularPlatform": "False",
+        "RetriesCount": "-1",
+        "SequenceID": "20",
+        "CreationMethod": "PVWA",
+        "LastSuccessChange": "1730332822",
+        "LastSuccessVerification": "1730073608",
+        "LastTask": "ChangeTask"
+      }
+    },
+    "Confirmers": [
+      {
+        "Type": 1,
+        "ID": -1,
+        "Name": "N/A",
+        "Action": 2,
+        "Reason": "",
+        "ActionDate": 0,
+        "AdditionalDetails": {},
+        "Members": null
+      }
+    ]
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  {
+    "Details": [
+      {
+        "ErrorCode": "PASWS168E",
+        "ErrorMessage": "Input parameter for [RequestID] value is invalid",
+        "ParameterName": "RequestID"
+      }
+    ],
+    "ErrorCode": "PASWS167E",
+    "ErrorMessage": "There are some invalid parameters"
+  }
+  ```
+  
+  #### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

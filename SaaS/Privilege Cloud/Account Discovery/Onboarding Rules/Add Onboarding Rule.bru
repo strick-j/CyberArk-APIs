@@ -19,17 +19,17 @@ body:json {
     "SystemTypeFilter": "Windows", // <Windows|Unix>
     "UserNameFilter": "Administrator", // User name up to 512 Characters
     "UserNameMethod": "Equals", // <Begins|Ends|Equals>
-    "AddressFilter": "192.168", // Addres or DNS Name up to 255 Characters
+    "AddressFilter": "10.10", // Addres or DNS Name up to 255 Characters
     "AddressMethod": "Begins", // <Begins|Ends|Equals>
     "AccountCategoryFilter": "Privileged", // <Any|Privileged|Non-privileged>
-    "RuleName": "ExampleRule", // Uqique Name 255 Characters
+    "RuleName": "ExampleRule2", // Uqique Name 255 Characters
     "RuleDescription": "Example Rule Description"
   }
 }
 
 vars:pre-request {
-  pasPlatformName: BRU-API-TEST-PLATFORM
-  pasSafeName: BRU-API-TEST-SAFE
+  pasPlatformName: Windows
+  pasSafeName: Example Safe
 }
 
 assert {
@@ -37,7 +37,136 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets pasSafeName and pasPlatformName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('pasSafeName', bru.getEnvVar('testSafeName'));
+    bru.setVar('pasPlatformName', bru.getEnvVar('testPlatformName'));
+    tools.log('Safe Name: ' + bru.getVar('pasSafeName'))
+    tools.log('Platform Name: ' + bru.getVar('pasPlatformName'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Rule Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.RuleId) {
+      tools.log('Setting Variables');
+      bru.setVar('pasOnboardingRuleId', res.body.RuleId);
+      tools.log('Onboarding Rule Id: ' + bru.getVar('pasOnboardingRuleId'))
+    }
+  }
+}
+
+docs {
+  ## Add onboarding rule
+  
+  > ***IMPORTANT***
+  > - The classic Discovery functionality will be deprecated in the near future. We advise that you transition to the new Discovery functionality and configure the corresponding APIs accordingly.
+  
+  This method adds a new onboarding rule that filters discovered privileged and non-privileged accounts. When an account matches a rule, it will automatically be onboarded to the Safe that is defined in the rule and the password will be reconciled. If a newly discovered account does not match any rule, it will be added to the Pending Accounts list.
+  
+  The user who runs this web service must belong to the Vault Admins group.
+  
+  > **Note**
+  > - Before you run this API, do the following:
+  >   - Create the Safe and the reconcile account according to the rule’s definition.
+  >   - Associate the reconcile account with the platform that is defined in the rule.
+  >   - Make sure that the user whose credentials will be used for this session is a member of the Safe specified in the TargetSafeName parameter with the Add accounts permission.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{?name=<rulename1,rulename2,...>/}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  ### Example Request Body
+  ```
+  {
+    "TargetPlatformId": "string",
+    "TargetSafeName": "string",
+    "IsAdminIDFilter": false,
+    "MachineTypeFilter": "Server", // <any|workstation|server>
+    "SystemTypeFilter": "Windows", // <Windows|Unix>
+    "UserNameFilter": "Administrator", // User name up to 512 Characters
+    "UserNameMethod": "Equals", // <Begins|Ends|Equals>
+    "AddressFilter": "192.168", // Addres or DNS Name up to 255 Characters
+    "AddressMethod": "Begins", // <Begins|Ends|Equals>
+    "AccountCategoryFilter": "Privileged", // <Any|Privileged|Non-privileged>
+    "RuleName": "ExampleRule", // Uqique Name 255 Characters
+    "RuleDescription": "Example Rule Description"
+  }
+  ```
+  
+  ### Response Parameters
+  None
+  
+  #### Example Response (201 Created)
+  ```
+  {
+    "RuleId": 5,
+    "RuleName": "ExampleRule2",
+    "RuleDescription": "Example Rule Description",
+    "RulePrecedence": 1,
+    "TargetPlatformId": "BRU-API-TEST-PLATFORM",
+    "TargetDeviceType": "Operating System",
+    "TargetSafeName": "BRU-API-TEST-SAFE",
+    "IsAdminIDFilter": false,
+    "MachineTypeFilter": "Server",
+    "SystemTypeFilter": "Windows",
+    "CreationTime": 1730223587,
+    "UserNameFilter": "Administrator",
+    "UserNameMethod": "Equals",
+    "AddressFilter": "10.10",
+    "AddressMethod": "Begins",
+    "AccountTypeFilter": "Local",
+    "AccountCategoryFilter": "Privileged",
+    "ReconcileAccountId": null,
+    "LastOnboardedTime": 0
+  }
+  ```
+  
+  #### Example Response (409 Created)
+  ```
+  {
+    "ErrorCode": "PASWS150E",
+    "ErrorMessage": "Automatic Onboarding Rule with name [ExampleRule2] already exists"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -5,17 +5,135 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/{{pasPlatformName}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/platforms/{{platformName}}
   body: none
   auth: none
 }
 
 vars:pre-request {
-  pasPlatformName: GenericWebApp
+  platformName: GenericWebApp
 }
 
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  ## Get platform by Name
+  This method returns all existing account platforms from Privilege Cloud.
+  
+  You can use filters to retrieve a subset of the platforms or search for a specific platform. For details, see URL parameters.
+  
+  > **Note**
+  > - The Get platform details API, used to retrieve details for a specific platform, returns a different set of parameters.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Platforms/{platformName}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "PlatformID": "GenericWebApp",
+    "Details": {
+      "PolicyID": "GenericWebApp",
+      "PolicyName": "Generic Web App",
+      "PolicyType": "Regular",
+      "ImmediateInterval": "5",
+      "Interval": "1440",
+      "MaxConcurrentConnections": "3",
+      "AllowedSafes": ".*",
+      "MinValidityPeriod": "200",
+      "ResetOveridesMinValidity": "Yes",
+      "ResetOveridesTimeFrame": "Yes",
+      "Timeout": "120",
+      "UnlockIfFail": "No",
+      "UnrecoverableErrors": "9999,8006,8202,8203,8204,8205,8206,8209,8210,8211,8220,8222,8223,8224,8225,8226,8227,8228,8229,8230",
+      "MaximumRetries": "5",
+      "MinDelayBetweenRetries": "90",
+      "DllName": "CyberArk.Extensions.Plugin.WebApp.dll",
+      "ExeName": "CANetPluginInvoker.exe",
+      "XMLFile": "Yes",
+      "AllowManualChange": "Yes",
+      "PerformPeriodicChange": "No",
+      "HeadStartInterval": "5",
+      "FromHour": "-1",
+      "ToHour": "-1",
+      "ChangeNotificationPeriod": "-1",
+      "DaysNotifyPriorExpiration": "7",
+      "VFAllowManualVerification": "Yes",
+      "VFPerformPeriodicVerification": "No",
+      "VFFromHour": "-1",
+      "VFToHour": "-1",
+      "RCAllowManualReconciliation": "Yes",
+      "RCAutomaticReconcileWhenUnsynched": "Yes",
+      "RCReconcileReasons": "2114,9311",
+      "RCFromHour": "-1",
+      "RCToHour": "-1",
+      "NFNotifyPriorExpiration": "No",
+      "NFPriorExpirationRecipients": "",
+      "NFNotifyOnPasswordDisable": "Yes",
+      "NFOnPasswordDisableRecipients": "",
+      "NFNotifyOnVerificationErrors": "Yes",
+      "NFOnVerificationErrorsRecipients": "",
+      "NFNotifyOnPasswordUsed": "No",
+      "NFOnPasswordUsedRecipients": "",
+      "PasswordLength": "12",
+      "MinUpperCase": "2",
+      "MinLowerCase": "2",
+      "MinDigit": "1",
+      "MinSpecial": "1",
+      "PasswordForbiddenChars": ">",
+      "VerifyURL": "https://test",
+      "ChangeURL": "https://test",
+      "ReconcileURL": "https://test",
+      "WebFormFieldsFile": "ElementsData.ini",
+      "RunVerifyAfterChange": "No",
+      "RunVerifyAfterReconcile": "No",
+      "ActionTimout": "10",
+      "PageLoadTimeout": "30",
+      "BrowserPath": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      "DriverFolder": "C:\\Program Files (x86)\\CyberArk\\Password Manager\\bin",
+      "EnforceCertificate": "Yes",
+      "OneTimePassword": "No",
+      "ExpirationPeriod": "14",
+      "VFVerificationPeriod": "7",
+      "PasswordLevelRequestTimeframe": "No"
+    },
+    "Active": true
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -11,11 +11,11 @@ get {
 }
 
 query {
-  ~search: {{pasPlatformName}}
+  ~search: {{platformName}}
 }
 
 vars:pre-request {
-  pasPlatformName: 
+  platformName: 
 }
 
 assert {
@@ -26,4 +26,663 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  ## Get dependent platforms
+  This method allows Privilege Cloud Admin to retrieve basic information about all existing dependent platforms.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/platforms/dependents
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | search | string | no | Search for a string in the following field: Platform Name |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "Platforms": [
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "ApplicationName",
+              "displayName": "Application Name"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Restart",
+              "displayName": "Restart"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 1,
+        "PlatformID": "ComPlus",
+        "Name": "COM+ Application",
+        "PlatformBaseType": "COMPlus",
+        "PlatformBaseID": "COMPlus"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 2,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            }
+          ],
+          "optional": [
+            {
+              "name": "DSN",
+              "displayName": "DSN (ODBC)"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "Database",
+              "displayName": "Database"
+            },
+            {
+              "name": "TableName",
+              "displayName": "Table Name"
+            },
+            {
+              "name": "ColumnName",
+              "displayName": "Column Name"
+            },
+            {
+              "name": "UniqueIDColumnName",
+              "displayName": "Unique ID Column Name"
+            },
+            {
+              "name": "UniqueIDColumnValue",
+              "displayName": "Unique ID Column Value"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 2,
+        "PlatformID": "DBString",
+        "Name": "Database String",
+        "PlatformBaseType": "DBString",
+        "PlatformBaseID": "DBString"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "WebSiteName",
+              "displayName": "Web Site Name"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "WebSiteID",
+              "displayName": "Web Site Identifier"
+            },
+            {
+              "name": "VirtualDirPath",
+              "displayName": "Virtual Directory Path"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 3,
+        "PlatformID": "IISAnonymous",
+        "Name": "IIS Anonymous User",
+        "PlatformBaseType": "IISAnonymous",
+        "PlatformBaseID": "IISAnonymous"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "AppPoolName",
+              "displayName": "Application Pool"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "RestartService",
+              "displayName": "Restart Service"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 4,
+        "PlatformID": "IISAppPool",
+        "Name": "IIS Application Pool",
+        "PlatformBaseType": "IISAppPool",
+        "PlatformBaseID": "IISAppPool"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 0,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "FilePath",
+              "displayName": "File Path"
+            },
+            {
+              "name": "ConnectionType",
+              "displayName": "Connection Type"
+            },
+            {
+              "name": "INIParameterName",
+              "displayName": "INI Parameter Name"
+            },
+            {
+              "name": "INISection",
+              "displayName": "INI Section"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "BackupPasswordFile",
+              "displayName": "Backup Password File"
+            },
+            {
+              "name": "ConnectionTimeout",
+              "displayName": "Connection Timeout"
+            },
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 8,
+        "PlatformID": "INIFile",
+        "Name": "INI File",
+        "PlatformBaseType": "INIFile",
+        "PlatformBaseID": "INIFile"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 3,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "FilePath",
+              "displayName": "File Path"
+            },
+            {
+              "name": "ConnectionType",
+              "displayName": "Connection Type"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "BackupPrivateSSHKey",
+              "displayName": "Backup Private SSH Key"
+            },
+            {
+              "name": "ConnectionTimeout",
+              "displayName": "Connection Timeout"
+            },
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 12,
+        "PlatformID": "PrivateSSHKey",
+        "Name": "Private SSH Keys",
+        "PlatformBaseType": "PrivateSSHKey",
+        "PlatformBaseID": "PrivateSSHKey"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "TaskName",
+              "displayName": "Task Name"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "TaskFolder",
+              "displayName": "Task Folder"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 6,
+        "PlatformID": "SchedTask",
+        "Name": "Scheduled Task",
+        "PlatformBaseType": "SchedTask",
+        "PlatformBaseID": "SchedTask"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 0,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "FilePath",
+              "displayName": "File Path"
+            },
+            {
+              "name": "PasswordRegex",
+              "displayName": "Password Regex"
+            },
+            {
+              "name": "ConnectionType",
+              "displayName": "Connection Type"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "BackupPasswordFile",
+              "displayName": "Backup Password File"
+            },
+            {
+              "name": "ConnectionTimeout",
+              "displayName": "Connection Timeout"
+            },
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 9,
+        "PlatformID": "TextFile",
+        "Name": "Text File",
+        "PlatformBaseType": "TextFile",
+        "PlatformBaseID": "TextFile"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 0,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "FilePath",
+              "displayName": "File Path"
+            },
+            {
+              "name": "ConnectionType",
+              "displayName": "Connection Type"
+            },
+            {
+              "name": "XMLElement",
+              "displayName": "XML Element"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "BackupPasswordFile",
+              "displayName": "Backup Password File"
+            },
+            {
+              "name": "ConnectionTimeout",
+              "displayName": "Connection Timeout"
+            },
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            },
+            {
+              "name": "PasswordRegex",
+              "displayName": "Password Regex"
+            },
+            {
+              "name": "XMLAttribute",
+              "displayName": "XML Attribute"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 10,
+        "PlatformID": "WebFile",
+        "Name": "Web File",
+        "PlatformBaseType": "WebFile",
+        "PlatformBaseID": "WebFile"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "RegistryPathName",
+              "displayName": "Registry Path"
+            },
+            {
+              "name": "RegistryValueName",
+              "displayName": "Value Name"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Prefix",
+              "displayName": "Password Prefix"
+            },
+            {
+              "name": "Postfix",
+              "displayName": "Password Postfix"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 5,
+        "PlatformID": "Registry",
+        "Name": "Windows Registry",
+        "PlatformBaseType": "Registry",
+        "PlatformBaseID": "Registry"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 23,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "ServiceName",
+              "displayName": "Service Name"
+            },
+            {
+              "name": "Address",
+              "displayName": "Address"
+            }
+          ],
+          "optional": [
+            {
+              "name": "RestartService",
+              "displayName": "Restart Service"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 7,
+        "PlatformID": "WinService",
+        "Name": "Windows Service",
+        "PlatformBaseType": "WinService",
+        "PlatformBaseID": "WinService"
+      },
+      {
+        "NumberOfLinkedTargetPlatforms": 0,
+        "CredentialsManagementPolicy": {
+          "Change": {
+            "AllowManual": true
+          }
+        },
+        "Properties": {
+          "required": [
+            {
+              "name": "Address",
+              "displayName": "Address"
+            },
+            {
+              "name": "FilePath",
+              "displayName": "File Path"
+            },
+            {
+              "name": "ConnectionType",
+              "displayName": "Connection Type"
+            },
+            {
+              "name": "XMLElement",
+              "displayName": "XML Element"
+            }
+          ],
+          "optional": [
+            {
+              "name": "Port",
+              "displayName": "Port"
+            },
+            {
+              "name": "BackupPasswordFile",
+              "displayName": "Backup Password File"
+            },
+            {
+              "name": "ConnectionTimeout",
+              "displayName": "Connection Timeout"
+            },
+            {
+              "name": "UsageDisplayName",
+              "displayName": "Usage Display Name"
+            },
+            {
+              "name": "PasswordRegex",
+              "displayName": "Password Regex"
+            },
+            {
+              "name": "XMLAttribute",
+              "displayName": "XML Attribute"
+            }
+          ]
+        },
+        "LinkedAccounts": [
+          {
+            "Index": 1,
+            "Name": "Link",
+            "DisplayName": "Logon Account"
+          }
+        ],
+        "ID": 11,
+        "PlatformID": "XMLFile",
+        "Name": "XML File",
+        "PlatformBaseType": "XMLFile",
+        "PlatformBaseID": "XMLFile"
+      }
+    ],
+    "Total": 12
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

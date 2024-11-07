@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accountgroups/{{pasAccountGroupId}}/Members/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accountgroups/{{accountGroupId}}/Members/
   body: none
   auth: none
 }
 
 vars:pre-request {
-  pasAccountGroupId: 66_8
+  accountGroupId: 66_8
 }
 
 assert {
@@ -22,4 +22,68 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
+}
+
+docs {
+  ## Get account group members
+  This method returns all the members of an existing account group. These accounts can be either password accounts or SSH Key accounts.
+  
+  > **Note**
+  >   - All members of account groups must be stored in the same Safe as the group itself.
+  
+  The user performing this task must have the following permissions in the Safe:
+  - Add accounts
+  - Update account content
+  - Update account properties
+  - Create folders
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/accountgroups/{accoungGroupId}/members
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | accountGroupId | string | no | The unique ID of the group. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  [
+    {
+      "AccountID": "<ID of Account1>",
+      "SafeName": "<Account’s safe name>",
+      "PlatformID": "<Account’s Platform ID>",
+      "Address": "<The address of the account>",
+      "UserName": "<The username of the account>",
+    }
+  ]
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

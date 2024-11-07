@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.2
+
+### Added or Changed
+- Added documentation to all Privilege Cloud API endpoints
+- Added missing Privilege Cloud API endpoints
 
 ## v1.0.1
 

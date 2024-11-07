@@ -110,7 +110,7 @@ script:pre-request {
     tools.log('Setting Variables');
     bru.setVar('pasSafeName', bru.getEnvVar('testSafeName'));
     bru.setVar('pasPlatformName', bru.getEnvVar('testPlatformName'));
-    tools.log('Safe Name: ' + bru.getVar('pasName'))
+    tools.log('Safe Name: ' + bru.getVar('pasSafeName'))
     tools.log('Platform Name: ' + bru.getVar('pasPlatformName'))
   }
 }
@@ -122,7 +122,7 @@ script:post-response {
   // Sets Discovered Rule Set for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
-    if (res.body) {
+    if (res.body.id) {
       tools.log('Setting Variables');
       bru.setVar('pasRuleSetId', res.body.id);
       tools.log('Rule Set Id: ' + bru.getVar('pasRuleSetId'))
@@ -149,9 +149,213 @@ script:post-response {
 }
 
 docs {
+  ## Add a discovery rule set
   This method adds a new discovery rule set that defines an action for specific discovered accounts.
   
   Any account that matches the rule set conditions is automatically handled according to the action that is defined in the rule set.
   
   Currently, the rule set onboards the matched account. At the time of onboarding, the matching accounts are added to the defined safe and platform.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  #### Example Request Body
+  ```
+  {
+    "name": "Bru Rule Set Example",
+    "trigger": {
+      "type": "ACCOUNT_DISCOVERED",
+      "conditions": [
+        {
+          "property": "type",
+          "operator": "EQUALS",
+          "value": "windows"
+        },
+        {
+          "property": "hostname",
+          "operator": "STARTS_WITH",
+          "value": "bru"
+        }
+      ]
+    },
+    "rules": [
+      {
+        "name": "Rule 1",
+        "conditions": [
+          {
+            "property": "subType",
+            "operator": "EQUALS",
+            "value": "loosely"
+          },
+          {
+            "property": "isPrivileged",
+            "operator": "EQUALS",
+            "value": "false"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": [
+            {
+              "type": "RESET",
+              "parameters": {
+                "reset": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Rule 2",
+        "conditions": [
+          {
+            "property": "source",
+            "operator": "EQUALS",
+            "value": "discovery management"
+          },
+          {
+            "property": "network",
+            "operator": "STARTS_WITH",
+            "value": "bru"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": []
+        }
+      }
+    ],
+    "status": "DRAFT"
+  }
+  ```
+  
+  ### Response
+  #### Example Response (201 Created)
+  ```
+  {
+    "name": "Bru Rule Set Example",
+    "trigger": {
+      "type": "ACCOUNT_DISCOVERED",
+      "conditions": [
+        {
+          "property": "type",
+          "property_type": "STRING",
+          "operator": "EQUALS",
+          "value": "windows"
+        },
+        {
+          "property": "hostname",
+          "property_type": "STRING",
+          "operator": "STARTS_WITH",
+          "value": "bru"
+        }
+      ]
+    },
+    "rules": [
+      {
+        "name": "Rule 1",
+        "conditions": [
+          {
+            "property": "subType",
+            "property_type": "STRING",
+            "operator": "EQUALS",
+            "value": "loosely"
+          },
+          {
+            "property": "isPrivileged",
+            "property_type": "BOOLEAN",
+            "operator": "EQUALS",
+            "value": "false"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": [
+            {
+              "type": "RESET",
+              "parameters": {
+                "reset": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Rule 2",
+        "conditions": [
+          {
+            "property": "source",
+            "property_type": "STRING",
+            "operator": "EQUALS",
+            "value": "discovery management"
+          },
+          {
+            "property": "network",
+            "property_type": "STRING",
+            "operator": "STARTS_WITH",
+            "value": "bru"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "BRU-API-TEST-PLATFORM",
+            "safeName": "BRU-API-TEST-SAFE"
+          },
+          "subActions": []
+        }
+      }
+    ],
+    "status": "DRAFT",
+    "id": "8b18a75c-a173-41bd-8538-a8f9605dd88e",
+    "lastModificationTime": "2024-10-30T16:28:35"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

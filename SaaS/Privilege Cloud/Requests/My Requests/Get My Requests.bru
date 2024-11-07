@@ -27,14 +27,6 @@ script:pre-request {
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
-  
-  // Sets Requested ID for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    tools.log('Setting Variables');
-    bru.setVar('pasRequestId', bru.getVar('pasRequestId'));
-    tools.log('Requested Id: ' + bru.getVar('pasRequestId'))
-  }
 }
 
 script:post-response {
@@ -58,54 +50,47 @@ script:post-response {
       tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
     }
   }
+  
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save Request Id in Session Collection
+    if (res.body.MyRequests[0].RequestID) {
+      bru.setVar('pasRequestId', res.body.MyRequests[0].RequestID);
+      tools.log('Request Id: ' + bru.getVar('pasRequestId'))
+    }
+  }
 }
 
 docs {
-  ## Get My Requests
-  This method returns a list of the end user's requests
+  ## Get my Requests
+  This method returns a list of the end user's requests.
   
-  > ### Note
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/MyRequests
+  
+  > **URL NOTES**
   > - Make sure there are no spaces in the URL.
-  > - The following characters are not supported in URL values: + & %
+  > - The following characters are not supported in URL values: + & 
   > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
   
-  ## URL
-  > ### Note
-  > - Make sure there are no spaces in the URL.
-  > - The following characters are not supported in URL values: + & %
-  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
-  
-  > https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/MyRequests?onlywaiting={bool}&expired={bool}
-  
-  The following mandatory values are required in the URL:
-  | Parameter | OnlyWaiting |
+  #### Request Resource Information
+  | HTTP Method | Content Type |
   | :-- | :-- |
-  | type | Boolean  |
-  | Description | Only requests waiting for approval will be listed. |
-  | Valid Values | true/false |
-  | Default | false |
+  | GET | application/json |
   
-  | Parameter | Expired |
-  | :-- | :-- |
-  | type | Boolean  |
-  | Description | Expired requests will be included in the list. |
-  | Valid Values | true/false |
-  | Default | false |
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | onlyWaiting | boolean | yes | Only requests waiting for approval will be listed |
+  | Expired | boolean | yes | Expired requests will be included in the list. |
   
-  ## Resource Information
-  | HTTP Method | GET |
-  | :-- | :-- |
-  | Content Type | application/json  |
-  
-  ## Header Parameters
-  | Parameter | Description |
-  | :-- | :-- |
-  | Authorization | The token that identifies the session, encoded in BASE 64.  |
-  
-  ## Body Parameters
+  #### Request Body
   None
   
-  ## Example Response:
+  ### Response
+  
+  #### Example Response (200 OK)
   ```
   {
     "MyRequests": [
@@ -177,4 +162,20 @@ docs {
     "Total": 1
   }
   ```
+  
+  #### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

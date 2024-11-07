@@ -47,20 +47,18 @@ docs {
   > - The following characters are not supported in URL values: + & %
   > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
   
+  ### Request URL
   https://<subdomain>.privilegecloud.cyberark.com/PasswordVault/API/ComponentsMonitoringDetails/{ComponentID}/
-  
-  ### URL Parameters
-  | Parameter | Description |
-  | :-- | :-- |
-  | ComponentId | The type of component for which data is retrieved.  |
-  |  | **Type**: String|
-  |  | **Mandatory**: Yes|
-  |  | **Valid Values**: PVWA/SessionManagement/CPM/AIM|
   
   ## Resource Information
   | HTTP Method | GET |
   | :-- | :-- |
   | Content Type | application/json  |
+  
+  ### URL Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | ComponentId | string | yes | The type of component for which data is retrieved. **Valid Values**: PVWA/SessionManagement/CPM/AIM |
   
   ## Header Parameters
   | Parameter | Description |

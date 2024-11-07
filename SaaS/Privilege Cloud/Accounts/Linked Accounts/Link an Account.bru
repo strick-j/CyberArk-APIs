@@ -5,23 +5,23 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/LinkAccount/
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{accountId}}/LinkAccount/
   body: json
   auth: none
 }
 
 body:json {
   {
-    "safe": "{{pasLinkedSafeName}}",
-    "extraPasswordIndex": "{{pasExtraPasswordIndex}}", // <1|2|3>
-    "name": "{{pasLinkedAccountName}}",
-    "folder": "{{pasFolder}}"
+    "safe": "{{linkedSafeName}}",
+    "extraPasswordIndex": "{{extraPasswordIndex}}", // <1|2|3>
+    "name": "{{linkedAccountName}}",
+    "folder": "{{folder}}"
   }
 }
 
 vars:pre-request {
-  pasFolder: Root
-  pasExtraPasswordIndex: 1
+  folder: Root
+  extraPasswordIndex: 1
 }
 
 assert {
@@ -39,12 +39,12 @@ script:pre-request {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasAccountId', bru.getEnvVar('testPrivilegeCloudAccountId'));
-    bru.setVar('pasLinkedSafeName', bru.getEnvVar('testSafeName'));
-    bru.setVar('pasLinkedAccountName', bru.getEnvVar('testPrivilegeCloudLinkedAccountName'));
-    tools.log('Account Id: ' + bru.getVar('pasAccountId'));
-    tools.log('Safe Name: ' + bru.getVar('pasLinkedSafeName'));
-    tools.log('Linked Account Name: ' + bru.getVar('pasLinkedAccountName'));
+    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountId'));
+    bru.setVar('linkedSafeName', bru.getEnvVar('testSafeName'));
+    bru.setVar('linkedAccountName', bru.getEnvVar('testPrivilegeCloudLinkedAccountName'));
+    tools.log('Account Id: ' + bru.getVar('accountId'));
+    tools.log('Safe Name: ' + bru.getVar('linkedSafeName'));
+    tools.log('Linked Account Name: ' + bru.getVar('linkedAccountName'));
   }
 }
 
@@ -71,12 +71,63 @@ script:post-response {
 }
 
 docs {
+  ## Link an account
   This method enables a user to associate a linked account to an existing source account. The linked account can be a Reconcile account, Logon account, or other type of linked account that is defined in the platform configuration.
   
-  Note:
-    - The type of linked accounts that are allowed are determined by the Platform settings. Each platform can support different types of linked accounts.
+  > **Note**
+  >   - The type of linked accounts that are allowed are determined by the Platform settings. Each platform can support different types of linked accounts.
   
   To run this service, the user must have the following Safe member authorizations:
     - List accounts - For both the Safe of the linked account and the Safe of the source account
     - Update account properties - For the Safe of the source account
+    
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/accounts/{accountId}/LinkAccount
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | accountId | string | no | The account's unique ID. |
+  
+  ### Example Request Body
+  ```
+  {
+    "safe": "example-safe",
+    "extraPasswordIndex": "1", // <1|2|3>
+    "name": "example-account",
+    "folder": "root"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+  
+  
 }

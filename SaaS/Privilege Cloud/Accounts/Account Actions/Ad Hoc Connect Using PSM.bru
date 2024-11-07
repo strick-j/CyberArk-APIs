@@ -68,15 +68,92 @@ script:post-response {
 }
 
 docs {
+  ## Ad hoc connect using PSM
   This method allows you to connect through PSM without using an existing account, by returning settings that can be used with an RDP client application.
   
   You must enable Privileged Session Monitoring and ad-hoc connection via Privilege Cloud Portal configuration.
   
-  Sample Success:
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Accounts/AdHocConnect/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | accountId | string | yes | The unique ID of the account.|
+  
+  ### Example Request Body
+  ```
   {
-    "PSMGWURL": "https://webaccess-example.privilegecloud.cyberark.cloud/guac/direct",
-    "PSMGWRequest": "eyJ1c2VybmFtZSI6IlBTTUBmNDExYTUyZi03ODZiLTQ3MzMtYTc2Mi1hNjE4YWUzYmZkYzgiLCJob3N0bmFtZSI6IkNPTk5FQ1RPUi5waW5lYXBwbGVkZXYubG9jYWwiLCJwb3J0IjoiMzM4OSIsInRpdGxlIjoie3twYXNBZEhvY1VzZXJOYW1lfX0gb24gZXhhbXBsZS5jeWJlcmFyay5jb20gUFNNLVJEUCIsImp3dCI6ImV5SmhiR2NpT2lKRlV6STFOaUlzSW5SNWNDSTZJa3BYVkNJc0ltdHBaQ0k2SWpnNVlUWXpZemxpTFdZMll6RXRNVEZsWlMwNE0yUTFMVEV5TWpsbFpHTTBaRGczTVNKOS5leUpwYzNNaU9pSlFWbGRCTFRNMU1DSXNJbWxoZENJNk1UY3hNamcwTWpnNU55d2laWGh3SWpveE56RXlPRFF5T1RVM0xDSmEXAMPLEbERaVTVNWmtRNVJUVmljMlpKVG5OUWR5SXNJbTVoYldVaU9pSnpkbU5mY21WemRGOWhjR2tpTENKbmFYWmxibDl1WVcxbElqb2ljM1pqWDNKbGMzUmZZWEJwSWl3aVJYaDBaWEp1WVd4VmRXbGtJam9pTXpZek9HSTFNVFF0TldRM01DMDBNalkwTFdJM1lqWXRNVFZpTVRjMk4ySTROekF5SW4wLmp2QjhxNFpTNXgxazZZWGJlVUN6Z1lkeXR3aVJoSGdZSUQ3RHA0QmtUWm1BTjNrR1ZvVllJc2JYeEVEdGdYMUp2LW1pUzkxNEoybTQ4YTFTbi1LcWFtSzFESXJ6bG9JTzh0UnZhT1NKeTc4M0NrYWtIdXhwT0dyMV9CaHg0bl9wQkVUXzdKS3huNUJjWFVuNDl3ajFMaTZlQkQ4U3F0ek04aFl5Y2s1aHN4WHpnR2preHk0MDVBa0p1am0yTklXSU9tdF94Q2NlRGhmWEd2bWZYNVJXa0R1VC1NclJ5YUxmQjZqemRkRTBhLXRYRDA3dTlaeXYxdEpTZi1pRTRWNGlyVTJOeENJVFZnei0yelctOWpJYWZ3b3F5eU1IZDhLRE9ZZC1iZF9PN1RfNTVuOFFzVkNTM1NJeS1lLVp0MFBBNVlPTjZNQUotSzZWdHJSMzY3NmxwQSJ9"
+    "UserName":"{pasAdHocUserName}",
+    "Secret": "{pasAdHocSecret}",
+    "Address": "{pasAdHocAddress}",
+    "PlatformId": "{pasAdHocPlatformId}",
+    "extraFields": {
+      "LogonDomain": "{pasAdHocLogonDomain}"
+    },
+    "PSMConnectPrerequisites": {
+      "ConnectionComponent": "PSM-RDP",
+      "ConnectionType": "PSMGW",  // RDPFile or PSMGW
+      "reason": "Bruno API Example",
+      "ticketingSystemName": null,
+      "ticketId": null
+    }
   }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "PSMGWURL": "https://example.webaccess.cyberark.cloud/guac/direct",
+    "PSMGWRequest": "eyJEXAMPLEZSI6IlBTTUEXAMPLElNyUSJ9"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  {
+    "ErrorCode": "EPVWF061E",
+    "ErrorMessage": "The password typed does not adhere to current password policy rules, please review the password policy rules"
+  }
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  {
+    "ErrorCode": "PASWS039E",
+    "ErrorMessage": "Account [212_9] was not found."
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+  
+  
+  
+  
   
   Sample Error - 400 Bad Request:
   {

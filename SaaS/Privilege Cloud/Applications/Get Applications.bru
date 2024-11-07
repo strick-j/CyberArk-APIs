@@ -13,11 +13,12 @@ get {
 query {
   ~Location: 
   ~IncludeSublocations: false
+  ~AppId: 
 }
 
 assert {
   res.status: eq 200
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
@@ -48,4 +49,72 @@ script:post-response {
       tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
     }
   }
+}
+
+docs {
+  ## Get applications
+  This method returns a list of all the applications in Privilege Cloud.
+  
+  The user who runs this web service requires Audit Users permissions in Privilege Cloud.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/WebServices/PIMServices.svc/Applications/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | AppId | string | no | The application name. |
+  | Location | string | no | The location of the application in Privilege Cloud hierarchy. |
+  | IncludeSubdomains | boolean | no | Whether or not the search will be performed in sublocations of the specified location. | 
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "application": [
+      {
+        "AccessPermittedFrom": 0,
+        "AccessPermittedTo": 24,
+        "AllowExtendedAuthenticationRestrictions": false,
+        "AppID": "BRUNO-APP-TEST",
+        "BusinessOwnerEmail": "bruno-api-test@cyberark.com",
+        "BusinessOwnerFName": "Bruno",
+        "BusinessOwnerLName": "Testing",
+        "BusinessOwnerPhone": "555-555-1212",
+        "Description": "Testing DevOps Deployments with CyberArk",
+        "Disabled": false,
+        "ExpirationDate": null,
+        "Location": "\\"
+      }
+    ]
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

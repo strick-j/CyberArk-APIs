@@ -1,7 +1,7 @@
 meta {
   name: Update Onboarding Rule
   type: http
-  seq: 4
+  seq: 3
 }
 
 put {
@@ -22,14 +22,14 @@ body:json {
     "AddressFilter": "192.168", // Addres or DNS Name up to 255 Characters
     "AddressMethod": "Begins", // <Begins|Ends|Equals>
     "AccountCategoryFilter": "Privileged", // <Any|Privileged|Non-privileged>
-    "RuleName": "ExampleRule", // Uqique Name 255 Characters
+    "RuleName": "ExampleRule-Updated", // Uqique Name 255 Characters
     "RuleDescription": "Example Rule Description"
   }
 }
 
 vars:pre-request {
-  pasPlatformName: PIN-SNOW-UTAH
-  pasSafeName: Example123
+  pasPlatformName: Example Safe
+  pasSafeName: Example 123
   id: 2
 }
 
@@ -38,7 +38,131 @@ assert {
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets pasOnboardingRuleId, pasSafeName and pasPlatformName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('pasOnboardingRuleId'));
+    bru.setVar('pasSafeName', bru.getEnvVar('testSafeName'));
+    bru.setVar('pasPlatformName', bru.getEnvVar('testPlatformName'));
+    tools.log('Safe Name: ' + bru.getVar('pasSafeName'))
+    tools.log('Platform Name: ' + bru.getVar('pasPlatformName'))
+    tools.log('Onboarding Rule Id: ' + bru.getVar('id'))
+  }
+}
+
+docs {
+  ## Update onboarding rule
+  
+  > ***IMPORTANT***
+  > - The classic Discovery functionality will be deprecated in the near future. We advise that you transition to the new Discovery functionality and configure the corresponding APIs accordingly.
+  
+  This method updates an existing automatic onboarding rule.
+  
+  The user who runs this web service must belong to the Vault Admins group.
+  
+  The user whose credentials are used for the session must have ownership permissions for the Safe specified by the TargetSafeName parameter.
+  
+  Updating a rule does not change the order in which the rules are applied. Rules are applied according to the creation time, with the most recently created rule applied first.
+  
+  The CreationTime and LastOnboardedTime values of the rule are not changed in the database.
+  
+  > **NOTE**
+  > - For all non-mandatory parameters, if a value is not provided, the default value is used and will overwrite the current value in the database.
+  > - All parameter values are case insensitive, except for UserNameFilter, which is case sensitive when SystemTypeFilter equals Unix.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/AutomaticOnboardingRules/{id}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | PUT | application/json |
+  
+  #### Request URL Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | integer | yes | The unique ID of the rule to update. |
+  
+  
+  ### Example Request Body
+  ```
+  {
+    "TargetPlatformId": "string",
+    "TargetSafeName": "string",
+    "IsAdminIDFilter": false,
+    "MachineTypeFilter": "Server", // <any|workstation|server>
+    "SystemTypeFilter": "Windows", // <Windows|Unix>
+    "UserNameFilter": "Administrator", // User name up to 512 Characters
+    "UserNameMethod": "Equals", // <Begins|Ends|Equals>
+    "AddressFilter": "192.168", // Addres or DNS Name up to 255 Characters
+    "AddressMethod": "Begins", // <Begins|Ends|Equals>
+    "AccountCategoryFilter": "Privileged", // <Any|Privileged|Non-privileged>
+    "RuleName": "ExampleRule", // Uqique Name 255 Characters
+    "RuleDescription": "Example Rule Description"
+  }
+  ```
+  
+  ### Response Parameters
+  None
+  
+  #### Example Response (201 Created)
+  ```
+  {
+    "RuleId": 6,
+    "RuleName": "ExampleRule-Updated",
+    "RuleDescription": "Example Rule Description",
+    "RulePrecedence": 1,
+    "TargetPlatformId": "BRU-API-TEST-PLATFORM",
+    "TargetDeviceType": "Operating System",
+    "TargetSafeName": "BRU-API-TEST-SAFE",
+    "IsAdminIDFilter": false,
+    "MachineTypeFilter": "Workstation",
+    "SystemTypeFilter": "Windows",
+    "CreationTime": 1730223896,
+    "UserNameFilter": "Administrator",
+    "UserNameMethod": "Equals",
+    "AddressFilter": "192.168",
+    "AddressMethod": "Begins",
+    "AccountTypeFilter": "Local",
+    "AccountCategoryFilter": "Privileged",
+    "ReconcileAccountId": null,
+    "LastOnboardedTime": 0
+  }
+  ```
+  
+  #### Example Response (409 Created)
+  ```
+  {
+    "ErrorCode": "PASWS150E",
+    "ErrorMessage": "Automatic Onboarding Rule with name [ExampleRule2] already exists"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

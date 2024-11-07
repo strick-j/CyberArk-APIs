@@ -228,7 +228,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
 
 - [ ] Add Self Hosted API Endpoints
 - [ ] Add Remaining SaaS API Endpoints
-  - [ ] Enpoint Privilege Manager
+  - [ ] Endpoint Privilege Manager
   - [ ] Identity
   - [x] Secure Web Sessions
   - [x] Remote Access
@@ -241,7 +241,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
     - [x] Conjur Cloud
     - [x] Connector Managent
     - [ ] Identity
-    - [ ] Privilege Cloud
+    - [x] Privilege Cloud
     - [x] Secrets Hub
     - [x] Secure Cloud Access
     - [x] Secure Infrastructure Access

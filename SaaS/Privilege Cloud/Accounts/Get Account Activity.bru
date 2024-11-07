@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{pasAccountId}}/activities
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/accounts/{{accountId}}/activities
   body: none
   auth: none
 }
@@ -21,10 +21,94 @@ assert {
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
   await platformTokenAuth.login();
+  
+  // Sets accountId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountId'));
+    tools.log('Identifier: ' + bru.getVar('accountId'))
+  }
 }
 
 docs {
+  ## Get account activities
   This method returns the activities of a specific account that is identified by its account ID.
+  
+  > **Note**
+  > - To run this API, the user must be assigned to one of the following roles:
+  >   - Privilege Cloud Administrator
+  >   - Privilege Cloud Auditor
+  >   - Privilege Cloud Safe Manager
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/accounts/{accountId}/activities
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | accountId | string | no | The account's unique ID. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "Activities": [
+      {
+        "Alert": false,
+        "Date": 1730764810,
+        "User": "CONNECTOR",
+        "Action": "CPM Verify Password",
+        "ActionID": 22,
+        "ClientID": "CPM",
+        "MoreInfo": "Address: example.local, User Name: bru.user3",
+        "Reason": "Password verification period had passed"
+      },
+      {
+        "Alert": false,
+        "Date": 1730493673,
+        "User": "CONNECTOR",
+        "Action": "CPM Change Password",
+        "ActionID": 24,
+        "ClientID": "CPM",
+        "MoreInfo": "Address: example.local, User Name: bru.user3",
+        "Reason": "Password was scheduled for immediate task"
+      }
+    ],
+    "Total": 2
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+  
   
 }

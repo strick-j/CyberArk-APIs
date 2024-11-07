@@ -54,12 +54,110 @@ script:post-response {
 }
 
 docs {
-  This method returns a list of all existing users in Privilege Cloud except for the Master and Batch built-in users.
+  ## Get users
+  This method returns a list of all existing users in the Vault.
   
   The user running this Web service must have Audit users permissions.
   
-  Users on the same level as your user or lower in Privilege Cloud hierarchy are retrieve
+  Users on the same level as your user or lower in the Vault hierarchy are retrieved.
   
-  Note: 	
-    - This Web service returns up to 6000 users in up to 20 seconds. If the number of users is higher, the response time may be longer.
+  > **Note**
+  > - This Web service returns up to 6000 users in up to 20 seconds. If the number of users is higher, the response time may be longer.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/users/
+  
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  > **NOTE**
+  > - The URL is case sensitive. Ensure the URL is entered using lower case characters.
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | search | string | no | Search using the following values (search is according to REST standards): username, firstname, and lastname |
+  | filter| string | no | Filters according to the REST standard. Search for users using the following filters: userType, componentUser, userName |
+  | sort | string | no | Property or properties by which to sort returned users, followed by asc (default) or desc to control sort direction. Separate multiple properties with commas, up to a maximum of three properties. Properties: username, source, userType, location, lastname, firstname, middlename |
+  | extendedDetails | boolean | no | Returns additional user details as user groups and userDN for LDAP users.|
+  | pageOffset | integer | no | Offsets the first user that is returned in the results. |
+  | pageSize | integer | no | When used together with the Offset parameter, this value determines the maximum number of users to return. This includes the first user. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "Users": [
+     {
+      "id": 2,
+      "username": "Administrator",
+      "source": "CyberArk",
+      "userType": "Built-InAdmins",
+      "componentUser": false,
+      "groupsMembership": [
+       {
+        "groupID": 16,
+        "groupName": "PVWAMonitor",
+        "groupType": "Vault"
+       },
+       {
+        "groupID": 17,
+        "groupName": "PVWAUsers",
+        "groupType": "Vault"
+       },
+       {
+        "groupID": 11,
+        "groupName": "Vault Admins",
+        "groupType": "Vault"
+       }
+      ],
+      "vaultAuthorization": [
+       "AddUpdateUsers",
+       "AddSafes",
+       "AddNetworkAreas",
+       "ManageDirectoryMapping",
+       "ManageServerFileCategories",
+       "AuditUsers",
+       "BackupAllSafes",
+       "RestoreAllSafes",
+       "ResetUsersPasswords",
+       "ActivateUsers"
+      ],
+      "location": "\\",
+      "personalDetails": {
+       "firstName": "Jen",
+       "middleName": "R",
+       "lastName": "Grey"
+      }
+     }
+    ],
+    "Total": 1
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes?limit=1000
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes?limit=3
   body: none
   auth: none
 }
 
 query {
-  limit: 1000
+  limit: 3
   ~includeAccounts: false
   ~extendedDetails: true
   ~search: 
@@ -56,5 +56,117 @@ script:post-response {
 }
 
 docs {
-  This method returns a list of all Safes in the Vault that the user has permissions for. To run this web user, the user must be a member of the Safes in the Vault that are returned in the list.
+  ## Get all Safes
+  This method returns a list of all Safes in the Vault that the user has permissions for.
+  
+  The user who runs this web service must be a member of the Safes in the Vault that are returned in the list.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | search | string | no | Searches according to the Safe name. Search is performed according to the REST standard (search="search word"). The URL encoding of the Safe name. For special characters, enter the encoding of the special character. For example, enter %20 to represent a space. |
+  | offset | integer | no | Offset of the first Safe that is returned in the collection of results. **Default Value:** 0|
+  | limit | integer | no | The maximum number of Safes that are returned. When used together with the offset parameter, this value determines the number of Safes to return, starting from the first Safe that is returned. **Default Value:** 25 |
+  | sort | string | no | Sorts according to the safeName property in ascending order (default) or descending order to control the sort direction. asc: ascending, desc: descending. **Example:** sort=safeName desc |
+  | includeAccounts | boolean | no | Whether or not to return accounts for each Safe as part of the response. If not sent, the value is **False**. |
+  | extendedDetails | boolean | no | Whether or not to return all Safe details or only safeName as part of the response. If not sent, the value is **True**. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "value": [
+      {
+        "safeNumber": 2,
+        "location": "\\",
+        "creator": {
+          "id": "2",
+          "name": "Administrator"
+        },
+        "olacEnabled": false,
+        "numberOfVersionsRetention": null,
+        "numberOfDaysRetention": 30,
+        "autoPurgeEnabled": false,
+        "creationTime": 1660151698,
+        "lastModificationTime": 1730336417807305,
+        "safeUrlId": "VaultInternal",
+        "safeName": "VaultInternal",
+        "description": "",
+        "managingCPM": "",
+        "isExpiredMember": false
+      },
+      {
+        "safeNumber": 3,
+        "location": "\\",
+        "creator": {
+          "id": "2",
+          "name": "Administrator"
+        },
+        "olacEnabled": false,
+        "numberOfVersionsRetention": null,
+        "numberOfDaysRetention": 30,
+        "autoPurgeEnabled": false,
+        "creationTime": 1660151703,
+        "lastModificationTime": 1730380307071893,
+        "safeUrlId": "Notification%20Engine",
+        "safeName": "Notification Engine",
+        "description": "",
+        "managingCPM": "",
+        "isExpiredMember": false
+      },
+      {
+        "safeNumber": 6,
+        "location": "\\",
+        "creator": {
+          "id": "2",
+          "name": "Administrator"
+        },
+        "olacEnabled": false,
+        "numberOfVersionsRetention": null,
+        "numberOfDaysRetention": 7,
+        "autoPurgeEnabled": false,
+        "creationTime": 1660152556,
+        "lastModificationTime": 1730373299234579,
+        "safeUrlId": "SharedAuth_Internal",
+        "safeName": "SharedAuth_Internal",
+        "description": "",
+        "managingCPM": "PasswordManager",
+        "isExpiredMember": false
+      }
+    ],
+    "count": 82,
+    "nextLink": "api/safes?offset=3&limit=3&useCache=False"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

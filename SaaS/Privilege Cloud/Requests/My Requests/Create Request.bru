@@ -12,13 +12,16 @@ post {
 
 body:json {
   {
-    "AccountID": "{{pasAccountId}}",
+    "AccountID": "{{accountId}}",
+    //"FromDate": integer,
+    //"ToDate": integer,
     "Reason": "Access requested via CyberArk Web Services"
+    //"MultipleAccessRequired": true
   }
 }
 
 vars:pre-request {
-  pasAccountId: 200_3
+  accountId: 200_3
 }
 
 assert {
@@ -34,12 +37,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets Requested Account ID for testing based on environment flag and variables
+  // Sets Account Id for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasAccountId', bru.getEnvVar('testPrivilegeCloudAccountIdReq'));
-    tools.log('Requested Account Id: ' + bru.getVar('pasAccountId'))
+    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountIdReq1'));
+    tools.log('Account Id: ' + bru.getVar('accountId'))
   }
 }
 
@@ -76,28 +79,47 @@ script:post-response {
 }
 
 docs {
+  ## Create an access request
   This method creates an access request for a specific account. This account may be either a password account or an SSH Key account.
   
-  Example Request:
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/MyRequests
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
   ```
   {
-    "AccountID": "100_1",
-    "Reason": "Access requested via CyberArk Web Services",
-    "TicketingSystemName": "ServiceNow" 
+    "AccountID": "217_3",
+    //"FromDate": integer,
+    //"ToDate": integer,
+    "Reason": "Access requested via CyberArk Web Services"
+    //"MultipleAccessRequired": true
   }
   ```
   
-  Example Response:
+  #### Example Response (201 Created)
   ```
   {
-    "RequestID": "BRU-API-TEST-SAFE-ACCESS",
+    "RequestID": "BRU-API-TEST-SAFE-ACCESS_5",
     "SafeName": "BRU-API-TEST-SAFE-ACCESS",
     "RequestorUserName": "example@cyberark.cloud.1234",
     "RequestorReason": "Access requested via CyberArk Web Services",
     "UserReason": "Access requested via CyberArk Web Services",
-    "CreationDate": 1712881638,
-    "Operation": "Retrieve password BRU-API-TEST-PLATFORM-REQ-bru.user-example.local",
-    "ExpirationDate": 1715473638,
+    "CreationDate": 1730392723,
+    "Operation": "Retrieve password BRU-API-TEST-PLATFORM-REQ-bru.user2-example.local",
+    "ExpirationDate": 1732984723,
     "OperationType": 4,
     "AccessType": "OneTime",
     "ConfirmationsLeft": 1,
@@ -109,23 +131,23 @@ docs {
     "CurrentConfirmationLevel": 1,
     "RequiredConfirmersCountLevel2": 1,
     "TicketingSystemProperties": {
-      "Name": "ServiceNow",
+      "Name": null,
       "Number": null,
       "Status": null
     },
     "AdditionalInfo": {},
     "AccountDetails": {
-      "AccountID": "100_1",
+      "AccountID": "217_3",
       "Properties": {
-        "Address": "example.local",
+        "Address": "pineappledev.local",
         "Safe": "BRU-API-TEST-SAFE-ACCESS",
         "Folder": "Root",
-        "Name": "Operating System-BRU-API-TEST-PLATFORM-REQ-example.local-bru.user",
+        "Name": "Operating System-BRU-API-TEST-PLATFORM-REQ-example.local-bru.user2",
         "PolicyID": "BRU-API-TEST-PLATFORM-REQ",
         "PlatformName": "BRU-API-TEST-PLATFORM-REQ",
         "DeviceType": "Operating System",
-        "LastVerifiedDate": "1712778534000",
-        "LastModifiedDate": "1712777622000",
+        "LastVerifiedDate": "1730073608000",
+        "LastModifiedDate": "1730332821000",
         "LastModifiedBy": "N/A",
         "LastUsedDate": "1712778477000",
         "LastUsedBy": "N/A",
@@ -141,14 +163,16 @@ docs {
         "DeletedBy": "",
         "DeletionDate": "0",
         "ImmediateCPMTask": "NoTask",
-        "LastCPMTask": "VerifyTask",
+        "LastCPMTask": "ChangeTask",
         "CreationDate": "1712777622",
         "IsSSHKey": "False",
         "IsIrregularPlatform": "False",
         "RetriesCount": "-1",
+        "SequenceID": "20",
         "CreationMethod": "PVWA",
-        "LastSuccessVerification": "1712778534",
-        "LastTask": "VerifyTask"
+        "LastSuccessChange": "1730332822",
+        "LastSuccessVerification": "1730073608",
+        "LastTask": "ChangeTask"
       }
     },
     "Confirmers": [
@@ -165,4 +189,44 @@ docs {
     ]
   }
   ```
+  
+  #### Example Response (403 Forbidden)
+  ```
+  {
+    "ErrorCode": "PASWS041E",
+    "ErrorMessage": "You are not authorized to perform this action."
+  }
+  ```
+  
+  #### Example Response (409 Conflict)
+  ```
+  {
+    "ErrorCode": "PASWS099E",
+    "ErrorMessage": "Cannot create request. EPVPA050E A request for the object Operating System-BRU-API-TEST-PLATFORM-REQ-example.local-bru.user2 was already sent."
+  }
+  ```
+  
+  #### Example Response (500 Bad Request)
+  ```
+  {
+    "ErrorCode": "CAWS00001E",
+    "ErrorMessage": "Multiple access, timeframe and their configuration are conflicting."
+  }
+  ```
+  
+  #### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -1,13 +1,17 @@
 meta {
   name: Activate User
   type: http
-  seq: 8
+  seq: 9
 }
 
 post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/{{pasUserId}}/activate
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/users/{{userId}}/activate
   body: none
   auth: none
+}
+
+vars:pre-request {
+  userId: 
 }
 
 assert {
@@ -16,10 +20,18 @@ assert {
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
+  // Sets userId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('userId', bru.getVar('pasUserId'));
+    tools.log('User Id: ' + bru.getVar('userId'))
+  }
 }
 
 script:post-response {
@@ -45,8 +57,48 @@ script:post-response {
 }
 
 docs {
+  ## Activate User
   This method activates an existing user who was suspended after entering incorrect credentials multiple times.
   
   Note:
     - This method activates a suspended user. It does not activate an inactive user.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/users/{userId}/activate
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

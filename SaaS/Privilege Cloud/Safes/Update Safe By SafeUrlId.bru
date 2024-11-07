@@ -1,35 +1,37 @@
 meta {
   name: Update Safe By SafeUrlId
   type: http
-  seq: 4
+  seq: 6
 }
 
 put {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{pasSafeUrlId}}
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/safes/{{safeUrlId}}
   body: json
   auth: none
 }
 
 body:json {
   {
-    "safeName": "{{pasSafeUrlId}}",
-    "safeNumber": "{{pasSafeNumber}}",
+    "safeName": "{{safeUrlId}}",
+    "safeNumber": "{{safeNumber}}",
     "description": "New Description",
-    "location": "{{pasFolder}}",
+    "location": "{{folder}}",
     "creator": {
       "id": "3638b514-5d70-4264-b7b6-15b1767b8702",
       "name": "svc_rest_api@cyberark.cloud.3558"
     },
     "olacEnabled": false,
-    "managingCPM": "{{pasCPMName}}",
+    "managingCPM": "{{cpmName}}",
     "numberOfVersionsRetention": null,
     "numberOfDaysRetention": 0
   }
 }
 
 vars:pre-request {
-  pasFolder: 
-  pasCPMName: example
+  folder: 
+  cpmName: example
+  safeUrlId: 
+  safeNumber: 
 }
 
 assert {
@@ -44,14 +46,16 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets pasSafeMemberName for testing based on environment flag and variables
+  // Sets safeUrlId and cpmName for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('pasSafeUrlId', bru.getEnvVar('testSafeNameAction'));
-    bru.setVar('pasCPMName', bru.getEnvVar('testCpmName'));
-    tools.log('SafeName: ' + bru.getVar('pasSafeUrlId'))
-    tools.log('CPM Name: ' + bru.getVar('pasCPMName'))
+    bru.setVar('safeUrlId', bru.getEnvVar('testSafeNameAction'));
+    bru.setVar('safeNumber', bru.getVar('pasSafeNumber'))
+    bru.setVar('cpmName', bru.getEnvVar('testCpmName'));
+    tools.log('Safe Name: ' + bru.getVar('safeUrlId'))
+    tools.log('Safe Number: ' + bru.getVar('safeNumber'))
+    tools.log('CPM Name: ' + bru.getVar('cpmName'))
   }
 }
 
@@ -79,8 +83,77 @@ script:post-response {
 }
 
 docs {
+  ## Update Safe
   This method updates a single Safe in the Vault.
   
   The user who runs this web service must have Manage Safes permissions in the Vault and View Safe Members permissions in the Safe.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/Safes/{safeUrlId}
+  
+  > **URL NOTES** 
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & 
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | PUT | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  ```
+  {
+    "numberOfDaysRetention": 7,
+    "numberOfVersionsRetention": null,
+    "oLACEnabled": true,
+    "autoPurgeEnabled": true,
+    "managingCPM": "passwordManager",
+    "safeName": "PasswordManagerSafe",
+    "description": "New Description",
+    "location": ""
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "safeUrlId": "BRU-API-TEST-SAFE-ACTION",
+    "safeName": "BRU-API-TEST-SAFE-ACTION",
+    "safeNumber": 269,
+    "description": "New Description",
+    "location": "\\",
+    "creator": {
+      "id": "3638b514-1234-1234-1234-15b1767b8702",
+      "name": "example@cyberark.cloud.1234"
+    },
+    "olacEnabled": false,
+    "managingCPM": "CONNECTOR1",
+    "numberOfVersionsRetention": null,
+    "numberOfDaysRetention": 0,
+    "autoPurgeEnabled": false,
+    "creationTime": 1730381622,
+    "lastModificationTime": 1730381901903369
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
   
 }

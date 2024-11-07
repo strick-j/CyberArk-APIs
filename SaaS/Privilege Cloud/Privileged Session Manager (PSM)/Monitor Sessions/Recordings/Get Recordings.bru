@@ -26,3 +26,335 @@ script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
   await platformTokenAuth.login();
 }
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save SessionId in Session Collection
+    if (res.body.Recordings[0].SessionID) {
+      bru.setVar('pasRecordingId', res.body.Recordings[0].SessionID);
+    }
+    // Save SessionGUID in Session Collection
+    if (res.body.Recordings[0].SessionGuid) {
+      bru.setVar('pasRecordingGUID', res.body.Recordings[0].SessionGuid);
+    }
+  }
+}
+
+docs {
+  ## Get recordings
+  This method returns the details of recordings of PSM, or PSM for SSH sessions.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/recordings/
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | search | string | no | Returns recordings that are filtered by properties that contain the specified search text. |
+  | offset | integer | no | Determines which recording results will be returned, according to a specific place in the returned list. This value defines the recording's place in the list and how many results will be skipped. |
+  | limit | integer | no |Determines the number of lives sessions that are returned in the list. The maximum value is defined in the MaxRecords property in Options à Privileged Session Management à General Setting à Search Properties. **Default Value:** 25 |
+  | sort | string | no | The sort can be done by each property on the recording file: RiskScore, FileName, SafeName, FolderName, PSMVaultUserName, FromIP, RemoteMachine, Client, Protocol,	AccountUserName, AccountAddress, AccountPlatformID, PSMStartTime, TicketID. The sort can be in ascending or descending order. To sort in descending order, specify "-" (dash) before the recording property by which to sort. |
+  | safe | string | no | Returns lives sessions that use accounts from a specific Safe. |
+  | fromTime | string | no | Returns recordings from a specific date. |
+  | toTime | string | no | Returns recordings before a specific date. |
+  | Activities | string | no | Returns recordings with specific activities. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "Recordings": [
+      {
+        "SessionID": "42_3284",
+        "SessionGuid": "23fe598b-2e8b-42ff-bc2f-759ad221cf79",
+        "SafeName": "PSMRecordings",
+        "FolderName": "Root",
+        "IsLive": false,
+        "FileName": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session",
+        "Start": 1730403100,
+        "End": 1730405268,
+        "Duration": 2168,
+        "User": "example@example.locla",
+        "RemoteMachine": "dc01.example.local",
+        "ProtectionDate": 0,
+        "ProtectedBy": "",
+        "ProtectionEnabled": false,
+        "AccountUsername": "bru-user-1",
+        "AccountPlatformID": "WIN-DOMAIN-ADMIN",
+        "AccountAddress": "pineappledev.local",
+        "PIMSuCommand": "",
+        "PIMSuCWD": "",
+        "ConnectionComponentID": "PSM-RDP",
+        "PSMRecordingEntity": "SessionRecording",
+        "TicketID": "",
+        "FromIP": "10.10.10.10",
+        "Protocol": "RDP",
+        "Client": "RDP",
+        "RiskScore": 65,
+        "Severity": "Medium",
+        "IncidentDetails": {
+          "Incident": {
+            "Id": "",
+            "Url": "",
+            "Score": 65,
+            "Name": "Suspicious activities in a privileged session",
+            "StartDate": 1730403964000
+          },
+          "Sessions": [
+            {
+              "Id": "23fe598b-2e8b-42ff-bc2f-759ad221cf79",
+              "Score": 65,
+              "Severity": "medium",
+              "Commands": [
+                {
+                  "Encoded": true,
+                  "Value": "Registry Editor",
+                  "Offset": "864T",
+                  "Score": 65,
+                  "Severity": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        "RawProperties": {
+          "PSMSourceAddress": "10.10.10.10",
+          "ConnectionComponentID": "PSM-RDP",
+          "DeviceType": "Operating System",
+          "EntityVersion": "1.0",
+          "ExpectedRecordingsList": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.WIN.txt,23fe598b-2e8b-42ff-bc2f-759ad221cf79.VID.avi",
+          "PSMClientApp": "mstsc.exe",
+          "PSMPasswordID": "3",
+          "PSMProtocol": "RDP",
+          "PSMRecordingEntity": "SessionRecording",
+          "PSMRemoteMachine": "dc01.example.local",
+          "PSMSafeID": "64",
+          "Address": "example.local",
+          "PSMStartTime": "1730403100",
+          "PSMStatus": "Final",
+          "PSMVaultUserName": "example@example.local",
+          "PolicyID": "WIN-DOMAIN-ADMIN",
+          "ProviderID": "PSMApp_CONNECTOR",
+          "UserName": "bru-user-1",
+          "RiskScore": "65",
+          "IncidentDetails": "{\"Incident\":{\"Id\":\"\",\"Url\":\"\",\"Score\":65,\"Name\":\"Suspicious activities in a privileged session\",\"StartDate\":1730403964000},\"Sessions\":[{\"Id\":\"23fe598b-2e8b-42ff-bc2f-759ad221cf79\",\"Score\":65,\"Severity\":\"medium\",\"Commands\":[{\"Encoded\":true,\"Value\":\"Registry Editor\",\"Offset\":\"864T\",\"Score\":65,\"Severity\":\"medium\"}]}]}",
+          "PSMEndTime": "1730405268",
+          "ActualRecordings": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.WIN.txt;3285,23fe598b-2e8b-42ff-bc2f-759ad221cf79.VID.avi;3286",
+          "Safe": "PSMRecordings",
+          "Folder": "Root",
+          "Name": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session"
+        },
+        "RecordingFiles": [
+          {
+            "FileName": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.VID.avi",
+            "RecordingType": 2,
+            "LastReviewBy": "",
+            "LastReviewDate": 0,
+            "FileSize": 17349120,
+            "CompressedFileSize": 18235168,
+            "Format": "VID"
+          },
+          {
+            "FileName": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.WIN.txt",
+            "RecordingType": 1,
+            "LastReviewBy": "",
+            "LastReviewDate": 0,
+            "FileSize": 795,
+            "CompressedFileSize": 3048,
+            "Format": "WIN"
+          }
+        ],
+        "RecordedActivities": [
+          {
+            "ActivityText": "cmd.exe, Command Prompt - regedit",
+            "ActivityType": 3,
+            "ActivityId": "5976420",
+            "Formats": [
+              "vid"
+            ],
+            "Offsets": {
+              "vid": "00:14:20"
+            }
+          },
+          {
+            "ActivityText": "regedit.exe, Registry Editor",
+            "ActivityType": 3,
+            "ActivityId": "5976423",
+            "Formats": [
+              "vid"
+            ],
+            "Offsets": {
+              "vid": "00:14:24"
+            }
+          }
+        ],
+        "VideoSize": 18235168,
+        "TextSize": 3048,
+        "DetailsUrl": "recordingdetails.aspx?Data=UFNNUmVjbEXAMPLEz0%3d"
+      },
+      {
+        "SessionID": "42_3054",
+        "SessionGuid": "f433d915-aa39-4568-b570-fcf4a6059ebc",
+        "SafeName": "PSMRecordings",
+        "FolderName": "Root",
+        "IsLive": false,
+        "FileName": "f433d915-aa39-4568-b570-fcf4a6059ebc.session",
+        "Start": 1716324018,
+        "End": 1716324075,
+        "Duration": 57,
+        "User": "example@example.local",
+        "RemoteMachine": "tgt01.example.local",
+        "ProtectionDate": 0,
+        "ProtectedBy": "",
+        "ProtectionEnabled": false,
+        "AccountUsername": "bru-user-1",
+        "AccountPlatformID": "WIN-SERVER-ADMIN",
+        "AccountAddress": "example.local",
+        "PIMSuCommand": "",
+        "PIMSuCWD": "",
+        "ConnectionComponentID": "PSM-RDP",
+        "PSMRecordingEntity": "SessionRecording",
+        "TicketID": "",
+        "FromIP": "10.10.10.10",
+        "Protocol": "RDP",
+        "Client": "RDP",
+        "RiskScore": 65,
+        "Severity": "Medium",
+        "IncidentDetails": {
+          "Incident": {
+            "Id": "",
+            "Url": "",
+            "Score": 65,
+            "Name": "Suspicious activities in a privileged session",
+            "StartDate": 1716324067000
+          },
+          "Sessions": [
+            {
+              "Id": "f433d915-aa39-4568-b570-fcf4a6059ebc",
+              "Score": 65,
+              "Severity": "medium",
+              "Commands": [
+                {
+                  "Encoded": true,
+                  "Value": "Registry Editor",
+                  "Offset": "50T",
+                  "Score": 65,
+                  "Severity": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        "RawProperties": {
+          "PSMSourceAddress": "10.10.10.10w",
+          "ConnectionComponentID": "PSM-RDP",
+          "DeviceType": "Operating System",
+          "EntityVersion": "1.0",
+          "ExpectedRecordingsList": "f433d915-aa39-4568-b570-fcf4a6059ebc.WIN.txt,f433d915-aa39-4568-b570-fcf4a6059ebc.VID.avi",
+          "PSMClientApp": "mstsc.exe",
+          "PSMPasswordID": "3",
+          "PSMProtocol": "RDP",
+          "PSMRecordingEntity": "SessionRecording",
+          "PSMRemoteMachine": "tgt01.example.local",
+          "PSMSafeID": "65",
+          "Address": "pineappledev.local",
+          "PSMStartTime": "1716324018",
+          "PSMStatus": "Final",
+          "PSMVaultUserName": "example@example.local",
+          "PolicyID": "WIN-SERVER-ADMIN",
+          "ProviderID": "PSMApp_4d5fcd9",
+          "UserName": "bru-user-1",
+          "RiskScore": "65",
+          "IncidentDetails": "{\"Incident\":{\"Id\":\"\",\"Url\":\"\",\"Score\":65,\"Name\":\"Suspicious activities in a privileged session\",\"StartDate\":1716324067000},\"Sessions\":[{\"Id\":\"f433d915-aa39-4568-b570-fcf4a6059ebc\",\"Score\":65,\"Severity\":\"medium\",\"Commands\":[{\"Encoded\":true,\"Value\":\"Registry Editor\",\"Offset\":\"50T\",\"Score\":65,\"Severity\":\"medium\"}]}]}",
+          "PSMEndTime": "1716324075",
+          "ActualRecordings": "f433d915-aa39-4568-b570-fcf4a6059ebc.WIN.txt;3055,f433d915-aa39-4568-b570-fcf4a6059ebc.VID.avi;3056",
+          "Safe": "PSMRecordings",
+          "Folder": "Root",
+          "Name": "f433d915-aa39-4568-b570-fcf4a6059ebc.session"
+        },
+        "RecordingFiles": [
+          {
+            "FileName": "f433d915-aa39-4568-b570-fcf4a6059ebc.VID.avi",
+            "RecordingType": 2,
+            "LastReviewBy": "example@example.local",
+            "LastReviewDate": 1720474796,
+            "FileSize": 6693888,
+            "CompressedFileSize": 7092696,
+            "Format": "VID"
+          },
+          {
+            "FileName": "f433d915-aa39-4568-b570-fcf4a6059ebc.WIN.txt",
+            "RecordingType": 1,
+            "LastReviewBy": "",
+            "LastReviewDate": 0,
+            "FileSize": 490,
+            "CompressedFileSize": 3048,
+            "Format": "WIN"
+          }
+        ],
+        "RecordedActivities": [
+          {
+            "ActivityText": "cmd.exe, Command Prompt - regedit",
+            "ActivityType": 3,
+            "ActivityId": "4021615",
+            "Formats": [
+              "vid"
+            ],
+            "Offsets": {
+              "vid": "00:00:47"
+            }
+          },
+          {
+            "ActivityText": "regedit.exe, Registry Editor",
+            "ActivityType": 3,
+            "ActivityId": "4021617",
+            "Formats": [
+              "vid"
+            ],
+            "Offsets": {
+              "vid": "00:00:50"
+            }
+          }
+        ],
+        "VideoSize": 7092696,
+        "TextSize": 3048,
+        "DetailsUrl": "recordingdetails.aspx?Data=UFNNUmVjEXAMPLE5mbz0%3d"
+      }
+    ],
+    "Total": 2
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

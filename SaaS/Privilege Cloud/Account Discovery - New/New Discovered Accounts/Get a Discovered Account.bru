@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{pasDiscoveredAccountId}}?extendedDetails=false
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovered-accounts/{{discoveredAccount-id}}?extendedDetails=false
   body: none
   auth: none
 }
@@ -14,13 +14,127 @@ query {
   extendedDetails: false
 }
 
+vars:pre-request {
+  discoveredAccount-id: 
+}
+
 assert {
   res.status: eq 200
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
-  // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Set discoveredAccount-Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('discoveredAccount-id', bru.getVar('pasDiscoveredAccountId'));
+    tools.log('Discovered Account Id: ' + bru.getVar('discoveredAccount-id'))
+  }
+}
+
+docs {
+  ## Get a discoverd Account
+  This method gets one of the discovered accounts for local endpoint Windows and MacOS accounts .
+  
+  This method complements the original method that discovers accounts for Pending Accounts list.
+  
+  **Considerations for running this REST API**
+  | Consideration | Description |
+  | --- | :-- |
+  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovered-accounts/{discoveredAccount-id}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Path Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | discoveredAccount-Id | string | yes | The unique identifier of the discovered account. |
+  
+  #### Request Query Parameters
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | extendedDetails | boolean | no | Whether to retrieve extended details from the discovered account's activities. When extendedDetails is set to True, the field will display the discovery rule set's last status (lastActivityStatus). **Default Value:** false |
+  
+  #### Example Request Body
+  None
+  
+  ### Response
+  #### Example Response
+  ```
+  {
+    "id": "ec7731a3-0b12-4a64-b17f-9b547e4d2a14",
+    "type": "Windows",
+    "subType": "Local",
+    "identifiers": {
+      "address": "psm.example.local",
+      "username": "PSMAdminConnect"
+    },
+    "source": "discovery-scans",
+    "isPrivileged": false,
+    "customProperties": {
+      "ou": "CN=EXAMPLE,OU=CyberArk,OU=Servers,DC=example,DC=local",
+      "sid": "S-1-5-21-2340513286-1621827815-1629864972-1001",
+      "domain": "example.local",
+      "groups": [
+        "Remote Desktop Users"
+      ],
+      "enabled": "True",
+      "osFamily": "Windows",
+      "lastLogon": "May 17, 2024 02:02:00 PM",
+      "lockedOut": "False",
+      "osVersion": "Windows Server 2022 Datacenter",
+      "description": "",
+      "displayName": "",
+      "passwordAge": "199",
+      "currentState": "Enabled",
+      "lastLoginDate": "May 17, 2024 06:02:00 PM",
+      "expirationDate": "Dec 31, 1969 07:00:00 PM",
+      "passwordLastSet": "Nov 16, 2023 10:33:37 AM",
+      "dateLastPasswordSet": "Nov 16, 2023 03:33:37 PM",
+      "passwordNeverExpires": "True",
+      "passTheHashVulnerable": "False"
+    },
+    "creationTime": "2024-06-03T18:28:53",
+    "updateTime": "2024-06-03T18:28:53",
+    "numberOfDependencies": 0,
+    "tags": [],
+    "networkId": null,
+    "scanDefinitionId": "1f848b42-895f-46f0-9f82-4a39a8350da6"
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -1,0 +1,162 @@
+meta {
+  name: Get Active Session Properties
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/livesessions/{{liveSessionId}}/properties
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  liveSessionId: 
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets liveSessionId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('liveSessionId', bru.getVar('pasLiveSessionId'));
+    tools.log('Live Session Id: ' + bru.getVar('liveSessionId'))
+  }
+}
+
+docs {
+  ## Get active session properties
+  This method returns property details of an active session.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/LiveSessions/{liveSessionId}/properties
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "CanTerminate": false,
+    "CanMonitor": true,
+    "CanSuspend": false,
+    "SessionID": "42_3284",
+    "SessionGuid": "23fe598b-2e8b-42ff-bc2f-759ad221cf79",
+    "SafeName": "PSMRecordings",
+    "FolderName": "Root",
+    "IsLive": true,
+    "FileName": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session",
+    "Start": 1730403100,
+    "End": 0,
+    "Duration": 880,
+    "User": "example@example.local",
+    "RemoteMachine": "dc01.example.local",
+    "ProtectionDate": 0,
+    "ProtectedBy": "",
+    "ProtectionEnabled": false,
+    "AccountUsername": "bru-user-1",
+    "AccountPlatformID": "WIN-DOMAIN-ADMIN",
+    "AccountAddress": "example.local",
+    "PIMSuCommand": "",
+    "PIMSuCWD": "",
+    "ConnectionComponentID": "PSM-RDP",
+    "PSMRecordingEntity": "SessionRecording",
+    "TicketID": "",
+    "FromIP": "10.100.100.111",
+    "Protocol": "RDP",
+    "Client": "RDP",
+    "RiskScore": 65,
+    "Severity": "Medium",
+    "IncidentDetails": {
+      "Incident": {
+        "Id": "",
+        "Url": "",
+        "Score": 65,
+        "Name": "Suspicious activities in a privileged session",
+        "StartDate": 1730403964000
+      },
+      "Sessions": [
+        {
+          "Id": "23fe598b-2e8b-42ff-bc2f-759ad221cf79",
+          "Score": 65,
+          "Severity": "medium",
+          "Commands": [
+            {
+              "Encoded": true,
+              "Value": "Registry Editor",
+              "Offset": "864T",
+              "Score": 65,
+              "Severity": "medium"
+            }
+          ]
+        }
+      ]
+    },
+    "RawProperties": {
+      "Address": "example.local",
+      "ConnectionComponentID": "PSM-RDP",
+      "DeviceType": "Operating System",
+      "EntityVersion": "1.0",
+      "ExpectedRecordingsList": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.WIN.txt,23fe598b-2e8b-42ff-bc2f-759ad221cf79.VID.avi",
+      "PSMClientApp": "mstsc.exe",
+      "PSMPasswordID": "3",
+      "PSMProtocol": "RDP",
+      "PSMRecordingEntity": "SessionRecording",
+      "PSMRemoteMachine": "dc01.example.local",
+      "PSMSafeID": "64",
+      "PSMSourceAddress": "10.100.100.111",
+      "PSMStartTime": "1730403100",
+      "PSMStatus": "Placeholder",
+      "PSMVaultUserName": "example@example.local",
+      "PolicyID": "WIN-DOMAIN-ADMIN",
+      "ProviderID": "PSMApp_CONNECTOR",
+      "UserName": "bru-user-1",
+      "RiskScore": "65",
+      "IncidentDetails": "{\"Incident\":{\"Id\":\"\",\"Url\":\"\",\"Score\":65,\"Name\":\"Suspicious activities in a privileged session\",\"StartDate\":1730403964000},\"Sessions\":[{\"Id\":\"23fe598b-2e8b-42ff-bc2f-759ad221cf79\",\"Score\":65,\"Severity\":\"medium\",\"Commands\":[{\"Encoded\":true,\"Value\":\"Registry Editor\",\"Offset\":\"864T\",\"Score\":65,\"Severity\":\"medium\"}]}]}",
+      "Safe": "PSMRecordings",
+      "Folder": "Root",
+      "Name": "23fe598b-2e8b-42ff-bc2f-759ad221cf79.session"
+    },
+    "RecordingFiles": [],
+    "RecordedActivities": null,
+    "VideoSize": null,
+    "TextSize": null,
+    "DetailsUrl": null
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

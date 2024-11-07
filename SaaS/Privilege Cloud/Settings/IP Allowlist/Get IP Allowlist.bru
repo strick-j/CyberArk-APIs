@@ -13,7 +13,7 @@ get {
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.updateInProgress: isBoolean 
+  res.body.updateInProgress: isBoolean
 }
 
 script:pre-request {
@@ -23,10 +23,63 @@ script:pre-request {
 }
 
 docs {
+  ## Get IP allowlist
   This method returns a list of allowed IP addresses that enables communication from Privilege Cloud customer-side components (CPM, PSM, PSM for SSH, CP, CCP, Secure Tunnel) with the Privilege Cloud SaaS environment.
   
-  Required User Permissions:
+  > **NOTE**
+  > Run the Get IP allowlist API before you run the Configure IP allowlist API. For details, see IP allowlist.
+  
+  ### Required User Permissions:
+  To run this API, you must be assigned to one of the following roles:
   - Privilege Cloud Administrator
   - Privilege Cloud Administrator Basic
   - Privilege Cloud Administrator Lite
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/advanced-settings/ip-allowlist
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+     "lastTaskId":"11111111-1111-1111-1111-111111111111",
+     "dateUpdated":"2024-02-10T14:26:38.676Z",
+     "customerPublicIPs":[
+        "33.33.33.33/32",
+        "255.255.255.255/32",
+        "100.100.100.2/32"
+     ],
+     "updateInProgress":false
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

@@ -32,15 +32,76 @@ script:pre-request {
 }
 
 docs {
+  ## Configure IP allowlist
   This method is used to manage the list of allowed IP addresses from your machines to the Privilege Cloud Saas environment.
   
-  Overview:
+  > **NOTE**
+  > Run the Get IP allowlist API before you run the Configure IP allowlist API. For details, see IP allowlist.
+  
+  ### Overview:
   Configuration erases everything that was previously configured. In order to keep your current configuration, add the existing IP addresses to the list. An empty list will remove all the current IP addresses.
   
   Configuration can take up to 10 minutes. You cannot trigger a new process when there is a process running. To verify, run the Get IP allowlist API and check that the updateInProgress parameter result is false.
   
-  Required User Permissions:
+  ### Required User Permissions:
+  To run this API, you must be assigned to one of the following roles:
   - Privilege Cloud Administrator
   - Privilege Cloud Administrator Basic
   - Privilege Cloud Administrator Lite
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/advanced-settings/ip-allowlist
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  ### Example Request Body
+  ```
+  {
+    "customerPublicIPs": [
+      "3.141.170.10/32",
+      "3.141.170.11/32"
+    ]
+  }
+  ```
+  
+  #### Example Response
+  ```
+  {
+    "taskId": "417a9d1d-c474-4d75-8a9b-4794a483f5bc",
+    "status": "IN_PROGRESS",
+    "params": {
+      "createdAt": "Tue Oct 29 17:57:32 GMT 2024",
+      "candidatePublicIPs": [
+        "3.141.170.10/32",
+        "3.141.170.11/32"
+      ]
+    }
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }

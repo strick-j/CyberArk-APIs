@@ -1,0 +1,98 @@
+meta {
+  name: Export Ticketing System Logs
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/ticketing-systems/logs/{{days}}/{{userId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "{{pasObjectName}}",
+    "address": "{{pasAddress}}",
+    "userName": "{{pasUsername}}",
+    "platformId": "{{pasPlatformName}}",
+    "safeName": "{{pasSafeName}}",
+    "secretType": "password",
+    "secret": "PassWord123!@#",
+    "platformAccountProperties": {
+      "LogonDomain": "EXAMPLE"
+    },
+    "secretManagement": {
+      "automaticManagementEnabled": false,
+      "manualManagementReason": "Example management disabled"
+    },
+    "remoteMachinesAccess": {
+      "remoteMachines": "192.168.19.10,192.168.19.11",
+      "accessRestrictedToRemoteMachines": true
+    }
+  }
+}
+
+vars:pre-request {
+  days: 
+  userId: 
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Stores pasAccountId in Session Collection for subsequent tests
+  if (res.body.id) {
+    bru.setVar('pasAccountId', res.body.id)
+  }
+}
+
+docs {
+  ## Custom ticketing system: Export logs
+  This method exports the relevant ticketing systems logs collected from the Privilege Cloud Portal, for a specific user, recent period, or both.
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/ticketing-systems/logs/{days}/{userId}
+  
+  > **URL NOTES**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | days | integer | yes | The number of days for which the log is exported starting with the current day and covering the recent 7 days, beginning with today's log. Any value greater than 7 exports the logs for the past 7 days. **Default Value:** 1 |
+  | userId | string | yes | The unique ID of the user who requested the ticketing system. If no user is defined, the log covers all system users. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  zipFile as octet-stream
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}
