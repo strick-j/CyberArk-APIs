@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/extendedaccounts/{{pasAccountId}}/overview
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/passwordvault/api/extendedaccounts/{{accountId}}/overview
   body: none
   auth: none
 }
 
 vars:pre-request {
-  pasAccountId: 212_5
+  accountId: 212_5
 }
 
 assert {
@@ -21,12 +21,177 @@ assert {
 script:pre-request {
   // Perform authentication usings platformToken.js tools
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
   await platformTokenAuth.login();
+  
+  // Sets accountId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('accountId', bru.getEnvVar('testPrivilegeCloudAccountId'));
+    tools.log('Identifier: ' + bru.getVar('accountId'))
+  }
 }
 
 docs {
+  ## Get account Extended Details by Id
   This method returns information about an account identified by its ID.
   
   The user who runs this web service requires List Accounts permissions in the Safe where the account is located inside the Vault.
   
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/PasswordVault/API/extendedaccounts/{accountId}/overview
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL.
+  > - The following characters are not supported in URL values: + & %
+  > - If the URL includes a dot (.), add a forward slash (/) at the end of the URL. For example: api/Safes/MySafe/Members/user@cyber.com/
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | accountId | string | no | The account's unique ID. |
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "Compliance": {
+      "IsCompliant": true,
+      "LastModifiedDate": 1730493672,
+      "LastModifiedBy": "CONNECTOR",
+      "ModificationType": "Change"
+    },
+    "Activities": [
+      {
+        "Alert": false,
+        "Date": 1730764810,
+        "User": "CONNECTOR",
+        "Action": "CPM Verify Password",
+        "ActionID": 22,
+        "ClientID": "CPM",
+        "MoreInfo": "Address: example.local, User Name: bru.user3",
+        "Reason": "Password verification period had passed"
+      },
+      {
+        "Alert": false,
+        "Date": 1730493673,
+        "User": "CONNECTOR",
+        "Action": "CPM Change Password",
+        "ActionID": 24,
+        "ClientID": "CPM",
+        "MoreInfo": "Address: example.local, User Name: bru.user3",
+        "Reason": "Password was scheduled for immediate task"
+      },
+      {
+        "Alert": false,
+        "Date": 1730493363,
+        "User": "svc_rest_api@cyberark.cloud.1234",
+        "Action": "Delete File Category",
+        "ActionID": 107,
+        "ClientID": "PVWA",
+        "MoreInfo": "LastTask",
+        "Reason": "Old Value=[ChangeTask]"
+      },
+      {
+        "Alert": false,
+        "Date": 1730493363,
+        "User": "svc_rest_api@cyberark.cloud.1234",
+        "Action": "Delete File Category",
+        "ActionID": 107,
+        "ClientID": "PVWA",
+        "MoreInfo": "CPMStatus",
+        "Reason": "Old Value=[success]"
+      },
+      {
+        "Alert": false,
+        "Date": 1730493363,
+        "User": "svc_rest_api@cyberark.cloud.1234",
+        "Action": "Delete File Category",
+        "ActionID": 107,
+        "ClientID": "PVWA",
+        "MoreInfo": "RetriesCount",
+        "Reason": "Old Value=[-1]"
+      }
+    ],
+    "TotalDependencies": 0,
+    "FailedDependencies": 0,
+    "Recordings": null,
+    "Details": {
+      "LastVerifiedDate": 1730764809,
+      "LastVerifiedBy": "CONNECTOR",
+      "LastUsedBy": "CONNECTOR",
+      "LastUsedDate": 1730764808,
+      "CreationDate": 1712778786,
+      "Name": "Operating System-BRU-API-TEST-PLATFORM-example.local-bru.user3",
+      "CreatedTime": 1730493671,
+      "AccountURL": null,
+      "ManagedByCPM": true,
+      "CPMDisabled": "",
+      "CPMStatus": "Success",
+      "CPMErrorDetails": "",
+      "ImmediateCPMTask": null,
+      "DeletedBy": "",
+      "DeletionDate": 0,
+      "LockedBy": "",
+      "IsFavorite": false,
+      "IsNew": false,
+      "SafeName": "BRU-API-TEST-SAFE",
+      "IsGroupMember": false,
+      "DualControlStatus": "RequestNotNeeded",
+      "RequiredProperties": {
+        "Address": "example.local",
+        "Username": "bru.user3"
+      },
+      "OptionalProperties": {
+        "LogonDomain": "PINEAPPLEDEV",
+        "Location": "AWS",
+        "OwnerName": "Bruno API Testing",
+        "Tags": "AWS; BRUNO"
+      },
+      "LimitDomainAccess": null,
+      "AccessDomainList": null,
+      "RequestId": -1,
+      "FutureTimeFrame": false,
+      "LinkedAccounts": null
+    },
+    "Platform": {
+      "VerificationPeriod": 7,
+      "ExpirationPeriod": 14,
+      "HeadStartInterval": 5,
+      "PlatformID": "BRU-API-TEST-PLATFORM",
+      "PlatformName": "BRU-API-TEST-PLATFORM",
+      "IsActive": true
+    },
+    "AvailableTabs": [
+      "Activities",
+      "Dependencies"
+    ],
+    "ActionsToDisplay": null
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
 }
