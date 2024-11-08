@@ -29,14 +29,39 @@ script:pre-request {
 }
 
 docs {
-  This section describes the API for validating account configuration and if successful, onboards your accounts to Cloud Entitlements Manager.
+  ## Create AWS Account
+  This method enables you to validate account configuration and if successful, onboards your accounts.
   
-  ## Schemas
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/new_account/platforms/aws/workspaces
   
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
+  
+  #### Example Request Body
+  ```
+  {
+    "accountId": 123456789012,
+    "iamRoleArn": "arn:aws:iam::123456789012:role/CyberArkRoleForCEM223673983569",
+    "deploymentRegion": "us-west-2"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  ""
+  ```
   
   ## Response Status Codes
-  - 200 - Get all workspaces
-  - 400 - Validation error
+  - 200 - Connection successfully completed
+  - 500 - Internal server error
   
   ## Error Example Response
   ```

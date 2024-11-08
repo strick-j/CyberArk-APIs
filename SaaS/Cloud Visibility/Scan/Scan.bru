@@ -18,7 +18,7 @@ body:json {
 
 assert {
   res.status: eq 200
-  res.body: isJson 
+  res.body: isJson
 }
 
 script:pre-request {
@@ -29,14 +29,31 @@ script:pre-request {
 }
 
 docs {
-  Trigger scan via public REST APIs.
+  ## Trigger Scan
+  Trigger CEM scan on a customer's tenant
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/scan
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response (200 OK)
+  ```
+  {}
+  ```
   
   ## Response Status Codes
   - 200 - Get all workspaces
   - 500 - Internal server error
   
-  ## Example Success Response
-  ```
   
-  ```
 }

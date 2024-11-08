@@ -1,26 +1,21 @@
 meta {
-  name: Connect
+  name: Delete
   type: http
-  seq: 2
+  seq: 4
 }
 
 post {
-  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/new_account/workspaces/connect
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/new_account/workspaces/delete
   body: json
   auth: none
 }
 
 body:json {
   {
-    "workspaceId": "196116890505",
+    "workspaceId": "string",
     "platformType": "aws",
     "hierarchyTreeLevel": "LEAF"
   }
-}
-
-assert {
-  res.status: eq 200
-  res.body: isJson 
 }
 
 script:pre-request {
@@ -31,9 +26,21 @@ script:pre-request {
 }
 
 docs {
-  This section describes the API for connecting workspaces in Cloud Entitlements Manager.
+  ## Delete Workspace
+  Delete a workspace
   
-  ## Schema
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/new_account/workspaces/delete
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
   WorkspaceInputData
   - workspaceId: string
   - platformType: string [ aws, azure, gcp ]
@@ -43,7 +50,22 @@ docs {
   - num_of_leaves_to_connect: integer
   - num_of_connected_leaves: integer
   
+  #### Example Request Body
+  ```
+  {
+    "workspaceId": "196116890505",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  ""
+  ```
+  
   ## Response Status Codes
   - 200 - Connection successfully completed
   - 500 - Internal server error
+  
 }

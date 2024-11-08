@@ -1,0 +1,87 @@
+meta {
+  name: Retrieve Delegation Details
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/delegations/workspace/details
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "cloudPlatform": "{{cloudPlatform}}",
+    "workspaceId": "{{workspaceId}}",
+    "workspaceType": "{{workspaceType}}"
+  }
+}
+
+vars:pre-request {
+  cloudPlatform: AWS
+  workspaceId: Exmaple AWS Org
+  workspaceType: root
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get Delegation Details
+  Get the list of owners associated with the given workspace
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/delegations/workspace/details
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
+  | Parameter | Required | Description | 
+  | :-- | :-- |:-- |
+  | cloudPlatform | yes | Name of Cloud Service Provider. **Valid Values:** AWS, GCP, AZURE |
+  | workspaceId |  |  |
+  | workspaceType | yes | Type of supported workspace. **Valid Values:** account, root, ou, directory, management_group, subscription, gcp_organization, folder, project |
+  
+  #### Example Request Body
+  ```
+  {
+    "cloudPlatform": "AWS",
+    "workspaceId": "123435646342",
+    "workspaceType": "account"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": 0,
+    "cloudPlatform": "AWS",
+    "workspaceType": "root",
+    "workspaceId": "Example AWS Org",
+    "workspaceName": null,
+    "entities": []
+  }
+  ```
+  
+  ## Response Status Codes
+  - 201 - Delegation added successfully
+  - 400 - Bad Request
+  - 500 - Internal server error
+  
+}

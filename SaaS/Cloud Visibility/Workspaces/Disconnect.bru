@@ -30,9 +30,21 @@ script:pre-request {
 }
 
 docs {
-  This section describes the API for disconnecting workspaces in Cloud Entitlements Manager.
+  ## Disconnect Workspace
+  Disconnect a workspace
   
-  ## Schema
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/new_account/workspaces/disconnect
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
   WorkspaceInputData
   - workspaceId: string
   - platformType: string [ aws, azure, gcp ]
@@ -42,7 +54,22 @@ docs {
   - num_of_leaves_to_connect: integer
   - num_of_connected_leaves: integer
   
+  #### Example Request Body
+  ```
+  {
+    "workspaceId": "196116890505",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  ""
+  ```
+  
   ## Response Status Codes
-  - 200 - Disconnection successfully completed
+  - 200 - Connection successfully completed
   - 500 - Internal server error
+  
 }

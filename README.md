@@ -237,10 +237,11 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
 - [ ] Add development documentation
 - [ ] Ensure documentation is updated for endpoints
   - [ ] SaaS
-    - [ ] Cloud Entitlements Manager
+    - [x] Cloud Visibility
     - [x] Conjur Cloud
     - [x] Connector Managent
     - [ ] Identity
+    - [ ] Endpoint Privilege Manager
     - [x] Privilege Cloud
     - [x] Secrets Hub
     - [x] Secure Cloud Access
