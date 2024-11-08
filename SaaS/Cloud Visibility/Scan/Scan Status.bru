@@ -1,0 +1,57 @@
+meta {
+  name: Scan Status
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/scan/status
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "workspaceId": "string",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get Scan Status
+  Returns the status of the scan.
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/scan/status
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "isScanRunning": false
+  }
+  ```
+}

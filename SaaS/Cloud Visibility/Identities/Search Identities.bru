@@ -1,0 +1,145 @@
+meta {
+  name: Search Identities
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/identities
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "paginationData": {
+      "limit": 5,
+      "nextToken": 5
+   },
+    "filter": {
+      "admin": true
+    }
+  }
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Search identities
+  This section describes the API for retrieving a list of identities in Cloud Visibility.
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/identities
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  ### Example Request Body
+  ```
+  {
+    "paginationData": {
+      "limit": 5,
+      "nextToken": 5
+   },
+    "filter": {
+      "admin": true
+    }
+  }
+  ```
+  
+  #### Example Response (20O OK)
+  ```
+  {
+    "next_token": "10",
+    "identities": [
+      {
+        "uid": "28515795-2bad-4468-8eb7-026a68520adf#gcpIamGoogleAccount#123456789123#adam@example.com.com",
+        "name": "adam@example.com.com",
+        "admin": true,
+        "entitlements_analysis": [
+          "vandelay-logging-project-sca",
+          "1012709190570",
+          "pivotal-valve-321402"
+        ],
+        "number_of_workspaces": 3,
+        "identity_type": "GCP_IAM_GOOGLE_ACCOUNT"
+      },
+      {
+        "uid": "28515795-2bad-4468-8eb7-026a68520adf#gcpIamGoogleAccount#123456789123#jerry@example.com.com",
+        "name": "jerry@example.com.com",
+        "admin": true,
+        "entitlements_analysis": [
+          "1012709190570",
+          "sacred-ember-321523",
+          "vandelay-logging-project"
+        ],
+        "number_of_workspaces": 3,
+        "identity_type": "GCP_IAM_GOOGLE_ACCOUNT"
+      },
+      {
+        "uid": "28515795-2bad-4468-8eb7-026a68520adf#gcpIamServiceAccount#123456789123#cyberark-reconcile@resolute-might-399019.iam.gserviceaccount.com",
+        "name": "cyberark-reconcile@resolute-might-399019.iam.gserviceaccount.com",
+        "admin": true,
+        "entitlements_analysis": [
+          "resolute-might-399019"
+        ],
+        "number_of_workspaces": 1,
+        "identity_type": "GCP_IAM_SERVICE_ACCOUNT"
+      },
+      {
+        "uid": "28515795-2bad-4468-8eb7-026a68520adf#gcpIamGroup#123456789123#sca_6acde23b@example.com",
+        "name": "sca_6acde23b@say-vandelay.com",
+        "admin": true,
+        "entitlements_analysis": [
+          "1012709190570"
+        ],
+        "number_of_workspaces": 1,
+        "identity_type": "GCP_IAM_GROUP"
+      },
+      {
+        "uid": "28515795-2bad-4468-8eb7-026a68520adf#azureUser#123a12ab-1234-1234-abcd-123abcd1abcd",
+        "name": "John Doe",
+        "admin": true,
+        "entitlements_analysis": [
+          "root-group-cbe3df52-24db-4656-b055-90f95a9a1cd8",
+          "163c7d59-0e21-4684-bdfd-93f4c9e33322",
+          "8797f551-f885-462b-bd02-7c7cb5d8ccd8"
+        ],
+        "number_of_workspaces": 3,
+        "identity_type": "AZURE_USER"
+      }
+    ]
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}

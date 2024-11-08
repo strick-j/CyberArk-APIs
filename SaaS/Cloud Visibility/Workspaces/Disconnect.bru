@@ -1,0 +1,75 @@
+meta {
+  name: Disconnect
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/new_account/workspaces/disconnect
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "workspaceId": "196116890505",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Disconnect Workspace
+  Disconnect a workspace
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/new_account/workspaces/disconnect
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
+  WorkspaceInputData
+  - workspaceId: string
+  - platformType: string [ aws, azure, gcp ]
+  - hierarchyTreeLevel: sring [ LEAF, NODE, ROOT ]
+  
+  WorkspaceOutputData
+  - num_of_leaves_to_connect: integer
+  - num_of_connected_leaves: integer
+  
+  #### Example Request Body
+  ```
+  {
+    "workspaceId": "196116890505",
+    "platformType": "aws",
+    "hierarchyTreeLevel": "LEAF"
+  }
+  ```
+  
+  #### Example Response (200 OK)
+  ```
+  ""
+  ```
+  
+  ## Response Status Codes
+  - 200 - Connection successfully completed
+  - 500 - Internal server error
+  
+}

@@ -1,4 +1,10 @@
 # Changelog
+## v1.0.3
+
+### Added or Changed
+- Added documentation to all Cloud Visibility API endpoints
+- Changed name to Cloud Visibility from Cloud Entitlements Manager
+- Added missing Cloud Visibility API endpoints for Delegation
 
 ## v1.0.2
 

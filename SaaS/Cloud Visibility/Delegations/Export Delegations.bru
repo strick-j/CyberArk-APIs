@@ -1,0 +1,83 @@
+meta {
+  name: Export Delegations
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/delegations/workspace/export
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filters": {},
+    //"searchString": "string",
+    "offset": 0,
+    "limit": 1000
+  }
+}
+
+vars:pre-request {
+  cloudPlatform: AWS
+  workspaceId: 297915674260
+  workspaceType: account
+}
+
+assert {
+  res.status: eq 200
+  res.body: isString 
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Export Delegations
+  Export configured delegations
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/delegations/workspace/export
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Schema
+  | Parameter | Required | Description | 
+  | :-- | :-- |:-- |
+  | cloudPlatform | yes | Name of Cloud Service Provider. **Valid Values:** AWS, GCP, AZURE |
+  | workspaceId |  |  |
+  | workspaceType | yes | Type of supported workspace. **Valid Values:** account, root, ou, directory, management_group, subscription, gcp_organization, folder, project |
+  
+  #### Example Request Body
+  ```
+  {
+    "filters": {},
+    "searchString": "string",
+    "offset": 0,
+    "limit": 1000
+  }
+  ```
+  
+  #### Example Response (201 Created)
+  ```
+  "Workspace","WorkspaceType","Delegates"
+  "Example AWS Org","AWS root","Example Team"
+  ```
+  
+  ## Response Status Codes
+  - 200 - Delegation successfully exported
+  - 404 - Not Found
+  - 500 - Internal server error
+  
+}

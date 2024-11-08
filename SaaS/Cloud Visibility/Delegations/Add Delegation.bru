@@ -1,0 +1,311 @@
+meta {
+  name: Add Delegation
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}-cem.cyberark.cloud/api/delegations/{{cloudPlatform}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "version": "string",
+    "resource": "string",
+    "path": "string",
+    "httpMethod": "POST",
+    "headers": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "multiValueHeaders": {
+      "additionalProp1": [
+        "string"
+      ],
+      "additionalProp2": [
+        "string"
+      ],
+      "additionalProp3": [
+        "string"
+      ]
+    },
+    "queryStringParameters": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "multiValueQueryStringParameters": {
+      "additionalProp1": [
+        "string"
+      ],
+      "additionalProp2": [
+        "string"
+      ],
+      "additionalProp3": [
+        "string"
+      ]
+    },
+    "requestContext": {
+      "accountId": "string",
+      "apiId": "string",
+      "authorizer": {
+        "claims": {},
+        "scopes": [
+          "string"
+        ]
+      },
+      "stage": "string",
+      "protocol": "string",
+      "identity": {
+        "accessKey": "string",
+        "accountId": "string",
+        "apiKey": "string",
+        "apiKeyId": "string",
+        "caller": "string",
+        "cognitoAuthenticationProvider": "string",
+        "cognitoAuthenticationType": "string",
+        "cognitoIdentityId": "string",
+        "cognitoIdentityPoolId": "string",
+        "principalOrgId": "string",
+        "sourceIp": "string",
+        "user": "string",
+        "userAgent": "string",
+        "userArn": "string",
+        "clientCert": {
+          "clientCertPem": "string",
+          "subjectDN": "string",
+          "issuerDN": "string",
+          "serialNumber": "string",
+          "validity": {
+            "notBefore": "string",
+            "notAfter": "string"
+          }
+        }
+      },
+      "requestId": "string",
+      "requestTime": "string",
+      "requestTimeEpoch": "2024-11-08T17:54:51.062Z",
+      "resourceId": "string",
+      "resourcePath": "string",
+      "domainName": "string",
+      "domainPrefix": "string",
+      "extendedRequestId": "string",
+      "httpMethod": "DELETE",
+      "path": "string",
+      "connectedAt": "2024-11-08T17:54:51.062Z",
+      "connectionId": "string",
+      "eventType": "CONNECT",
+      "messageDirection": "string",
+      "messageId": "string",
+      "routeKey": "string",
+      "operationName": "string"
+    },
+    "pathParameters": {
+      "cloudPlatform": "AWS"
+    },
+    "stageVariables": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "isBase64Encoded": true,
+    "body": {
+      "workspaces": [
+        {
+          "organization": "string",
+          "workspaceType": "account",
+          "workspaceId": "string",
+          "workspaceName": "string"
+        }
+      ],
+      "entities": [
+        {
+          "delegationId": 0,
+          "entityType": "Group",
+          "entityId": "string",
+          "entityName": "string",
+          "directoryId": "string",
+          "directoryName": "string",
+          "entityEmail": "string",
+          "serviceType": "string",
+          "userPrincipal": "string"
+        }
+      ]
+    }
+  }
+}
+
+vars:pre-request {
+  cloudPlatform: 
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Add Delegation
+  Add delegates for a given set of workspaces
+  
+  ### Request URL
+  https://<subdomain>-cem.cyberark.cloud/api/delegations/{cloudPlatform}
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | POST | application/json |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Example Request Body
+  ```
+  {
+    "version": "string",
+    "resource": "string",
+    "path": "string",
+    "httpMethod": "POST",
+    "headers": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "multiValueHeaders": {
+      "additionalProp1": [
+        "string"
+      ],
+      "additionalProp2": [
+        "string"
+      ],
+      "additionalProp3": [
+        "string"
+      ]
+    },
+    "queryStringParameters": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "multiValueQueryStringParameters": {
+      "additionalProp1": [
+        "string"
+      ],
+      "additionalProp2": [
+        "string"
+      ],
+      "additionalProp3": [
+        "string"
+      ]
+    },
+    "requestContext": {
+      "accountId": "string",
+      "apiId": "string",
+      "authorizer": {
+        "claims": {},
+        "scopes": [
+          "string"
+        ]
+      },
+      "stage": "string",
+      "protocol": "string",
+      "identity": {
+        "accessKey": "string",
+        "accountId": "string",
+        "apiKey": "string",
+        "apiKeyId": "string",
+        "caller": "string",
+        "cognitoAuthenticationProvider": "string",
+        "cognitoAuthenticationType": "string",
+        "cognitoIdentityId": "string",
+        "cognitoIdentityPoolId": "string",
+        "principalOrgId": "string",
+        "sourceIp": "string",
+        "user": "string",
+        "userAgent": "string",
+        "userArn": "string",
+        "clientCert": {
+          "clientCertPem": "string",
+          "subjectDN": "string",
+          "issuerDN": "string",
+          "serialNumber": "string",
+          "validity": {
+            "notBefore": "string",
+            "notAfter": "string"
+          }
+        }
+      },
+      "requestId": "string",
+      "requestTime": "string",
+      "requestTimeEpoch": "2024-11-08T17:54:51.062Z",
+      "resourceId": "string",
+      "resourcePath": "string",
+      "domainName": "string",
+      "domainPrefix": "string",
+      "extendedRequestId": "string",
+      "httpMethod": "DELETE",
+      "path": "string",
+      "connectedAt": "2024-11-08T17:54:51.062Z",
+      "connectionId": "string",
+      "eventType": "CONNECT",
+      "messageDirection": "string",
+      "messageId": "string",
+      "routeKey": "string",
+      "operationName": "string"
+    },
+    "pathParameters": {
+      "cloudPlatform": "AWS"
+    },
+    "stageVariables": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "isBase64Encoded": true,
+    "body": {
+      "workspaces": [
+        {
+          "organization": "string",
+          "workspaceType": "account",
+          "workspaceId": "string",
+          "workspaceName": "string"
+        }
+      ],
+      "entities": [
+        {
+          "delegationId": 0,
+          "entityType": "Group",
+          "entityId": "string",
+          "entityName": "string",
+          "directoryId": "string",
+          "directoryName": "string",
+          "entityEmail": "string",
+          "serviceType": "string",
+          "userPrincipal": "string"
+        }
+      ]
+    }
+  }
+  ```
+  
+  #### Example Response (201 Created)
+  ```
+  ""
+  ```
+  
+  ## Response Status Codes
+  - 201 - Delegation added successfully
+  - 400 - Bad Request
+  - 500 - Internal server error
+  
+}
