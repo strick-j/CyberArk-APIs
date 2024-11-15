@@ -22,6 +22,17 @@ script:pre-request {
   await epmAuth.login();
 }
 
+script:post-response {
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save Set Id in Session Collection
+    if (res.body.Sets[0].Id) {
+      bru.setVar('epmSetId', res.body.Sets[0].Id);
+    }
+  }
+}
+
 docs {
   ## Get Sets List
   This method enables the user to retrieve the list of Sets.
