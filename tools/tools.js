@@ -12,10 +12,16 @@ const tools = {
     }
   },
 
-   // Set the token to the Authorization header as a Bearer token
-   setBearerAuth: function(tokenKey = 'mapperToken') {
+  // Set the token to the Authorization header as a Bearer token
+  setBearerAuth: function(tokenKey = 'mapperToken') {
     req.setHeader('Authorization', 'Bearer ' + bru.getVar(tokenKey));
-    tools.log("set Token to Authheader");
+    tools.log("set Bearer Token to Authheader");
+  },
+
+   // Set the token to the Authorization header as a Basic token
+   setBasicAuth: function(tokenKey = 'mapperToken') {
+    req.setHeader('Authorization', 'Basic ' + bru.getVar(tokenKey));
+    tools.log("set Basic Token to Authheader");
   },
   
   // Generates a random sequence of numbers for the 'jti' portion of the JWT (Used in Remote Access and SWS Auth flows)
