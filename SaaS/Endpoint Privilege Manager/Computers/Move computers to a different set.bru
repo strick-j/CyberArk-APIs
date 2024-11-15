@@ -1,0 +1,90 @@
+meta {
+  name: Move computers to a different set
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/computers/redirectagents
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "computerIds": ["{{agentId1}}", "{{agentId2}}"],
+    "destSetId": "{{destSetId}}"
+  }
+}
+
+vars:pre-request {
+  setId: 
+  destSetId: 
+  agentId1: 
+  agentId2: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getVar('epmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Move computers to a different Set
+  This method moves endpoint computers with an EPM agent to a different Set.
+  
+  > **Note**
+  > - You can move up to 500 computers per Set each day
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/computers/redirectagents
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  {
+    "computerIds":  ["9f270081-9360-417c-b5fc-a9c900866c6e",”8fd0d0ce-b1a3-4c09-8455-31b3fe27f3c4”],
+    "destSetId": "a1762f2d-249f-4c96-b33a-e0cd8d04c546"
+  }
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "NotMigrated": 0
+  }
+  ```
+}
