@@ -1,0 +1,90 @@
+meta {
+  name: Get download package url
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/Computers/Packages/{{packageId}}/url
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  os: all
+  setId: 
+  packageId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getVar('epmSetId'));
+    bru.setVar('packageId', bru.getVar('epmPackageId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('Package Id: ' + bru.getVar('packageId'))
+  }
+}
+
+docs {
+  ## Get download package URL
+  This method returns the signed URL from where you can download a selected package for installation.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Computers/Packages/{packageId}/url
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Required Permissions
+  Users require the following permissions to call this API:
+  > - **Computers > Download Agent Installation Package** permissions
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | string | yes | Id of the set where the packages will be installed. You can retrieve the Set ID with Get sets list. **Valid Values:** Set Id |
+  | packageId | string | yes | Id of the package to download. You can retrieve the package Id with Get download packages. |
+  
+  #### Request Query Parameters
+  No
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "url": "https://login.epm.cyberark.com/VFAGT/VfAgent.asmx",
+    "registerToken": "1EEAhni+eiM2eZ0jdUPYRXOHJiM6vzXeTaYEXAMPLE2615XNcMHxvm4k8ttEoZp7DcMcXRwx/tQP8oetlI15lraFhTrZ9sDEIig513qM50gMyEz1RoOiSXmd49lPpneEXAMPLEMBI=",
+    "setId": "fa3a123e-1243-4f3b-123a-8122f712as10",
+    "setName": "Windows Workstations(cyberark_503)",
+    "version": "2",
+    "sig": "OGbihZq7FeaXpntEXAMPLErUDtsbGoTEpc=",
+    "setKey": "VpEXAMPLEEdG43OpmOUsEXAMPLEi",
+    "IV": "hmK69EXAMPLEIA=="
+  }
+  ```
+}
