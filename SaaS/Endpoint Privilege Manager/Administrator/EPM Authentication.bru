@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://{{dispatcher}}.epm.cyberark.com/EPM/API/Auth/EPM/Logon
+  url: https://{{dispatcher}}.epm.cyberark.com/EPM/API/{{epmVersion}}/Auth/EPM/Logon
   body: json
   auth: none
 }
@@ -25,13 +25,41 @@ vars:pre-request {
 }
 
 docs {
+  ## EPM authentication
+  This method authenticates a user to EPM using username and password and returns a token that can be used in subsequent Rest API calls.
   
+  After the configured timeout expires, users have to log on again using their username and password.
   
+  The session timeout for all APIs is part of the session token and is defined by the Timeout for inactive session parameter in Administration > Account Configuration.
   
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/Auth/EPM/logon
   
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
   
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
   
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
   
+  #### Request Query Parameters
+  None
+  
+  #### Request Body
+  ```
+  {
+    "Username": "example@example.com",
+    "Password": "SuperCoolPassword",
+    "ApplicationID": "Bruno"
+  }
+  ```
   
   ### Response
   
