@@ -1,0 +1,53 @@
+meta {
+  name: Get EPM Versions
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/server/version
+  body: none
+  auth: none
+}
+
+docs {
+  ## Get EPM Version
+  This method enables the user to retrieve the EPM version.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/server/version
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  ### Example Responses
+  ```
+  {
+    "Version": "24.10.1.4302"
+  }
+  ```
+}

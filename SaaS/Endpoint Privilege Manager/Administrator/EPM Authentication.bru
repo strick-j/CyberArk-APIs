@@ -1,0 +1,67 @@
+meta {
+  name: EPM Authentication
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{dispatcher}}.epm.cyberark.com/EPM/API/Auth/EPM/Logon
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Username": "{{epmUserName}}",
+    "Password": "{{epmUserPassword}}",
+    "ApplicationID": "Bruno"
+  }
+}
+
+vars:pre-request {
+  username: 
+  password: 
+  dispatcher: login
+}
+
+docs {
+  
+  
+  
+  
+  
+  
+  
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "IsPasswordExpired": false,
+    "ManagerURL": "https://na177.epm.cyberark.com",
+    "EPMAuthenticationResult": "EXAMPLEusjhIwC4PzgrUBXTlDIeJNP6EXAMPLE98CUEv7UGN34OgXCHVIMlNqi7uhvvpM3bwhiQbEXAMPLE8NPeJbp0AJHWeoyV7NrA0EXAMPLE%2bSJKrIL9aKzf3sRZpWSWUvEXAMPLEa"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": null,
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+  
+  #### Example Response (401 Unauthorized)
+  ```
+  [
+    {
+      "ErrorCode": "EPM030001E",
+      "ErrorMessage": "Authentication is required and has failed or has not yet been provided."
+    }
+  ]
+  ```
+}

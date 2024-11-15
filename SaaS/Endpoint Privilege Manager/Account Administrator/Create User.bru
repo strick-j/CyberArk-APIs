@@ -1,0 +1,127 @@
+meta {
+  name: Create User
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/Account/Users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "username": "example@example.com",
+      "password": "Example123!@#",
+      "confirmpassword": "Example123!@#",
+      "question":"Is pineapple on pizza good?",
+      "answer": "Yes it is",
+      "roleaccess": "read_only"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+}
+
+docs {
+  ## Create User
+  This method creates a new user in the current account.
+  
+  ### Required Permissions
+  Users require the following permissions to call this API:
+  > - **Account Administrator > Full Control** permissions
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/Account/Users
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | username | string | yes | The user's email address. |
+  | password | string | yes | The user's password. |
+  | confirmPassword | string | yes | The current password. **Valid Values:** The same value as passsowrd |
+  | question | string | yes | A question used to prompt a unique answer. |
+  | answer | string | yes | A unique answer used to identify the user. |
+  | roleaccess | string | yes | The Level of access for this user. **Valid Values:** unknown, full_control, read_only |
+  
+  
+  #### Request Body
+  ```
+  {
+      "username":"",
+      "password":"",
+      "confirmpassword":"",
+      "question":"",
+      "answer": "",
+      "roleaccess": ""
+  }
+  ```
+  
+  ### Response
+  
+  #### Example Response (201 Created)
+  ```
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "UserName"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for UserName value is invalid. Reason: Only characters ! @ # $ % ^ & * ' + - / = ? _ ` { } | ~ ; . are valid."
+    },
+    {
+      "Fields": [
+        "Answer"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for Answer value is invalid. Reason: Only letters, numbers and characters _ . @ - , ; ? \" ! are allowed."
+    }
+  ]
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  [
+    {
+      "UseCustomMessage": false,
+      "ErrorCode": "EPM00000EE",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+}
