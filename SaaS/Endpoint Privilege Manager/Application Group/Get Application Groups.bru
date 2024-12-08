@@ -1,0 +1,144 @@
+meta {
+  name: Get Application Groups
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/applicationgroups/search?limit=50&offset=0&sortBy=Updated&sortDir=asc
+  body: json
+  auth: none
+}
+
+query {
+  limit: 50
+  offset: 0
+  sortBy: Updated
+  sortDir: asc
+}
+
+body:json {
+  {
+    "filter":"PolicyName CONTAINS elevate"
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'));
+  }
+}
+
+docs {
+  ## Get Application Groups
+  This method retrieves a list of application groups, according to one or more filters.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/policies/applicationgroups/search?limit=50&offset=0&sortBy=Updated&sortDir=asc
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | offset | integer | no | Number of results to skip. **Valide Values:** Between 0 and 1000 UPDATE |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | filter | string | Filter the returned data using one or more conditions, as listed in Filter options. | No | A predefined EPM query language with different operators and logical expressions (AND/OR). |
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND/OR operator.
+  
+  #### Filter Options
+  
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | PolicyName | string | Unique name of the application group. | No | CONTAINS| PolicyName CONTAINS elevate or PolicyName CONTAINS "elevate task" **Note:** This value must be enclosed in quotation marks in the following cases: When the value contains space(s). When the value is a reserved word, such as the operator name. |
+  | PolicyType | String | Type(s) of application group. | No | EQ, IN | EQ - Filters a single application group, as listed in Single application group types. PolicyType EQ ADV_WIN. IN - Filters a list of policy types: PolicyType IN ADV_WIN,ADV_MAC,ADV_LINUX |
+  | PolicyGroupType | string | Type of group of application groups, as listed in Groups of application group types. | No | EQ | PolicyGroupType EQ Application |
+  | IsActive | string | Indicates the application group status. | No | EQ | IsActive EQ true |
+  | OsType | string | OS type for which the application group is created. | No | EQ | OsType EQ VF_OS_64 |
+  | fromDate | Date | The application group was updated on or after this date/time. Date/time is a UTC represented in ISO 8601 date format. | No | EQ | FromDate EQ 2022-02-06T12:00:00.000Z | 
+  | toDate | Date | The application group was updated on or before this date/time. Date/time is a UTC represented in ISO 8601 date format.| No | EQ | ToDate EQ 2022-02-06T15:00:00.000Z | 
+  | TargetName | String | Name of any target in the application group (users, computers, computer groups). | No | CONTAINS | TargetName CONTAINS group |
+  | ApplicationName | String | Name of an application that belongs to the application group. | No | CONTAINS | ApplicationName CONTAINS a.exe |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":"PolicyName CONTAINS elevate"
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "Policies": [
+      {
+        "PolicyId": "f579f9d4-5b05-4137-9231-6e735f7de726",
+        "PolicyName": "Elevate Application Group",
+        "Action": 3,
+        "IsActive": false,
+        "PolicyType": 43,
+        "Order": 0,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2023-01-23T21:56:57.0814974",
+        "ModifiedDate": "2023-03-03T14:40:31.7145262",
+        "ReferencedApplicationGroups": [],
+        "UserPolicyPermissions": -1
+      }
+    ],
+    "ActiveCount": 53,
+    "TotalCount": 111,
+    "FilteredCount": 1
+  }
+  ```
+}
