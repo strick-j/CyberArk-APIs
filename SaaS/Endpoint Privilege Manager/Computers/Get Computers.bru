@@ -27,7 +27,7 @@ script:pre-request {
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('setId', bru.getVar('epmSetId'));
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
     tools.log('Set Id: ' + bru.getVar('setId'))
   }
 }
