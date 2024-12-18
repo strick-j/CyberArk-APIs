@@ -1,0 +1,149 @@
+meta {
+  name: Get Detailed Sign In Audit Events
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/signinaudits/search?limit=2
+  body: json
+  auth: none
+}
+
+query {
+  limit: 2
+  ~sortBy: 
+  ~sortDir: 
+  ~nextCursor: 
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get detailed sign in audit events
+  This method enables users to retrieve detailed audits from endpoint sign in events, according to filters.
+  
+  > **Note**
+  > - To return all results for a specified time, bypassing the 1000 record limit, use both the arrivalTime and nextCursor parameter. The results are listed in chronological order.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/files/aggregations/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | nextCursor | string | no | An opaque string used to retrieve the next page of results. Call the API with the value returned in the results of the previous call. For the first page, set to the value "start". **Valid Value:** This string is returned by the server and must not be modified by the caller. |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | filter | string | Filter the returned data using one or more conditions, as listed in Filter options. | No | A predefined EPM query language with different operators and logical expressions (AND/OR). |
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND/OR operator.
+  
+  #### Filter Options
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | loginType | string | The type of sign in. | No | EQ, IN | **Valid Values:** EPMLT_ONLINE, EPMLT_OFFLINE, EPMLT_ADMIN, EPMLT_FALLBACK, EPMLT_ENROLLMENT **Example of EQ:** loginType EQ \"EPMLT_ONLINE\" |
+  | loginResult | boolean | The outcome of the sign in process. | No | EQ | **Example of EQ:** loginResult EQ \"true\" |
+  | loggedInUser | string | The name of the user who signed in. | No | EQ, CONTAINS | **Example of EQ:** loggedInUser EQ \"MyCompany\\Cyberark\" |
+  | hostname | string | The name of the computer where the user signed in. | No | EQ, CONTAINS | **Example of EQ:** hostname EQ \"MyCompany-Agent\" |
+  | policyName | string | The name of the login policy that triggered the event. | No | EQ, CONTAINS | **Example of EQ:** policyName CONTAINS \"Policy\" |
+  | platform | string | The OS on the endpoint | No | EQ, IN | **Valid Values:** EPMP_WINDOWS, EPMP_MACOS, EPMP_LINUX **Example of EQ:** platform EQ \"EPMP_WINDOWS\" |
+  | loginProtocol | string | The login protocol that was used to sign in. | No | EQ, IN | **Valid Values:** EPMLP_IDP, EPMLP_RDP, EPMLP_SSH, EPMLP_IDP_RDP **Example of EQ:** loginProtocol EQ \"EPMLP_SSH\" | 
+  | authenticationMethod | string | The authentication method that was used to sign in. | No | EQ, IN | **Valid Values:** EPMAM_SSH_KEY, EPMAM_OIDC, EPMAM_CERTIFICATE, EPMAM_PASSWORD **Example of EQ:** authenticationMethod EQ \"EPMAM_OIDC\" |
+  | newUser | boolean | Whether it was the first time this user authenticated with endpoint sign in. | No | EQ | **Example of EQ:** newUser EQ \"true\" |
+  | failReason | string | The reason why sign in failed. Whether it was the first time this user authenticated with endpoint sign in. | No | EQ, IN | **Example of EQ:** failReason EQ \"Login success\" |
+  | failReasonCode | string | The failure code, if sign in failed. | No | EQ, CONTAINS | **Valid Values:** ALL, X3245, X3246, X3248, X3252, X3253, X3254, X3255, X3256, X3257, X3258, X3259, X0000 **Example of EQ:** failReasonCode EQ \"X0000\" |
+  | timeLast | date | The date when the event was triggered. | No | GE, LE, BETWEEN | **Example of GE:** timelast GE \"2024-07-20T00:00:00Z\", **Example of LE:** timelast LE \"2024-07-20T00:00:00Z\", **Example of BETWEEN:** timeLast BETWEEN 2024-04-07T18:30:00.000Z,2024-07-08T18:29:00.000Z |
+  | aggregatedBy | string | An opaque value composed of the aggregation unique identifier of the event. | No | EQ | **Example of EQ:** aggregatedBy EQ "943E0A8C840430E53D8D641CF4CDC1660C75FFE0,Block" |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":"requestedExecutionLevel EQ \"UNKNOWN\""
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "filteredCount": 0,
+    "returnedCount": 0,
+    "nextCursor": null,
+    "events": []
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+  
+}

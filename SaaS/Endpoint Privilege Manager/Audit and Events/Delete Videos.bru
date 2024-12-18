@@ -1,0 +1,127 @@
+meta {
+  name: Delete Videos
+  type: http
+  seq: 12
+}
+
+delete {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/videos
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filter":"videoId IN \"68c9d52d-0ee8-426f-8756-e4797fe47318\",\"74be92a1-99a4-43f7-bd27-3debfe03cd20\""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Delete Audit Videos
+  This method deletes one or more audit videos.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/videos/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  NA
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND operator.
+  
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | videoId | string | Returns videos with a specific unique identifier. | No | EQ, IN | **Example of EQ:** videoId EQ 7FAF12BF-3FE6-4646-A619-EC87B0369B76 **Example of IN:** videoId IN 7FAF12BF-3FE6-4646-A619-EC87B0369B76 |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":"videoId IN \"68c9d52d-0ee8-426f-8756-e4797fe47318\",\"74be92a1-99a4-43f7-bd27-3debfe03cd20\""
+  }
+  ```
+  
+  ### Response
+  There is no json response. However, you should receive a 204 code to indicate success.
+  
+  #### Example Response (204 No Content)
+  ```
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+  
+  #### Example Response (405 Method Not Allowed)
+  ```
+  {
+    "Message": "The requested resource does not support http method 'DELETE'."
+  }
+  ```
+  
+  #### Example Response (500 Internal Server Error)
+  ```
+  [
+    {
+      "ErrorHeader": null,
+      "ErrorDescription": null,
+      "ErrorCode": "EPM00000BE",
+      "ErrorMessage": "Operation Failed"
+    }
+  ]
+  ```
+}

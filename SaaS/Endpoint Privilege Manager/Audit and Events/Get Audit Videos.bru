@@ -1,0 +1,132 @@
+meta {
+  name: Get Audit Videos
+  type: http
+  seq: 11
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/videos/search
+  body: json
+  auth: none
+}
+
+query {
+  ~limit: 5
+  ~sortBy: 
+  ~sortDir: 
+  ~nextCursor: 
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get Audit Videos
+  This method retrieves a list of audit videos.
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/videos/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | nextCursor | string | no | An opaque string used to retrieve the next page of results. Call the API with the value returned in the results of the previous call. For the first page, set to the value "start". **Valid Value:** This string is returned by the server and must not be modified by the caller. |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND operator.
+  
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | videoId | string | Returns videos with a specific unique identifier. | No | EQ, IN | **Example of EQ:** videoId EQ 7FAF12BF-3FE6-4646-A619-EC87B0369B76 **Example of IN:** videoId IN 7FAF12BF-3FE6-4646-A619-EC87B0369B76 |
+  | policy (policyName) | string | returns videos with a specific policy name. | No | EQ, IN, CONTAINS | **Example of EQ:** policy EQ "WIN-COMP1" **Example of IN:** policy IN POLICY-COMP1,POLICY-COMP2 **Example of CONTAINS:** policy CONTAINS "COMP1" | 
+  | user (username) | string | Returns videos that were generated from a specific user. | No | EQ, IN, CONTAINS | **Example of EQ:** user EQ "WIN-COMP1" **Example of IN:** user IN WIN-COMP1,WIN-COMP2 **Example of CONTAINS:** user CONTAINS "COMP1" | 
+  | computerName | string | Returns videos that were generated on a specific computer. | No | EQ, IN, CONTAINS | **Example of EQ:** computerName EQ "COMP1" **Example of IN:** computerName IN COMP1,COMP2 **Example of CONTAINS:** computerName CONTAINS "COMP"|
+  | startTime | time | Returns videos that were triggered after a specific time. | No | GE, LE | **Example of GE:** startTime GE 2023-09-20T00:00:00Z **Example of LE:** startTime LE 2023-09-21T00:00:00Z" |
+  | application | string | Returns videos that were generated from a specific user. | No | EQ, IN, CONTAINS | **Example of EQ:** application EQ "APP-COMP1" **Example of IN:** application IN APP-COMP1,APP-COMP2 **Example of CONTAINS:** application CONTAINS "COMP1" |
+  | locationType | string | Returns videos from a specific type of location. | No | GE, LE | **Example of EQ:** application EQ "Network share" **Example of IN:** application IN Endpoint,cloud **Example of CONTAINS:** application CONTAINS "Network"| 
+  | videoStatus | string | Returns videos with a specific status| No | EQ, IN | **Example of EQ:** videoStatus EQ "Video Available" **Example of IN:** videoStatus IN "Video Available,Failed" |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter": "videoId EQ 7FAF12BF-3FE6-4646-A619-EC87B0369B76"
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "nextCursor": null,
+    "videos": [],
+    "filteredCount": 0,
+    "returnedCount": 0
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+  
+}
