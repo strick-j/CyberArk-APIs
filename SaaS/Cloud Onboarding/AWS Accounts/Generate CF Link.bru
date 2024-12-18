@@ -1,0 +1,36 @@
+meta {
+  name: Generate CF Link
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/account/{{id}}/generate-link
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "accountId":"969656756524",
+    "services":["dpa"],
+    "accountDisplayName":"PIN - AWS - Root",
+    "description": "Pineapple AWS Root Account"
+  }
+}
+
+vars:pre-request {
+  id: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

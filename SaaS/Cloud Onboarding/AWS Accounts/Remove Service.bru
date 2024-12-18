@@ -1,0 +1,33 @@
+meta {
+  name: Remove Service
+  type: http
+  seq: 7
+}
+
+delete {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/account/{{id}}/services
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "services": ["dpa"]
+  }
+}
+
+vars:pre-request {
+  id: 1339d34c9db34a19a601653b9d086f61
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

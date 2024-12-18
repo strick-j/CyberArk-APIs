@@ -1,0 +1,33 @@
+meta {
+  name: Remove Organization
+  type: http
+  seq: 8
+}
+
+delete {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization/{{awsOrgId}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "services":["secrets_hub"]
+  }
+}
+
+vars:pre-request {
+  awsOrgId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

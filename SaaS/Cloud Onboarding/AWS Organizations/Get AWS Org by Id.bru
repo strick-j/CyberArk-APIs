@@ -1,0 +1,22 @@
+meta {
+  name: Get AWS Org by Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization/{{id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  id: 230f9c6b773a4baewewd498892bf3aa7
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Scan
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organizations/scan
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "organizationRootId":"r-zjhf",
+    "organizationId":"o-apl4ofpkaq",
+    "managementAccountId":"969656756524",
+    "services":["dpa"],
+    "accountDisplayName":"PIN - AWS - IC - COB",
+    "description": "Pineapple AWS via Cloud Onboarding"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

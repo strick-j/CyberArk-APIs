@@ -1,0 +1,60 @@
+meta {
+  name: Add Services
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization/{{id}}/services
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "services":["secrets_hub"]
+  }
+}
+
+vars:pre-request {
+  id: 230f9c6b773aexample98892bf3aa7
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets pasSafeMemberName for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getEnvVar('testAwsCybrId'));
+    tools.log('Cybr AWS ID: ' + bru.getEnvVar('testAwsCybrId'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
