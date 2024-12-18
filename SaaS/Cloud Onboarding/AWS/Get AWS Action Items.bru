@@ -21,3 +21,50 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
 }
+
+docs {
+  ## Get AWS Action Items
+  This method returns a list of AWS organizations and single accounts that are waiting for the user to perform an action.
+  
+  ### URL
+  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/ui/aws/action-items
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "items": [
+      {
+        "workspaceId": "string",
+        "platformId": "string",
+        "name": "string",
+        "organizationId": "string",
+        "organizationName": "string",
+        "type": "deploy"
+      }
+    ]
+  }
+  ```
+}

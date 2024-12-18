@@ -1,7 +1,7 @@
 meta {
   name: Get AWS Account by Id
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
@@ -11,7 +11,7 @@ get {
 }
 
 vars:pre-request {
-  id: 1339d34c9db34a19a601653b9d086f61
+  id: 
 }
 
 assert {
@@ -21,7 +21,78 @@ assert {
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets account Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coAccountId'));
+    tools.log('Clound Onboarind Account Id: ' + bru.getVar('id'))
+  }
+}
+
+docs {
+  ## Get AWS Account by Id
+  This method returns the details of a single AWS account.
+  
+  ### URL
+  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/aws/accounts/{id}
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The account ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": "11342eb7de464a409ff64fd7d9dc2ab4",
+    "accountId": "123665112345",
+    "region": "us-east-1",
+    "services": [
+      "dpa"
+    ],
+    "servicesData": [
+      {
+        "name": "dpa",
+        "status": "Completely onboarded",
+        "errors": [],
+        "properties": [
+          {
+            "name": "service_ongoing_migration",
+            "value": false
+          }
+        ],
+        "suspended": false
+      }
+    ],
+    "duplicatedServices": [],
+    "displayName": "123665112345",
+    "status": "Completely onboarded"
+  }
+  ```
 }
