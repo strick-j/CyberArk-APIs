@@ -1,0 +1,345 @@
+meta {
+  name: Get default agent configuration
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/agentconfiguration/default
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get Default Agent Configuration 
+  This method retrieves the default agent configuration policy.
+  
+  ## URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Policies/AgentConfiguration/default
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "General configuration",
+    "PolicyType": 44,
+    "Action": 10,
+    "ExtendedProtection": {
+      "SupportInfoFilePasswordDefault": {
+        "Value": null,
+        "SupportedOS": 7
+      },
+      "AgentSelfDefense": {
+        "Value": true,
+        "SupportedOS": 7
+      },
+      "SupportInfoFilePassword": {
+        "Value": "BIg4LEXAMPLE==",
+        "SupportedOS": 7
+      },
+      "ProtectElevatedProcessesFromDllHijacking": {
+        "Value": false,
+        "SupportedOS": 1
+      }
+    },
+    "DataCollection": {
+      "CollectPolicyAuditData": {
+        "Value": true,
+        "SupportedOS": 7
+      },
+      "ThreatProtectionExcludedApplications": {
+        "Value": {
+          "policyId": "00000000-0000-0000-0000-000000000000",
+          "PolicyName": "[EXCLUDE FILES POLICY EAGLES]",
+          "ExcludeType": 1,
+          "Action": 16,
+          "Applications": [],
+          "upgradeInfo": {}
+        },
+        "SupportedOS": 1
+      },
+      "ExcludeNewFilesFromTheApplicationCatalogAndInbox": {
+        "Value": {
+          "policyId": "00000000-0000-0000-0000-000000000000",
+          "PolicyName": "[IGNORED LOCATIONS FOR NEW APPS POLICY]",
+          "ExcludeType": 2,
+          "Action": 12,
+          "Applications": [
+            {
+              "id": "00000000-0000-0000-0000-000000000000",
+              "internalId": 0,
+              "applicationType": 16,
+              "displayName": "Location: '%WINDIR%\\Installer'",
+              "description": "",
+              "patterns": {
+                "FILE_NAME": {
+                  "@type": "FileName",
+                  "hashAlgorithm": "",
+                  "hash": "",
+                  "hashSHA256": "",
+                  "fileSize": 0,
+                  "isEmpty": true,
+                  "content": "",
+                  "compareAs": 0,
+                  "caseSensitive": false
+                },
+                "LOCATION": {
+                  "@type": "Location",
+                  "content": "%WINDIR%\\Installer",
+                  "withSubfolders": true,
+                  "caseSensitive": false,
+                  "isEmpty": false
+                },
+                "LOCATION_TYPE": {
+                  "@type": "LocationType",
+                  "locationType": "",
+                  "isEmpty": true
+                },
+                "ARGUMENTS": {
+                  "@type": "Text",
+                  "content": "",
+                  "compareAs": 0,
+                  "caseSensitive": false,
+                  "isEmpty": true
+                },
+                "PUBLISHER": {
+                  "@type": "Publisher",
+                  "signatureLevel": 1,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": true,
+                  "content": ""
+                },
+                "USER_GROUP_LIST": {
+                  "@type": "AdAccounts",
+                  "accounts": [],
+                  "isEmpty": true
+                }
+              },
+              "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "internalApplicationGroupId": 0,
+              "includeInMatching": true,
+              "accountId": "00000000-0000-0000-0000-000000000000",
+              "childProcess": false,
+              "restrictOpenSaveFileDialog": false,
+              "securityTokenId": "00000000-0000-0000-0000-000000000000",
+              "protectInstalledFiles": false
+            },
+            {
+              "IgnoreFileOperations": true,
+              "IgnoreProcessLaunches": true,
+              "id": "00000000-0000-0000-0000-000000000000",
+              "internalId": 0,
+              "applicationType": 27,
+              "displayName": "Location: '/Applications/Sublime Text.app', ... (other parameters)",
+              "description": "",
+              "patterns": {
+                "FILE_NAME": {
+                  "@type": "FileName",
+                  "hashAlgorithm": "",
+                  "hash": "",
+                  "hashSHA256": "",
+                  "fileSize": 0,
+                  "isEmpty": true,
+                  "content": "",
+                  "compareAs": 0,
+                  "caseSensitive": false
+                },
+                "LOCATION": {
+                  "@type": "Location",
+                  "content": "/Applications/Sublime Text.app",
+                  "withSubfolders": true,
+                  "caseSensitive": false,
+                  "isEmpty": false
+                },
+                "ARGUMENTS": {
+                  "@type": "Text",
+                  "content": "",
+                  "compareAs": 0,
+                  "caseSensitive": false,
+                  "isEmpty": true
+                },
+                "LOCATION_TYPE": {
+                  "@type": "LocationType",
+                  "locationType": "",
+                  "isEmpty": true
+                },
+                "PUBLISHER": {
+                  "@type": "Publisher",
+                  "signatureLevel": 2,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": false,
+                  "content": "Sublime HQ Pty Ltd (Z6D26JE4Y4)"
+                },
+                "USER_GROUP_LIST": {
+                  "@type": "AdAccounts",
+                  "accounts": [],
+                  "isEmpty": true
+                }
+              },
+              "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "internalApplicationGroupId": 0,
+              "includeInMatching": true,
+              "accountId": "00000000-0000-0000-0000-000000000000",
+              "restrictOpenSaveFileDialog": false,
+              "securityTokenId": "00000000-0000-0000-0000-000000000000",
+              "protectInstalledFiles": false
+            }
+          ],
+          "upgradeInfo": {}
+        },
+        "SupportedOS": 2
+      },
+      "MonitorSystemProcesses": {
+        "Value": true,
+        "SupportedOS": 1
+      },
+      "StoreFileInfoInExtendedAttributes": {
+        "Value": true,
+        "SupportedOS": 3
+      },
+      "EnableDllSupport": {
+        "Value": false,
+        "SupportedOS": 1
+      },
+      "VerifyDigitalSignatureOnScripts": {
+        "Value": true,
+        "SupportedOS": 1
+      },
+      "DiscoverSourceUrl": {
+        "Value": true,
+        "SupportedOS": 1
+      },
+      "DiscoverSourceEmail": {
+        "Value": false,
+        "SupportedOS": 1
+      },
+      "IsNetworkSharesFullSupport": {
+        "Value": 1,
+        "SupportedOS": 1
+      },
+      "MonitorSipFiles": {
+        "Value": false,
+        "SupportedOS": 2
+      },
+      "BootStartDriver": {
+        "Value": false,
+        "SupportedOS": 1
+      },
+      "AllowRootDelegationForRootPrograms": {
+        "Value": true,
+        "SupportedOS": 2
+      },
+      "ProhibitSudoersFileModification": {
+        "Value": true,
+        "SupportedOS": 6
+      },
+      "SudoGraceValidationPeriod": {
+        "Value": 30,
+        "SupportedOS": 2
+      },
+      "TraceNewFiles": {
+        "Value": false,
+        "SupportedOS": 1
+      },
+      "SudoNoPassword": {
+        "Value": false,
+        "SupportedOS": 4
+      },
+      "SudoSecurePath": {
+        "Value": {
+          "MacPaths": [
+            "/usr/local/bin",
+            "/usr/bin",
+            "/bin",
+            "/usr/sbin",
+            "/sbin",
+            "/Applications/CyberArk EPM.app/Contents/Helpers"
+          ],
+          "LinuxPaths": [
+            "/usr/local/bin",
+            "/usr/bin",
+            "/bin",
+            "/usr/sbin",
+            "/sbin"
+          ]
+        },
+        "SupportedOS": 6
+      },
+      "AllowedPreloaders": {
+        "Value": [],
+        "SupportedOS": 4
+      },
+      "SudoersAllowsUserSpecificationOverriding": {
+        "Value": false,
+        "SupportedOS": 2
+      }
+    },
+    "Executors": [],
+    "IsAppliedToAllComputers": true,
+    "Accounts": [],
+    "IncludeADComputerGroups": [],
+    "ExcludeADComputerGroups": [],
+    "Description": "",
+    "IsActive": false,
+    "LinkedAgentPolicies": []
+  }
+  ```
+}

@@ -1,0 +1,98 @@
+meta {
+  name: Get agent configuration details
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/agentconfiguration/{{agentConfigurationId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('Agent Configuration Id: ' + bru.getVar('agentConfigurationId'))
+  }
+}
+
+docs {
+  ## Get Agent Configuration Details
+  This method retrieves details of an existing agent configuration.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Policies/AgentConfiguration/{agentConfigurationID}
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  | agentConfigurationId | GUID | yes | Unique Id of the agent configuration policy for which to retrieve details. Retrieve the Id with Get agent configurations. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+      "Policy": {<details of the agent configuration policy>}
+      "Order": 4000,
+      "OsType": 0,
+      "CreatedDate": "2023-03-05T15:03:10.5834831",
+      "ModifiedDate": "2023-08-08T08:46:43.9640066"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": null,
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+  
+}

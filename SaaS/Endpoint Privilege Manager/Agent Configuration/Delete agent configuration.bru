@@ -1,0 +1,73 @@
+meta {
+  name: Delete agent configuration
+  type: http
+  seq: 7
+}
+
+delete {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/agentconfiguration/{{agentConfigurationId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('Agent Configuration Id: ' + bru.getVar('agentConfigurationId'))
+  }
+}
+
+docs {
+  ## Delete Agent Configuration 
+  This method deletes a custom agent configuration.
+  
+  ## URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Policies/AgentConfiguration
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  | agentConfigurationId | GUID | yes | The unique GUID of the agent configuration policy to update. Retrieve the ID with Get agent configurations. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  None
+  
+  
+}
