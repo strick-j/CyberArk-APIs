@@ -1,0 +1,271 @@
+meta {
+  name: Get Aggregated Policy Audits
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/events/aggregations/search?limit=2
+  body: json
+  auth: none
+}
+
+query {
+  limit: 2
+  ~sortBy: 
+  ~sortDir: 
+  ~nextCursor: 
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get aggregated policy audits
+  This method enables users to retrieve aggregated policy audit events from EPM, according to filters.
+  
+  > **Note**
+  > - To return all results for a specified time, bypassing the 1000 record limit, use both the arrivalTime and nextCursor parameter. The results are listed in chronological order.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/files/aggregations/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | nextCursor | string | no | An opaque string used to retrieve the next page of results. Call the API with the value returned in the results of the previous call. For the first page, set to the value "start". **Valid Value:** This string is returned by the server and must not be modified by the caller. |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | filter | string | Filter the returned data using one or more conditions, as listed in Filter options. | No | A predefined EPM query language with different operators and logical expressions (AND/OR). |
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND/OR operator.
+  
+  #### Filter Options
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | aggregatedBy | string | An opaque value composed of the aggregation unique identifier of the event. | No | EQ | **Example of EQ:** aggregatedBy EQ "943E0A8C840430E53D8D641CF4CDC1660C75FFE0,Block" |
+  | arrivalTime | Date | The date when the file instance was received by the EPM service. | No | BETWEEN, EQ, LE | **Example of BETWEEN:** arrivalTime between 2021-09-20T00:00:00Z, 2021-09-22T00:00:00Z, **Example of GE:** arrivalTime GE 2019-09-20T00:00:00Z, **Example of LE:** arrivalTime LE 2019-09-21T00:00:00Z | 
+  | eventType | string | Type of Event | No | IN | **Example of IN:** eventType IN ElevationRequest,Trust,Installation |
+  | fileName | string | The name of the file instance. | No | EQ, CONTAINS | **Example of EQ:** displayName EQ "notepad.exe", **Example of CONTAINS:** displayName CONTAINS "pad.exe" |
+  | fileLocation | string | The file location of the file instance. | No | CONTAINS | **Example of CONTAINS:** fileLocation CONTAINS "System32" |
+  | sourceName | string | Point of origin from where the file instance was acquired. | No | CONTAINS | **Example of CONTAINS:** sourceName CONTAINS "Windows" |
+  | publisher | string | Digital signature of the application that created the file instance (if applicable). | No | EQ, CONTAINS | **Example of IS:** publisher IS NULL, **Example of EQ:** publisher EQ "Microsoft", **Example of CONTAINS:** publisher CONTAINS "soft" |
+  | productName | string | The original file name attribute. | No | EQ, CONTAINS | **Example of EQ:** productName EQ "Microsoft OneDrive", **Example of CONTAINS:** productName CONTAINS "OneDrive"|
+  | policyName | string | The name of the policy that triggered the event. | No | CONTAINTS | **Example of CONTAINS:** policyName CONTAINS "Policy Name" |
+  | hash | string | SHA1 of the application that created the file instance. | No | EQ, CONTAINS | **Example of EQ:** hash EQ "B9BD8A25EFCB670C652372434D974663FFCC9F0F", **Example of CONTAINS:** hash CONTAINS "B9BD8A25EFCB670C652372434D974663F" |
+  | justification | boolean | Only events that have justification details. | No | IS NOTNULL, IS | **Example:** justification IS NOTNULL|
+  | applicationType | string | The type of application that triggers the event.. | No | IN | **Example of IN:** applicationType IN Script,MSI,DLL |
+  | userIsAdmin | boolean | Only events generated for admin users. | No | EQ | **Example of EQ:** userIsAdmin EQ true |
+  | agentId | string | Only events generated from a specific agent ID. | No | IN | **Example of IN:** agentId IN 78350d3c-5960-4f39-975a-ed07b53924a4,78350d3c-5960-4f39-975a-ed07b53923b6 |
+  | user | string | Only events generated by a specific user. | No | CONTAINS | **Example of CONTAINS:** user CONTAINS "WIN10X64-PRO\user" |
+  | fileDescription | string | 	
+  Description of the file that created the file instance. | No | EQ, CONTAINS | **Example of EQ:** fileDescription EQ "Microsoft Office SDX Helper", **Example of CONTAINS:** fileDescription CONTAINS "SDX Helper"|
+  | operatingSystemType | string | Endpoint operating system, according to the file type that created the file instance. **Possible Values:** None, Windows, MacOS, Linux | No | EQ | **Example of EQ:** operatingSystemType EQ Windows |
+  | fileQualifier | string | Unique file qualifier. | No | EQ| **Example of EQ:** fileQualifer EQ "5269709462975204913"|
+  | displayName | string | The display name of the file instance. In Linux, this is the command instance. | No | EQ, CONTAINS | **Example of EQ:** displayName EQ "notepad.exe", **Example of CONTAINS:** displayName CONTAINS "pad.exe" |
+  | computerName | string | The name of the computer where the event was detected. | No | IN, EQ | **Example of IN:** computerName IN WIN-COMP1,WIN-COMP2, **Example of EQ:** computerName EQ "WIN-COMP1" |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":"eventType IN Installation"
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "events": [
+      {
+        "policyName": "LSASS Credential Lure Used",
+        "fileQualifier": "6178615693542063749",
+        "lastEventFileName": "svchost.exe",
+        "lastEventOriginalFileName": "svchost.exe",
+        "lastEventDisplayName": "LSASS Credential Lure Used",
+        "hash": "SHA1##582CFAE3826871DBFBADD179FB80A693694387FD",
+        "publisher": "Microsoft Windows Publisher",
+        "totalEvents": 14,
+        "applicationType": "Executable",
+        "applicationTypeId": 3,
+        "eventType": "AttackAttempt",
+        "eventTypeId": 67108864,
+        "lastEventSourceType": "Unknown",
+        "lastEventSourceName": "",
+        "lastEventDate": "2024-12-18T16:55:36.989Z",
+        "lastEventPackageName": null,
+        "lastEventUserName": ".\\corp_lcl_admin",
+        "lastEventComputerName": "WSAMZN-EXAMPLE",
+        "lastEventId": "66my2pMBfgvhdiAGZLjv",
+        "lastEventJustification": "",
+        "threatDetectionAction": "",
+        "affectedComputers": 1,
+        "affectedUsers": 1,
+        "exposedUsers": 1,
+        "lastEventExposedUsersCount": 1,
+        "lastEventExposedUsers": [
+          "CYBERARKLAB\\joe.strickland"
+        ],
+        "firstEventDate": "2024-11-19T15:05:45.071Z",
+        "firstEventUserName": ".\\corp_lcl_admin",
+        "firstEventComputerName": "WSAMZN-EXAMPLE",
+        "fileSize": 51736,
+        "CLSID": "",
+        "mimeType": "",
+        "url": "",
+        "appPackageDisplayName": "",
+        "agentId": "44185f39-c733-4198-b6fe-738514f048cb",
+        "fileLocation": "C:\\Windows\\System32\\",
+        "skippedCount": 0,
+        "skipped": false,
+        "aggregatedBy": "99001,582CFAE3826871DBFBADD179FB80A693694387FD,67108864",
+        "deceptionType": 1,
+        "defenceActionId": 1,
+        "lastAgentId": "44185f39-c733-4198-b6fe-738514f048cb",
+        "lastEventAgentId": null,
+        "packageName": null,
+        "lastEventInitiatedProcess": null,
+        "lastEventInitiatedProcessLocation": null,
+        "operatingSystemType": "Windows",
+        "arrivalTime": "2024-12-18T16:55:44.242Z",
+        "lastEventAccessTargetType": null,
+        "lastEventAccessTargetName": "",
+        "lastEventSymLink": "",
+        "productCode": null,
+        "upgradeCode": null,
+        "lastEventAuthorizationRights": ""
+      },
+      {
+        "fileQualifier": "-6929158130464282036",
+        "lastEventFileName": "rundll32.exe",
+        "lastEventOriginalFileName": "RUNDLL32.EXE",
+        "lastEventDisplayName": "Windows host process (Rundll32) (rundll32.exe)",
+        "hash": "SHA1##A40886F98905F3D9DBDD61DA1D59CCB4F4854758",
+        "publisher": "Microsoft Windows",
+        "totalEvents": 7,
+        "applicationType": "Executable",
+        "applicationTypeId": 3,
+        "eventType": "Launch",
+        "eventTypeId": 2048,
+        "lastEventSourceType": "Windows",
+        "lastEventSourceName": "Microsoft Windows",
+        "lastEventDate": "2024-12-17T23:06:07.984Z",
+        "lastEventPackageName": null,
+        "lastEventUserName": "EXAMPLE\\user",
+        "lastEventComputerName": "WSAMZN-EXAMPLE",
+        "lastEventId": "aZPf1pMBfgvhdiAGM2Qo",
+        "lastEventJustification": "",
+        "threatDetectionAction": "",
+        "affectedComputers": 1,
+        "affectedUsers": 1,
+        "exposedUsers": 0,
+        "lastEventExposedUsersCount": 0,
+        "lastEventExposedUsers": null,
+        "firstEventDate": "2024-12-03T17:00:37.215Z",
+        "firstEventUserName": "EXAMPLE\\user",
+        "firstEventComputerName": "WSAMZN-EXAMPLE",
+        "fileSize": 71168,
+        "CLSID": "",
+        "mimeType": "",
+        "url": "",
+        "appPackageDisplayName": "",
+        "agentId": "44185f39-c733-4198-b6fe-738514f048cb",
+        "fileLocation": "C:\\Windows\\System32\\",
+        "skippedCount": 0,
+        "skipped": false,
+        "aggregatedBy": "A40886F98905F3D9DBDD61DA1D59CCB4F4854758,2048",
+        "deceptionType": 0,
+        "defenceActionId": 0,
+        "lastAgentId": "44185f39-c733-4198-b6fe-738514f048cb",
+        "lastEventAgentId": null,
+        "packageName": "Windows host process (Rundll32) (rundll32.exe)",
+        "lastEventInitiatedProcess": null,
+        "lastEventInitiatedProcessLocation": null,
+        "operatingSystemType": "Windows",
+        "arrivalTime": "2024-12-17T23:06:11.356Z",
+        "lastEventAccessTargetType": null,
+        "lastEventAccessTargetName": "",
+        "lastEventSymLink": "",
+        "productCode": null,
+        "upgradeCode": null,
+        "lastEventAuthorizationRights": ""
+      }
+    ],
+    "filteredCount": 134,
+    "returnedCount": 2,
+    "nextCursor": null
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+  
+}

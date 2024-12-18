@@ -1,4 +1,12 @@
 # Changelog
+
+## v1.0.4
+
+### Added or Changed
+- Added EPM API endpoints
+- Added EPM auth helper
+- Updated tools.js with basic auth
+
 ## v1.0.3
 
 ### Added or Changed

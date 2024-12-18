@@ -1,0 +1,130 @@
+meta {
+  name: Bind user to set
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/Account/Users/Bind
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "UserToSets": [
+      {
+        "username": "joe.strickland@pineappledev.app",
+        "Sets": [
+          {
+            "SetId": "fa3f119e-8dc7-4f3b-a014-8122f7c2fc10",
+            "role": "FullControlSetAdmin",
+            "Bind": true
+          }
+        ]
+      }
+    ]
+  }
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+}
+
+docs {
+  ## Bind user to set
+  This method binds and unbinds a specific user to a set.
+  
+  ### Required Permissions
+  Users require the following permissions to call this API:
+  > - **Account Administrator > Full Control** permissions
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/Account/Users/Bind
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | username | string | yes | The user's email address.|
+  | role | string | yes | The user's role in the set. **Valid Values:** FullControlSetAdmin or ViewOnlySetAdmin |
+  | setId | GUID| yes | The unique ID of the set that the logged on account can access. |
+  | bind | boolean | yes | Whether to bind the user to the set. |
+  
+  #### Request Body
+  ```
+  {  
+    "UserToSets": [
+      {
+        "username": "<email address>",
+        "Sets": [
+          {
+            "SetId": "<SetId>",
+            "role": "<role>",
+            "Bind": false
+          },
+          {
+            "SetId": "<SetId>",
+            "role": "<role>",
+            "Bind": true
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "role"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "JSON parsing error."
+    }
+  ]
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  [
+    {
+      "UseCustomMessage": false,
+      "ErrorCode": "EPM00000EE",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+}

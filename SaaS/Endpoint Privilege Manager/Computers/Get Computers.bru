@@ -1,0 +1,101 @@
+meta {
+  name: Get Computers
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/computers
+  body: none
+  auth: none
+}
+
+query {
+  ~offset: 
+  ~limit: 
+  ~filter: contains(ActiveSessions, 'admin')
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get Computers
+  This method retrieves a list of endpoint computers in a set.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/computers
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | $filter | integer | no | Filter Responses |
+  | offset | integer | no | The number of endpoint computers to skip. **Default Value:** 0 |
+  | limit | integer | no | The number of computers to return. **Valid Values:** Less than 5000 |
+  
+  #### Request Filters
+  | Name | Type | Description | Valid Operators | 
+  | :-- | :-- | :-- | :-- |
+  | ComputerName| integer | Filters by operating system. **Valid Values:** Windows/MacOS | eq, in |
+  | Status | string | Filters by computer status. **Valid Values:** Alive/Disconnected/Initializing/Support/Upgrading | eq, in |
+  | ActiveSessions| string | The last user who logged in. This is the 'LoggedIn' field. | contains |
+  | Last Seen Date| string | Includes all computers that were not connected since the set date. **Valid Values:** ISO-8601 to format dates and UTC time zone - YYYY-MM-DDThh:mm:ssZ |  |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "Computers": [
+      {
+        "AgentId": "44185f39-c733-4198-b6fe-738514f048cb",
+        "AgentVersion": "24.6.0.2147",
+        "ComputerName": "WSAMZN-EXAMPLE",
+        "ComputerType": "Server",
+        "Platform": "Windows",
+        "InstallTime": "2024-07-03T14:02:12.07",
+        "Status": "Disconnected",
+        "LastSeen": "2024-11-08T21:54:12.29",
+        "LoggedIn": "EXAMPLE\\example"
+      }
+    ],
+    "TotalCount": 1
+  }
+  ```
+}

@@ -1,0 +1,93 @@
+meta {
+  name: Get Computer Groups
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/computergroups?$filter=contains(Name,'Windows 10')
+  body: none
+  auth: none
+}
+
+query {
+  $filter: contains(Name,'Windows 10')
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getVar('epmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get Computer Groups
+  This method retrieves the computer groups from a Set.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/computerGroups
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | $filter | integer | no | A query that filters results according to part of the computer group name. |
+  
+  #### Request Filters
+  | Name | Type | Description | Valid Operators | 
+  | :-- | :-- | :-- | :-- |
+  | ComputerName| integer | Filters by operating system. **Valid Values:** Windows/MacOS | Name, Containts |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "ComputerGroups": [
+      {
+        "Id": "153cf32d-cf20-4d02-bfbd-b19ce5e4f8aa",
+        "Name": "OS / Windows 10",
+        "Type": "Auto"
+      },
+      {
+        "Id": "49576334-91af-4ffc-865e-4ba6d5e04da7",
+        "Name": "Service Pack / Windows 10",
+        "Type": "Auto"
+      }
+    ],
+    "TotalCount": 26
+  }
+  ```
+}

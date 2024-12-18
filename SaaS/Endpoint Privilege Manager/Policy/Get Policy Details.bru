@@ -1,0 +1,839 @@
+meta {
+  name: Get Policy Details
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/server/{{policyId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  setId: 
+  policyId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    bru.setVar('policyId', bru.getVar('epmPolicyId'))
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('EPM Policy Id: ' + bru.getVar('epmPolicyId'))
+  }
+}
+
+docs {
+  ## Get EPM Policy Details
+  This method retrieves details of a policy
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/policies/server/{policyId}
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  | policyId | GUID | yes | Unique Id of the policy for which to retrieve details. Retrieve the Policy Id with Get policies. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "Policy": {
+      "Id": "5cbee6e9-a5b0-45e0-a298-cb5732633351",
+      "Name": "3.0 - Quickstart - [ALL] Pre-approved allowed applications",
+      "PolicyType": 11,
+      "Action": 1,
+      "UIOnStart": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "StartAlert"
+      },
+      "UIOnStartAdmin": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "StartAlert"
+      },
+      "UIReplaceUacAdmin": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "StartAlert"
+      },
+      "UIReplaceUAC": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "StartAlert"
+      },
+      "RecordAuditVideo": false,
+      "UIAuditVideo": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "AuditVideoConfirmation"
+      },
+      "UIAuditVideoError": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "AuditVideoLowDisk"
+      },
+      "UIAuditVideoInit": {
+        "Id": "00000000-0000-0000-0000-000000000000",
+        "AllowedDialogType": "AuditVideoNotify"
+      },
+      "PreviouslyAppGroup": false,
+      "ConditionalEnforcement": [],
+      "AccessControl": null,
+      "Audit": false,
+      "Applications": [
+        {
+          "id": "7d2c5e2a-a292-494c-bcef-213503f4316a",
+          "internalId": 0,
+          "applicationType": 3,
+          "displayName": "",
+          "description": "",
+          "patterns": {
+            "FILE_NAME": {
+              "@type": "FileName",
+              "hashAlgorithm": "",
+              "hash": "",
+              "hashSHA256": "",
+              "fileSize": 0,
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ARGUMENTS": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            },
+            "LOCATION": {
+              "@type": "Location",
+              "content": "C:\\Users\\Joe S\\AppData\\Local\\CyberArk\\Secure Browser\\Application\\",
+              "withSubfolders": true,
+              "caseSensitive": false,
+              "isEmpty": false
+            },
+            "LOCATION_TYPE": {
+              "@type": "LocationType",
+              "locationType": "",
+              "isEmpty": true
+            },
+            "OWNER": {
+              "@type": "AdAccounts",
+              "accounts": [],
+              "isEmpty": true
+            },
+            "PUBLISHER": {
+              "@type": "Publisher",
+              "signatureLevel": 2,
+              "separator": ";",
+              "caseSensitive": true,
+              "compareAs": 0,
+              "isEmpty": false,
+              "content": "CyberArk Software Ltd."
+            },
+            "PRODUCT_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "ProductName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_DESCRIPTION": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "FileDescription",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "COMPANY_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "CompanyName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ORIGINAL_FILE_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "OriginalFilename",
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "PRODUCT_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "FILE_ORIGIN": {
+              "@type": "FileOrigin",
+              "preexisted": false,
+              "mainSrcType": null,
+              "softwareDistributorName": null,
+              "softwareDistributorId": "00000000-0000-0000-0000-000000000000",
+              "location": {
+                "@type": "Location",
+                "content": "",
+                "withSubfolders": true,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "locationType": {
+                "@type": "LocationType",
+                "locationType": "",
+                "isEmpty": true
+              },
+              "userGroupList": {
+                "@type": "AdAccounts",
+                "accounts": [],
+                "isEmpty": true
+              },
+              "package": {
+                "@type": "Package",
+                "publisher": {
+                  "@type": "Publisher",
+                  "signatureLevel": 1,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": true,
+                  "content": ""
+                },
+                "isEmpty": true
+              },
+              "url": {
+                "@type": "Text",
+                "content": "",
+                "compareAs": 0,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "isEmpty": true
+            },
+            "PARENT_PROCESS": {
+              "@type": "ParentProcess",
+              "ApplicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "AllAncestors": false,
+              "isEmpty": true
+            },
+            "SERVICE_NAME": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            }
+          },
+          "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+          "internalApplicationGroupId": 0,
+          "includeInMatching": true,
+          "accountId": "00000000-0000-0000-0000-000000000000",
+          "childProcess": false,
+          "restrictOpenSaveFileDialog": true,
+          "securityTokenId": "00000000-0000-0000-0000-000000000000",
+          "protectInstalledFiles": false
+        },
+        {
+          "id": "71dabbbe-97a5-49a4-9bbf-5a2394361d38",
+          "internalId": 0,
+          "applicationType": 3,
+          "displayName": "",
+          "description": "",
+          "patterns": {
+            "FILE_NAME": {
+              "@type": "FileName",
+              "hashAlgorithm": "",
+              "hash": "",
+              "hashSHA256": "",
+              "fileSize": 0,
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ARGUMENTS": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            },
+            "LOCATION": {
+              "@type": "Location",
+              "content": "C:\\Users\\Joe S\\AppData\\Local\\CyberArk\\Secure Browser\\Application\\",
+              "withSubfolders": true,
+              "caseSensitive": false,
+              "isEmpty": false
+            },
+            "LOCATION_TYPE": {
+              "@type": "LocationType",
+              "locationType": "",
+              "isEmpty": true
+            },
+            "OWNER": {
+              "@type": "AdAccounts",
+              "accounts": [],
+              "isEmpty": true
+            },
+            "PUBLISHER": {
+              "@type": "Publisher",
+              "signatureLevel": 2,
+              "separator": ";",
+              "caseSensitive": true,
+              "compareAs": 0,
+              "isEmpty": false,
+              "content": "CyberArk Software Ltd."
+            },
+            "PRODUCT_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "ProductName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_DESCRIPTION": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "FileDescription",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "COMPANY_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "CompanyName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ORIGINAL_FILE_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "OriginalFilename",
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "PRODUCT_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "FILE_ORIGIN": {
+              "@type": "FileOrigin",
+              "preexisted": false,
+              "mainSrcType": null,
+              "softwareDistributorName": null,
+              "softwareDistributorId": "00000000-0000-0000-0000-000000000000",
+              "location": {
+                "@type": "Location",
+                "content": "",
+                "withSubfolders": true,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "locationType": {
+                "@type": "LocationType",
+                "locationType": "",
+                "isEmpty": true
+              },
+              "userGroupList": {
+                "@type": "AdAccounts",
+                "accounts": [],
+                "isEmpty": true
+              },
+              "package": {
+                "@type": "Package",
+                "publisher": {
+                  "@type": "Publisher",
+                  "signatureLevel": 1,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": true,
+                  "content": ""
+                },
+                "isEmpty": true
+              },
+              "url": {
+                "@type": "Text",
+                "content": "",
+                "compareAs": 0,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "isEmpty": true
+            },
+            "PARENT_PROCESS": {
+              "@type": "ParentProcess",
+              "ApplicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "AllAncestors": false,
+              "isEmpty": true
+            },
+            "SERVICE_NAME": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            }
+          },
+          "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+          "internalApplicationGroupId": 0,
+          "includeInMatching": true,
+          "accountId": "00000000-0000-0000-0000-000000000000",
+          "childProcess": false,
+          "restrictOpenSaveFileDialog": true,
+          "securityTokenId": "00000000-0000-0000-0000-000000000000",
+          "protectInstalledFiles": false
+        },
+        {
+          "id": "54685d42-338e-4f78-887f-8b833b503245",
+          "internalId": 0,
+          "applicationType": 3,
+          "displayName": "",
+          "description": "",
+          "patterns": {
+            "FILE_NAME": {
+              "@type": "FileName",
+              "hashAlgorithm": "",
+              "hash": "",
+              "hashSHA256": "",
+              "fileSize": 0,
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ARGUMENTS": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            },
+            "LOCATION": {
+              "@type": "Location",
+              "content": "C:\\Users\\Joe S\\AppData\\Local\\CyberArk\\Secure Browser\\Application\\",
+              "withSubfolders": true,
+              "caseSensitive": false,
+              "isEmpty": false
+            },
+            "LOCATION_TYPE": {
+              "@type": "LocationType",
+              "locationType": "",
+              "isEmpty": true
+            },
+            "OWNER": {
+              "@type": "AdAccounts",
+              "accounts": [],
+              "isEmpty": true
+            },
+            "PUBLISHER": {
+              "@type": "Publisher",
+              "signatureLevel": 2,
+              "separator": ";",
+              "caseSensitive": true,
+              "compareAs": 0,
+              "isEmpty": false,
+              "content": "CyberArk Software Ltd."
+            },
+            "PRODUCT_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "ProductName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_DESCRIPTION": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "FileDescription",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "COMPANY_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "CompanyName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ORIGINAL_FILE_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "OriginalFilename",
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "PRODUCT_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "FILE_ORIGIN": {
+              "@type": "FileOrigin",
+              "preexisted": false,
+              "mainSrcType": null,
+              "softwareDistributorName": null,
+              "softwareDistributorId": "00000000-0000-0000-0000-000000000000",
+              "location": {
+                "@type": "Location",
+                "content": "",
+                "withSubfolders": true,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "locationType": {
+                "@type": "LocationType",
+                "locationType": "",
+                "isEmpty": true
+              },
+              "userGroupList": {
+                "@type": "AdAccounts",
+                "accounts": [],
+                "isEmpty": true
+              },
+              "package": {
+                "@type": "Package",
+                "publisher": {
+                  "@type": "Publisher",
+                  "signatureLevel": 1,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": true,
+                  "content": ""
+                },
+                "isEmpty": true
+              },
+              "url": {
+                "@type": "Text",
+                "content": "",
+                "compareAs": 0,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "isEmpty": true
+            },
+            "PARENT_PROCESS": {
+              "@type": "ParentProcess",
+              "ApplicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "AllAncestors": false,
+              "isEmpty": true
+            },
+            "SERVICE_NAME": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            }
+          },
+          "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+          "internalApplicationGroupId": 0,
+          "includeInMatching": true,
+          "accountId": "00000000-0000-0000-0000-000000000000",
+          "childProcess": false,
+          "restrictOpenSaveFileDialog": true,
+          "securityTokenId": "00000000-0000-0000-0000-000000000000",
+          "protectInstalledFiles": false
+        },
+        {
+          "id": "04e232a6-b5c5-4609-95cf-d7fa3c0be35c",
+          "internalId": 0,
+          "applicationType": 3,
+          "displayName": "",
+          "description": "",
+          "patterns": {
+            "FILE_NAME": {
+              "@type": "FileName",
+              "hashAlgorithm": "",
+              "hash": "",
+              "hashSHA256": "",
+              "fileSize": 0,
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ARGUMENTS": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            },
+            "LOCATION": {
+              "@type": "Location",
+              "content": "",
+              "withSubfolders": true,
+              "caseSensitive": false,
+              "isEmpty": true
+            },
+            "LOCATION_TYPE": {
+              "@type": "LocationType",
+              "locationType": "",
+              "isEmpty": true
+            },
+            "OWNER": {
+              "@type": "AdAccounts",
+              "accounts": [],
+              "isEmpty": true
+            },
+            "PUBLISHER": {
+              "@type": "Publisher",
+              "signatureLevel": 2,
+              "separator": ";",
+              "caseSensitive": true,
+              "compareAs": 0,
+              "isEmpty": false,
+              "content": "CyberArk Software Ltd."
+            },
+            "PRODUCT_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "ProductName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_DESCRIPTION": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "FileDescription",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "COMPANY_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "CompanyName",
+              "isEmpty": true,
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "ORIGINAL_FILE_NAME": {
+              "@type": "FileInfo",
+              "elementName": "FileVerInfo",
+              "attributeInfoName": "OriginalFilename",
+              "isEmpty": false,
+              "content": "secure-browser.exe",
+              "compareAs": 0,
+              "caseSensitive": false
+            },
+            "FILE_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "PRODUCT_VERSION": {
+              "@type": "VersionRange",
+              "minVersion": "",
+              "maxVersion": "",
+              "isEmpty": true
+            },
+            "FILE_ORIGIN": {
+              "@type": "FileOrigin",
+              "preexisted": false,
+              "mainSrcType": null,
+              "softwareDistributorName": null,
+              "softwareDistributorId": "00000000-0000-0000-0000-000000000000",
+              "location": {
+                "@type": "Location",
+                "content": "",
+                "withSubfolders": true,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "locationType": {
+                "@type": "LocationType",
+                "locationType": "",
+                "isEmpty": true
+              },
+              "userGroupList": {
+                "@type": "AdAccounts",
+                "accounts": [],
+                "isEmpty": true
+              },
+              "package": {
+                "@type": "Package",
+                "publisher": {
+                  "@type": "Publisher",
+                  "signatureLevel": 1,
+                  "separator": ";",
+                  "caseSensitive": true,
+                  "compareAs": 0,
+                  "isEmpty": true,
+                  "content": ""
+                },
+                "isEmpty": true
+              },
+              "url": {
+                "@type": "Text",
+                "content": "",
+                "compareAs": 0,
+                "caseSensitive": false,
+                "isEmpty": true
+              },
+              "isEmpty": true
+            },
+            "PARENT_PROCESS": {
+              "@type": "ParentProcess",
+              "ApplicationGroupId": "00000000-0000-0000-0000-000000000000",
+              "AllAncestors": false,
+              "isEmpty": true
+            },
+            "SERVICE_NAME": {
+              "@type": "Text",
+              "content": "",
+              "compareAs": 0,
+              "caseSensitive": false,
+              "isEmpty": true
+            }
+          },
+          "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+          "internalApplicationGroupId": 0,
+          "includeInMatching": true,
+          "accountId": "00000000-0000-0000-0000-000000000000",
+          "childProcess": false,
+          "restrictOpenSaveFileDialog": true,
+          "securityTokenId": "00000000-0000-0000-0000-000000000000",
+          "protectInstalledFiles": false
+        }
+      ],
+      "Activation": {
+        "ActivateDate": null,
+        "DeactivateDate": null,
+        "Scheduler": null,
+        "AutoDelete": false
+      },
+      "Priority": 40,
+      "Executors": [],
+      "IsAppliedToAllComputers": true,
+      "Accounts": [],
+      "IncludeAccounts": {
+        "CollectionId": "00000000-0000-0000-0000-000000000000",
+        "CollectionName": "",
+        "Operator": 0,
+        "SelectedAccountCollection": [],
+        "UserGroupCollection": []
+      },
+      "ExcludeAccounts": {
+        "CollectionId": "00000000-0000-0000-0000-000000000000",
+        "CollectionName": "",
+        "Operator": 0,
+        "SelectedAccountCollection": [],
+        "UserGroupCollection": []
+      },
+      "IncludeADComputerGroups": [],
+      "ExcludeADComputerGroups": [],
+      "Description": "",
+      "IsActive": true,
+      "LinkedAgentPolicies": [
+        {
+          "Id": "e3ff15ac-da08-4499-bbb7-434877d64c5e",
+          "InternalId": 0,
+          "PolicyType": 3,
+          "DefaultApplicationGroupId": "92888fc3-aede-4701-a880-356406429fbc"
+        }
+      ]
+    },
+    "Order": 420,
+    "OsType": 1,
+    "CreatedDate": "2024-12-17T14:32:22.2498509",
+    "ModifiedDate": "2024-12-17T14:35:02.3902761"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+}

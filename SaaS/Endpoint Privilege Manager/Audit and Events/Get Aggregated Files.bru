@@ -1,0 +1,200 @@
+meta {
+  name: Get Aggregated Files
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/files/aggregations/search
+  body: json
+  auth: none
+}
+
+query {
+  ~limit: 5
+  ~sortBy: 
+  ~sortDir: 
+  ~nextCursor: 
+}
+
+body:json {
+  {
+    "filter":"requestedExecutionLevel EQ \"UNKNOWN\""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+docs {
+  ## Get aggregated files
+  This method enables users to retrieve aggregated files from EPM, according to predefined filters.
+  
+  Files are aggregated by the fileQualifier unique identifier, which is constructed from a combination of the following fields: FileName, Hash and ApplicationType.
+  
+  The same file can have multiple occurrences on several computers and even on the same computer, in different locations.
+  
+  > **Note**
+  > - To return all results for a specified time, bypassing the 1000 record limit, use both the arrivalTime and nextCursor parameter. The results are listed in chronological order.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/files/aggregations/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | nextCursor | string | no | An opaque string used to retrieve the next page of results. Call the API with the value returned in the results of the previous call. For the first page, set to the value "start". **Valid Value:** This string is returned by the server and must not be modified by the caller. |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | filter | string | Filter the returned data using one or more conditions, as listed in Filter options. | No | A predefined EPM query language with different operators and logical expressions (AND/OR). |
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND/OR operator.
+  
+  #### Filter Options
+  
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | id | string | The unique fileInstId of the file. | No | EQ| **Example of EQ:** id EQ "-8881542479134140666" |
+  | arrivalTime | Date | The date when the file instance was received by the EPM service. | No | BETWEEN, EQ, LE | **Example of BETWEEN:** arrivalTime between 2021-09-20T00:00:00Z, 2021-09-22T00:00:00Z, **Example of GE:** arrivalTime GE 2019-09-20T00:00:00Z, **Example of LE:** arrivalTime LE 2019-09-21T00:00:00Z | 
+  | timeSeen | Date | The date and time when the file instance was first detected by EPM. | No | BETWEEN, EQ, LE | **Example of BETWEEN:** timeSeen between 2021-09-20T00:00:00Z, 2021-09-22T00:00:00Z, **Example of GE:** timeSeen GE 2019-09-20T00:00:00Z, **Example of LE:** timeSeen LE 2019-09-21T00:00:00Z | 
+  | agentId | string | Returns videos that were generated on a specific computer. | No | IN | **Example of IN:** agentId IN 78350d3c-5960-4f39-975a-ed07b53924a4,78350d3c-5960-4f39-975a-ed07b53923b6 |
+  | fileQualifier | string | Unique file qualifier. | No | EQ| **Example of EQ:** fileQualifer EQ "5269709462975204913"|
+  | displayName | string | The display name of the file instance. In Linux, this is the command instance. | No | EQ, CONTAINS | **Example of EQ:** displayName EQ "notepad.exe", **Example of CONTAINS:** displayName CONTAINS "pad.exe" |
+  | fileName | string | The name of the file instance. | No | EQ, CONTAINS | **Example of EQ:** displayName EQ "notepad.exe", **Example of CONTAINS:** displayName CONTAINS "pad.exe" | 
+  | originalFileName | string | The original file name attribute. | No | EQ, CONTAINS | **Example of EQ:** displayName EQ "notepad.exe", **Example of CONTAINS:** displayName CONTAINS "pad.exe" |
+  | fileLocation | string | The file location of the file instance. | No | CONTAINS | **Example of CONTAINS:** fileLocation CONTAINS "System32" |
+  | requestedExecutionLevel | string | Only include files with this execution level. **Possible Values:** UNKNOWN, AS_INVOKER, REQUIRE_ADMINISTRATOR, HIGHEST_AVAILABLE | No | EQ | **Example of EQ:** requestedExecutionLevel EQ "UNKNOWN"|
+  | applicationType | string | The type of application that triggers the event.. | No | IN | **Example of IN:** applicationType IN Script,MSI,DLL |
+  | sourceName | string | Point of origin from where the file instance was acquired. | No | CONTAINS | **Example of CONTAINS:** sourceName CONTAINS "Windows" |
+  | fileDescription | string | 	
+  Description of the file that created the file instance. | No | EQ, CONTAINS | **Example of EQ:** fileDescription EQ "Microsoft Office SDX Helper", **Example of CONTAINS:** fileDescription CONTAINS "SDX Helper"|
+  | publisher | string | Digital signature of the application that created the file instance (if applicable). | No | EQ, CONTAINS | **Example of IS:** publisher IS NULL, **Example of EQ:** publisher EQ "Microsoft", **Example of CONTAINS:** publisher CONTAINS "soft" |
+  | hash | string | SHA1 of the application that created the file instance. | No | EQ, CONTAINS | **Example of EQ:** hash EQ "B9BD8A25EFCB670C652372434D974663FFCC9F0F", **Example of CONTAINS:** hash CONTAINS "B9BD8A25EFCB670C652372434D974663F" |
+  | productName | string | The original file name attribute. | No | EQ, CONTAINS | **Example of EQ:** productName EQ "Microsoft OneDrive", **Example of CONTAINS:** productName CONTAINS "OneDrive"|
+  | operatingSystemType | string | Endpoint operating system, according to the file type that created the file instance. **Possible Values:** None, Windows, MacOS, Linux | No | EQ | **Example of EQ:** operatingSystemType EQ Windows |
+  | appCatalogOrigin | integer | Whether EPM collected the file from an event or a scan. **Valid Values:** 0 - EPM detected the file in both an event and during a scan, 1 - EPM detected the file in an event, 2 - EPM detected the file during a scan. | No | EQ | **Example of EQ:** originalFileName EQ "notepad.exe" **Example of CONTAINS:** originalFileName CONTAINS "pad.exe"|
+  | freeTextSearch | string | UI free text search query. **Valid Values:** None, Windows, MacOS, Linux | No | CONTAINS | **Example of EQ:** appCatalogOrigin EQ \"1\" |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":"requestedExecutionLevel EQ \"UNKNOWN\""
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+  {
+    "nextCursor": null,
+    "files": [
+      {
+        "fileInstId": "2626467973355859211",
+        "fileQualifier": "-2904118136259451095",
+        "fileName": "dllhost.exe",
+        "fileDescription": "COM Surrogate",
+        "fileDisplayName": "COM Surrogate (dllhost.exe)",
+        "fileOriginalName": "dllhost.exe",
+        "hash": "SHA1##50F02A0E0D3834DA185FF1E532A2FC6EDFDB17E1",
+        "publisher": "Microsoft Windows",
+        "fileSize": 40808,
+        "fileVersion": "10.0.22621.1",
+        "totalFiles": 3,
+        "applicationType": "Executable",
+        "applicationTypeId": 3,
+        "sourceType": "Updater",
+        "sourceName": "Updater (Windows Update)",
+        "companyName": "Microsoft Corporation",
+        "productName": "Microsoft® Windows® Operating System",
+        "productVersion": "10.0.22621.1",
+        "firstTimeSeen": "2023-02-01T07:02:22.197Z",
+        "numOfComputers": 3,
+        "location": "C:\\Windows\\System32\\",
+        "url": "",
+        "packageName": "Microsoft® Windows® Operating System (SetupHost.exe)",
+        "owner": "NT SERVICE\\TrustedInstaller",
+        "applicationSubType": "",
+        "arguments": "",
+        "clsid": "",
+        "agentId": "837c4c02-52eb-4517-9c96-f555996458f1",
+        "computerName": "",
+        "adminTaskId": "",
+        "operatingSystemType": "Windows",
+        "arrivalTime": "2023-02-01T21:42:53.671Z",
+        "interpreter": "",
+        "runAsUsername": "",
+        "symLink": "",
+        "requestedExecutionLevel": "No"
+      },
+    "filteredCount": 1,
+    "returnedCount": 1,
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+  
+}

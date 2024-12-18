@@ -1,0 +1,251 @@
+meta {
+  name: Update Policy
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/server/{{policyId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Name": "3.0 - Quickstart - [TEST] Pre-approved allowed applications - NEW",
+    "PolicyType": 11,
+    "Action": 4,
+    "PreviouslyAppGroup": false,
+    "ConditionalEnforcement": [],
+    "AccessControl": null,
+    "Audit": false,
+    "Applications": [],
+    "Activation": {
+      "ActivateDate": null,
+      "DeactivateDate": null,
+      "Scheduler": null,
+      "AutoDelete": false
+    },
+    "Priority": 40,
+    "Executors": [],
+    "IsAppliedToAllComputers": true,
+    "Accounts": [],
+    "IncludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "ExcludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "IncludeADComputerGroups": [],
+    "ExcludeADComputerGroups": [],
+    "Description": "",
+    "IsActive": false,
+    "LinkedAgentPolicies": []
+  }
+}
+
+vars:pre-request {
+  setId: 
+  policyId: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    bru.setVar('policyId', bru.getVar('epmPolicyId'))
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('EPM Policy Id: ' + bru.getVar('epmPolicyId'))
+  }
+}
+
+docs {
+  ## Update Policy
+  This method updates a policy
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/policies/server/{policyId}
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  | policyId | GUID | yes | Unique Id of the policy for which to retrieve details. Retrieve the Policy Id with Get policies. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The request body should contain a policy details JSON.
+  
+  #### Example Request Body
+  ```
+  {
+    "Name": "3.0 - Quickstart - [TEST] Pre-approved allowed applications - NEW",
+    "PolicyType": 11,
+    "Action": 4,
+    "PreviouslyAppGroup": false,
+    "ConditionalEnforcement": [],
+    "AccessControl": null,
+    "Audit": false,
+    "Applications": [],
+    "Activation": {
+      "ActivateDate": null,
+      "DeactivateDate": null,
+      "Scheduler": null,
+      "AutoDelete": false
+    },
+    "Priority": 40,
+    "Executors": [],
+    "IsAppliedToAllComputers": true,
+    "Accounts": [],
+    "IncludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "ExcludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "IncludeADComputerGroups": [],
+    "ExcludeADComputerGroups": [],
+    "Description": "",
+    "IsActive": false,
+    "LinkedAgentPolicies": []
+  }
+  ```
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "Id": "54f18731-78e8-4627-9f58-b72f7adbb3a8",
+    "Name": "3.0 - Quickstart - [TEST] Pre-approved allowed applications - NEW",
+    "PolicyType": 11,
+    "Action": 4,
+    "ReplaceUAC": true,
+    "ReplaceUacAdmin": true,
+    "ShellExtension": false,
+    "UIReplaceUAC": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "ElevateOnDemand"
+    },
+    "UIReplaceUacAdmin": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "ElevateOnDemand"
+    },
+    "UIShellExtension": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "ElevateOnDemand"
+    },
+    "RecordAuditVideo": false,
+    "UIAuditVideo": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "AuditVideoConfirmation"
+    },
+    "UIAuditVideoError": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "AuditVideoLowDisk"
+    },
+    "UIAuditVideoInit": {
+      "Id": "00000000-0000-0000-0000-000000000000",
+      "AllowedDialogType": "AuditVideoNotify"
+    },
+    "PreviouslyAppGroup": false,
+    "ConditionalEnforcement": [],
+    "AccessControl": null,
+    "Audit": false,
+    "Applications": [],
+    "Activation": {
+      "ActivateDate": null,
+      "DeactivateDate": null,
+      "Scheduler": null,
+      "AutoDelete": false
+    },
+    "Priority": 40,
+    "Executors": [],
+    "IsAppliedToAllComputers": true,
+    "Accounts": [],
+    "IncludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "ExcludeAccounts": {
+      "CollectionId": "00000000-0000-0000-0000-000000000000",
+      "CollectionName": "",
+      "Operator": 0,
+      "SelectedAccountCollection": [],
+      "UserGroupCollection": []
+    },
+    "IncludeADComputerGroups": [],
+    "ExcludeADComputerGroups": [],
+    "Description": "",
+    "IsActive": false,
+    "LinkedAgentPolicies": [
+      {
+        "Id": "b5121edf-07a1-426d-806e-ce41a5bb6533",
+        "InternalId": 0,
+        "PolicyType": 3,
+        "DefaultApplicationGroupId": "459fa94c-658e-4abd-85b7-088e0a9006f8"
+      }
+    ]
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+}

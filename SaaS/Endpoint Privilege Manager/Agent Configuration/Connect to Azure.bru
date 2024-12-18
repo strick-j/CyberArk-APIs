@@ -1,0 +1,94 @@
+meta {
+  name: Connect to Azure
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/connecttoazure
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "TenantID":"string", // required
+    "ClientID":"string", // required
+    "ClientSecret":"string", // required
+    "AzureType":1 // required - UNKNOWN=0, COMMERCIAL=1, HIGH_GCC=2
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('Agent Configuration Id: ' + bru.getVar('agentConfigurationId'))
+  }
+}
+
+docs {
+  ## Connect to Azure
+  This method checks that the credentials supplied for the Azure agent configuration parameter are valid.
+  
+  ## URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Policies/AgentConfiguration/connecttoazure
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The request body is contains the appropriate settings for the AzureActiveDirectoryParameters.
+  
+  #### Example Request Body
+  ```
+  {
+    "TenantID":"string",
+    "ClientID":"string",
+    "ClientSecret":"string",
+    "AzureType":integer // UNKNOWN=0, COMMERCIAL=1, HIGH_GCC=2
+  }
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  [
+    {
+      "ErrorCode": "EPM000004E",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+}

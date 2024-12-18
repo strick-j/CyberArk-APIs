@@ -1,0 +1,95 @@
+meta {
+  name: EPM Authentication
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{dispatcher}}.epm.cyberark.com/EPM/API/{{epmVersion}}/Auth/EPM/Logon
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Username": "{{epmUserName}}",
+    "Password": "{{epmUserPassword}}",
+    "ApplicationID": "Bruno"
+  }
+}
+
+vars:pre-request {
+  username: 
+  password: 
+  dispatcher: login
+}
+
+docs {
+  ## EPM authentication
+  This method authenticates a user to EPM using username and password and returns a token that can be used in subsequent Rest API calls.
+  
+  After the configured timeout expires, users have to log on again using their username and password.
+  
+  The session timeout for all APIs is part of the session token and is defined by the Timeout for inactive session parameter in Administration > Account Configuration.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/Auth/EPM/logon
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Body
+  ```
+  {
+    "Username": "example@example.com",
+    "Password": "SuperCoolPassword",
+    "ApplicationID": "Bruno"
+  }
+  ```
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "IsPasswordExpired": false,
+    "ManagerURL": "https://na177.epm.cyberark.com",
+    "EPMAuthenticationResult": "EXAMPLEusjhIwC4PzgrUBXTlDIeJNP6EXAMPLE98CUEv7UGN34OgXCHVIMlNqi7uhvvpM3bwhiQbEXAMPLE8NPeJbp0AJHWeoyV7NrA0EXAMPLE%2bSJKrIL9aKzf3sRZpWSWUvEXAMPLEa"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": null,
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+  
+  #### Example Response (401 Unauthorized)
+  ```
+  [
+    {
+      "ErrorCode": "EPM030001E",
+      "ErrorMessage": "Authentication is required and has failed or has not yet been provided."
+    }
+  ]
+  ```
+}

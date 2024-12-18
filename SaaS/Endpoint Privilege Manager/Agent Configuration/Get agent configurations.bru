@@ -1,0 +1,161 @@
+meta {
+  name: Get agent configurations
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/agentconfiguration/search?limit=5
+  body: json
+  auth: none
+}
+
+query {
+  limit: 5
+  ~sortBy: 
+  ~sortDir: 
+  ~offset: 
+}
+
+body:json {
+  {
+    "filter":""
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets agentConfigurationId testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('agentConfigurationId', res.body.Policies[0].PolicyId);
+    tools.log('Agent Configuration Id: ' + bru.getVar('agentConfigurationId'))
+  }
+}
+
+docs {
+  ## Get Agent Configurations
+  This method retrieves an agent configuration, according to one or more filters.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/Policies/AgentConfiguration/Search?limit=<limit>&offset=<offset>&sortBy=<column name>&sortDir=<asc|desc>
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | offset | integer | no | Number of policies to skip. **Valid Values:** 0 or higher |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND operator.
+  
+  | Parameter | type | Description | Required | Operators | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | PolicyName | string | Unique name of the policy. This value must be enclosed in quotation marks in the following cases: When the value contains space(s). When the value is a reserved word, such as the operator name. | No | CONTAINS | PolicyName CONTAINS elevate, PolicyName CONTAINS "elevate task", PolicyName CONTAINS "and" |
+  | PolicyType | string | Type(s) of policy. | No | EQ, IN | **EQ - Filters a single policy type:** PolicyType EQ ADV_WIN, **IN - Filters a list of policy types:** PolicyType IN ADV_WIN,ADV_MAC,ADV_LINUX |
+  | PolicyGroupType | string | Type of policy group | No | EQ | PolicyGroupType EQ Application |
+  | Action | string | Actions that the policy manages. | No | EQ, IN | **EQ - Single policy action:** Action EQ VFPA_ELEVATE, **IN - List of policy actions:** Actions IN 1,2,3 |
+  | IsActive | boolean | Indicates the policy status. | No | EQ | IsActive EQ true |
+  | OsType | string | OS type for which the policy is created.| No | EQ, IN | OsType EQ VF_OS_64, OsType IN 64 |
+  | TargetName | string | Name of any target in the policy (users, computers, computer groups). | No | CONTAINS | TargetName CONTAINS group |
+  | ApplicationName | string | Name of an application that appears in policy. | No | CONTAINS | ApplicationName CONTAINS a.exe |
+  | FromDate (Deprecated) | date | The policy was updated on or after this date/time. Date/time is a UTC represented in ISO 8601 date format. | No | EQ | FromDate EQ 2022-02-06T12:00:00.000Z |
+  | ToDate (Deprecated) | date | The policy was updated on or before this date/time. Date/time is a UTC represented in ISO 8601 date format. | No | EQ | ToDate EQ 2022-02-06T15:00:00.000Z |
+  
+  
+  #### Example Request Body
+  ```
+  {
+    "filter":""
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "Policies": [
+      {
+        "PolicyId": "fa3f119e-8dc7-4f3b-a014-8122f7c2fc10",
+        "PolicyName": "General configuration",
+        "Action": 10,
+        "IsActive": true,
+        "PolicyType": 45,
+        "Order": 4000,
+        "IsAppliedToAllComputers": true,
+        "OsType": 0,
+        "CreatedDate": "2023-01-23T21:57:00.9721761",
+        "ModifiedDate": "2024-03-25T19:26:29.5655667",
+        "ReferencedApplicationGroups": [],
+        "UserPolicyPermissions": -1
+      }
+    ],
+    "ActiveCount": 53,
+    "TotalCount": 109,
+    "FilteredCount": 1
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": null,
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "The requested resource could not be found, or the user does not have permissions for this resource."
+    }
+  ]
+  ```
+  
+}

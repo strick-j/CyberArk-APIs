@@ -1,0 +1,123 @@
+meta {
+  name: Get Sets List
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  username: 
+  password: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+}
+
+script:post-response {
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save Set Id in Session Collection
+    if (res.body.Sets[0].Id) {
+      bru.setVar('epmSetId', res.body.Sets[0].Id);
+    }
+  }
+}
+
+docs {
+  ## Get Sets List
+  This method enables the user to retrieve the list of Sets.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | offset | integer | no | Number of sets to skip. **Default Value:** 0 |
+  | limit | integer | no | Maximum number of sets to return. **Default Value:** 50 |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "SetsCount": 6,
+    "Sets": [
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Windows Workstations(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      },
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Quick Start(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      },
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Windows Servers(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      },
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Linux Servers(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      },
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Mac Systems(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      },
+      {
+        "Id": "30abcfb1-abcd-46a1-1234-e8b0d3801234",
+        "Name": "Test Set(cyberark_503)",
+        "Description": "",
+        "IsNPVDI": false,
+        "SetType": 1
+      }
+    ]
+  }
+  ```
+}

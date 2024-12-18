@@ -1,0 +1,271 @@
+meta {
+  name: Get download package
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/Computers/Packages?os={{os}}
+  body: none
+  auth: none
+}
+
+query {
+  os: {{os}}
+}
+
+vars:pre-request {
+  os: all
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getVar('epmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+script:post-response {
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save Set Id in Session Collection
+    if (res.body.Packages[0].Id) {
+      bru.setVar('epmPackageId', res.body.Packages[0].Id);
+    }
+  }
+}
+
+docs {
+  ## Get download packages
+  This method retrieves a list of packages that can be downloaded from the EPM download center.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Required Permissions
+  Users require the following permissions to call this API:
+  > - **Computers > Download Agent Installation Package** permissions
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | string | yes | Id of the set where the packages will be installed. You can retrieve the Set ID with Get sets list. **Valid Values:** Set Id |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | os | string | no | The Operating System where the package will be installed. This determines which package to download. **Valid Value:** Any of the following: all, windows, macos, linux, tools |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  No body
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "Packages": [
+      {
+        "Id": "eHBDEXAMPLEI2VkEXAMPLET0=",
+        "Name": "epm-ubuntu.x86_64.deb",
+        "Title": "Ubuntu",
+        "Description": "Agent version 24.10.0.2838 from 21-Oct-24 (59.26 MB)",
+        "PackageType": "latest",
+        "PackageArch": "linux_deb_64",
+        "PackageOS": "linux",
+        "PackageRank": 3,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2838
+        },
+        "ReleaseDate": "2024-10-21T00:00:00",
+        "Private": false,
+        "Size": 62135074
+      },
+      {
+        "Id": "czlPTkVscVJmVEXAMPLEDNDdHowEXAMPLEkaTBsN2p4TmdDaDVWNlpzVi9SZlFTME9CR0EXAMPLE0=",
+        "Name": "vfagentsetupx64.msi",
+        "Title": "Windows 64-bit",
+        "Description": "Agent version 24.10.0.2310 from 03-Nov-24 (34.1 MB)",
+        "PackageType": "latest",
+        "PackageArch": "x64",
+        "PackageOS": "windows",
+        "PackageRank": 3,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2310
+        },
+        "ReleaseDate": "2024-11-03T00:00:00",
+        "Private": false,
+        "Size": 35751424
+      },
+      {
+        "Id": "Vlo3dUZ6cTdxRFhTNEEXAMPLEpR1drVGEXAMPLEnYwOUhzNndHS1pZK002THRLEXAMPLExIZg==",
+        "Name": "epm-rhel8.x86_64.rpm",
+        "Title": "Linux RedHat 9 x64 / RedHat 8 x64 / SUSE 15 /  Oracle 8 / Oracle 9",
+        "Description": "Agent version 24.10.0.2838 from 21-Oct-24 (98.48 MB)",
+        "PackageType": "latest",
+        "PackageArch": "linux_rpm_8_64",
+        "PackageOS": "linux",
+        "PackageRank": 2,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2838
+        },
+        "ReleaseDate": "2024-10-21T00:00:00",
+        "Private": false,
+        "Size": 103268737
+      },
+      {
+        "Id": "WHV4QXEXAMPLEGJxNFc5TS9YSDZxMEXAMPLEwbU9LRjI2TW1mWGRTEXAMPLEE9PQ==",
+        "Name": "vfagentsetup.msi",
+        "Title": "Windows 32-bit",
+        "Description": "Agent version 24.10.0.2310 from 03-Nov-24 (26.15 MB)",
+        "PackageType": "latest",
+        "PackageArch": "x86",
+        "PackageOS": "windows",
+        "PackageRank": 2,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2310
+        },
+        "ReleaseDate": "2024-11-03T00:00:00",
+        "Private": false,
+        "Size": 27416064
+      },
+      {
+        "Id": "aHpwTHNIEXAMPLEVRYjNWEXAMPLEczcrY1Q2YlpmWUpUdlYyRTE5QVZMEXAMPLEDTg==",
+        "Name": "epm-rhel7.x86_64.rpm",
+        "Title": "Amazon Linux 2 / Linux Redhat 7 x64 / SUSE 12 / Oracle 7",
+        "Description": "Agent version 24.10.0.2838 from 21-Oct-24 (78.42 MB)",
+        "PackageType": "latest",
+        "PackageArch": "linux_rpm_7_64",
+        "PackageOS": "linux",
+        "PackageRank": 1,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2838
+        },
+        "ReleaseDate": "2024-10-21T00:00:00",
+        "Private": false,
+        "Size": 82231219
+      },
+      {
+        "Id": "akpEXAMPLEGdpRmpPWFEXAMPLE5GVU1ONmcvbDYxY3I3YzFxb1RmYno2Z2pia1ZEXAMPLET0=",
+        "Name": "cyberarkepmagentsetupmacos.zip",
+        "Title": "macOS 64-bit",
+        "Description": "Agent version 24.10.0.471 from 21-Oct-24 (19.75 MB)",
+        "PackageType": "latest",
+        "PackageArch": "x64",
+        "PackageOS": "macos",
+        "PackageRank": 1,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 471
+        },
+        "ReleaseDate": "2024-10-21T00:00:00",
+        "Private": false,
+        "Size": 20713670
+      },
+      {
+        "Id": "Qkk0bXZZcVQ1bEXAMPLE3NpUzZCbnVnesEXAMPLElGejJNSUtGOHdnTytXU3p4U3NLEXAMPLETTHc9PQ==",
+        "Name": "cyberarkepmadminutility.msi",
+        "Title": "CyberArk EPM Admin Utility",
+        "Description": "Version 23.12.0.165 from 26-Nov-23 (775.5 KB)",
+        "PackageType": "latest",
+        "PackageArch": "x64",
+        "PackageOS": "tools",
+        "PackageRank": 1,
+        "ReleaseVersion": {
+          "_Major": 23,
+          "_Minor": 12,
+          "_Build": 0,
+          "_Revision": 165
+        },
+        "ReleaseDate": "2023-11-26T00:00:00",
+        "Private": false,
+        "Size": 794112
+      },
+      {
+        "Id": "YWp1NWl5VEXAMPLEa01nZDhBOGxXaHJKK2REeHlkTEXAMPLEUyczM=",
+        "Name": "vfagentsetuparm64.msi",
+        "Title": "Windows 64-bit ARM-based processor",
+        "Description": "Agent version 24.10.0.2310 from 03-Nov-24 (35.6 MB)",
+        "PackageType": "latest",
+        "PackageArch": "arm64",
+        "PackageOS": "windows",
+        "PackageRank": 1,
+        "ReleaseVersion": {
+          "_Major": 24,
+          "_Minor": 10,
+          "_Build": 0,
+          "_Revision": 2310
+        },
+        "ReleaseDate": "2024-11-03T00:00:00",
+        "Private": false,
+        "Size": 37327360
+      },
+      {
+        "Id": "Q0lxaThWSEXAMPLEVzEzEXAMPLEGhP",
+        "Name": "epm_opag_tool.exe",
+        "Title": "Offline Policy Authorization Generator OPAG",
+        "Description": "For agents from version 23.6 and higher. For older agents please use the older OPAG version from the Marketplace",
+        "PackageType": "latest",
+        "PackageArch": "x64",
+        "PackageOS": "tools",
+        "PackageRank": 0,
+        "ReleaseVersion": {
+          "_Major": 23,
+          "_Minor": 12,
+          "_Build": 0,
+          "_Revision": 21
+        },
+        "ReleaseDate": "2023-12-21T00:00:00",
+        "Private": false,
+        "Size": 222680
+      }
+    ],
+    "IsLinuxAllowed": true,
+    "LinuxAgentPublicKey": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: GnuPG v1.4.5 (GNU/Linux)\n\nmQEEXAMPLEkP/Ph0T0hljtEXAMPLEyqJpQiXdc/4VAOpNqrxx\nnITmyOtaIT9BLEXAMPLE=/kDj\n-----END PGP PUBLIC KEY BLOCK-----",
+    "IsDownloadStandaloneAgent": false
+  }
+  ```
+}
