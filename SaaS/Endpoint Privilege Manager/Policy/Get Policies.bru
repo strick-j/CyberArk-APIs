@@ -1,0 +1,269 @@
+meta {
+  name: Get Policies
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/server/search?limit=5
+  body: json
+  auth: none
+}
+
+query {
+  limit: 5
+  ~offset: 
+  ~sortBy: 
+  ~sortDir: 
+}
+
+body:json {
+  {
+    "filter": "PolicyType IN ADV_WIN,ADV_MAC,ADV_LINUX"
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets PolicyId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('epmPolicyId', res.body.Policies[0].PolicyId);
+    tools.log('EPM Policy Id: ' + bru.getVar('epmPolicyId'))
+  }
+}
+
+docs {
+  ## Get EPM Policies
+  This method retrieves a list of policies, according to one or more filters.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/policies/server/search?
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | offset | integer | no | Number of policies to skip. **Default Value:** 0 |
+  | limit | integer | no | The number of items to return on a page. **Valid Values:** Between 1 and 1000 |
+  | sortBy | string | no | Sort by a specific result. **Valid Values:** Column Title as listed in Column Names |
+  | sortDir | string | no | The sorting direction - ascending or descending. **Valid Values:** asc, desc **Default Value:** desc |
+  
+  #### Column Names
+  The following table lists the names of columns by which the results can be sorted.
+  > **Note**
+  > - All terms are case-insensitive.
+  > - Some parameters can be called by more than one name.
+  
+  | Column Name | Sorts According to... |
+  | :-- | :-- |
+  | Name | Policy Name |
+  | PolicyName | Policy Name |
+  | ServerPolicyName | Policy Name |
+  | Type | Policy Type |
+  | PolicyType | Policy Type |
+  | ServerPolicyType | Policy Type |
+  | IsActive | Activity Status |
+  | Active | Activity Status |
+  | Status | Activity Status |
+  | Action | Policy Action |
+  | OsType | OS type |
+  | Platform | OS type |
+  | Computers | All Computers |
+  | All Computers | All Computers |
+  | Executors | All Computers |
+  | IsAppliedToAllComputers | All Computers |
+  | Created | Policy creation date |
+  | Updated | Policy last update date |
+  | LastModified | Policy last update date |
+  | Modified Date | Policy last update date |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  The following table lists the filter expressions that can be used in the 'filter' body parameter.
+  
+  > **Note**
+  > - All terms are case-insensitive.
+  > - All enum names can be replaced with numeric values.
+  > - Some parameters can be called by more than one name. For details, see Column names.
+  > - You can combine all parameters with the AND operator.
+  
+  | Parameter | Description | Operators | Example | Notes |
+  | :-- | :-- | :-- | :-- | :-- |
+  
+  #### Example Request Body
+  ```
+  {
+    "filter": "PolicyType IN ADV_WIN,ADV_MAC,ADV_LINUX"
+  }
+  ```
+  
+  ### Response
+  
+  ### Example Response (200 OK)
+  ```
+  {
+    "Policies": [
+      {
+        "PolicyId": "7c6e732e-285b-4021-8479-e97da576074c",
+        "PolicyName": "3.0 - Quickstart - [DBA] Pre-approved allowed applications",
+        "Action": 1,
+        "IsActive": true,
+        "PolicyType": 11,
+        "Order": 420,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2024-08-28T14:42:24.6183084",
+        "ModifiedDate": "2024-09-25T19:19:48.1147872",
+        "ReferencedApplicationGroups": [
+          {
+            "Id": "a861962d-e14a-4c65-be9b-eb2c6446bf4f",
+            "ReferenceType": 1
+          }
+        ],
+        "UserPolicyPermissions": -1
+      },
+      {
+        "PolicyId": "47060bff-aac6-4ba3-8aa0-51a2376f4c01",
+        "PolicyName": "4.1 - QuickStart - Prompt when launching modern and UAC applications",
+        "Action": 4,
+        "IsActive": false,
+        "PolicyType": 11,
+        "Order": 640,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2023-01-23T22:10:30.4608463",
+        "ModifiedDate": "2024-09-09T19:04:06.8089965",
+        "ReferencedApplicationGroups": [
+          {
+            "Id": "5e97afcd-e7db-4f1d-aecf-8b6ec1d78534",
+            "ReferenceType": 5
+          },
+          {
+            "Id": "5e97afcd-e7db-4f1d-aecf-8b6ec1d78534",
+            "ReferenceType": 5
+          }
+        ],
+        "UserPolicyPermissions": -1
+      },
+      {
+        "PolicyId": "b25374b3-5bdf-4c2e-993f-a44b1e661214",
+        "PolicyName": "4.0 - QuickStart - Prompt when launching legacy and non-UAC applications",
+        "Action": 3,
+        "IsActive": false,
+        "PolicyType": 11,
+        "Order": 630,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2023-01-23T22:10:31.611941",
+        "ModifiedDate": "2024-09-09T19:04:06.3501182",
+        "ReferencedApplicationGroups": [
+          {
+            "Id": "0709f34c-eb42-4d4b-a74d-16c075e3faa6",
+            "ReferenceType": 5
+          }
+        ],
+        "UserPolicyPermissions": -1
+      },
+      {
+        "PolicyId": "fea9385f-f199-4fd4-8c80-29156748f372",
+        "PolicyName": "3.0 - Quickstart - [ADM] Pre-approved allowed applications",
+        "Action": 1,
+        "IsActive": true,
+        "PolicyType": 11,
+        "Order": 420,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2024-09-03T17:11:08.9957702",
+        "ModifiedDate": "2024-09-03T17:11:08.9957702",
+        "ReferencedApplicationGroups": [
+          {
+            "Id": "b5a9b982-c011-4e4a-991e-460114e693b8",
+            "ReferenceType": 1
+          },
+          {
+            "Id": "c40c3b4c-f4d1-4bba-ac1b-3d9a6c2ede3a",
+            "ReferenceType": 5
+          }
+        ],
+        "UserPolicyPermissions": -1
+      },
+      {
+        "PolicyId": "8002508b-366b-4996-ab9f-2362d4ccd854",
+        "PolicyName": "2.1 - QuickStart - Content handlers and restricted tasks",
+        "Action": 1,
+        "IsActive": true,
+        "PolicyType": 11,
+        "Order": 320,
+        "IsAppliedToAllComputers": true,
+        "OsType": 1,
+        "CreatedDate": "2023-01-23T22:10:32.7548731",
+        "ModifiedDate": "2024-09-03T17:05:21.3353109",
+        "ReferencedApplicationGroups": [
+          {
+            "Id": "63cb6542-1c19-4049-97ec-260dc14a0e6f",
+            "ReferenceType": 1
+          }
+        ],
+        "UserPolicyPermissions": -1
+      }
+    ],
+    "ActiveCount": 53,
+    "TotalCount": 110,
+    "FilteredCount": 14
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  [
+    {
+      "Fields": [
+        "setId"
+      ],
+      "ErrorCode": "EPM000002E",
+      "ErrorMessage": "Input parameter for setId value is invalid."
+    }
+  ]
+  ```
+}

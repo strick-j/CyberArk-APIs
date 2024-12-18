@@ -1,0 +1,101 @@
+meta {
+  name: Approve Temporary Elevation
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/server/elevate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "SendEmail": true,
+      "Filter": "aggregatedBy EQ \"16,32\"",
+      "Elevation": 1
+  }
+}
+
+vars:pre-request {
+  setId: 
+  policyId: 
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    bru.setVar('policyId', bru.getVar('epmPolicyId'))
+    tools.log('Set Id: ' + bru.getVar('setId'))
+    tools.log('EPM Policy Id: ' + bru.getVar('epmPolicyId'))
+  }
+}
+
+docs {
+  ## Grant Temporary elevation
+  This method grants temporary elevation for access to a specific application.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/policies/server/elevate
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  This method approves or rejects a request for elevated access to a specific application, and creates an elevation policy for the specific user, application, and computer in the request. This policy is active for 24 hours, after which it becomes inactive. It is automatically deleted after 3 months.
+  
+  This method handles aggregated events by approving the most recent request for elevation. To grant temporary elevation for other elevation requests in the aggregated event, open the new policy and add the users who sent the requests to the target. For details, see Update policy.
+  
+  As part of this method, you can send a predefined email to the requestor that tells them how the request has been handled and their next steps.
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  | Name | Type | Description | Required | Valid Operations | Example |
+  | :-- | :-- | :-- | :-- | :-- | :-- |
+  | filter | string | An opaque value composed of a checksum (hash) or AdminTaskId, and the event type, separated by a comma: | Yes | EQ | aggregatedBy EQ "56,ElevationRequest" |
+  | Elevation. | integer | The action to apply in the temporary policy. | Yes | 1 - Approve, 2 - Reject | 1 | 
+  | SendEmail | boolean | Whether to send an email to the requestor. | Yes | True/False | true |
+  
+  #### Example Request Body
+  ```
+  {
+      "SendEmail": true,
+      "Filter": "aggregatedBy EQ \"16,32\"",
+      "Elevation": 1
+  }
+  ```
+  
+  
+}
