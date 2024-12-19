@@ -239,7 +239,7 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
 - [ ] Ensure documentation is updated for endpoints
   - [ ] SaaS
     - [x] Cloud Visibility
-    - [ ] Cloud Onboarding
+    - [x] Cloud Onboarding
     - [x] Conjur Cloud
     - [x] Connector Managent
     - [ ] Identity
