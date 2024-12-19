@@ -1,0 +1,323 @@
+meta {
+  name: Create Application Group
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{epmServer}}.epm.cyberark.com/epm/api/{{epmVersion}}/sets/{{setId}}/policies/applicationgroups
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "Applications": [
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "internalId": 0,
+        "internalIndex": 0,
+        "applicationType": 24,
+        "displayName": "",
+        "description": "",
+        "patterns": {
+          "FILE_NAME": {
+            "@type": "FileName",
+            "content": "word",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": false,
+            "hashAlgorithm": "",
+            "hash": "",
+            "fileSize": 0
+          },
+          "ARGUMENTS": {
+            "@type": "Text",
+            "content": "",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": true
+          },
+          "LOCATION": {
+            "@type": "Location",
+            "content": "",
+            "withSubfolders": true,
+            "caseSensitive": true,
+            "isEmpty": true
+          },
+          "PUBLISHER": {
+            "@type": "Publisher",
+            "content": "",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": true,
+            "signatureLevel": 1,
+            "separator": ";"
+          },
+          "BUNDLE_ID": {
+            "@type": "Text",
+            "content": "",
+            "compareAs": 3,
+            "caseSensitive": false,
+            "onlyEmptyValue": false,
+            "isEmpty": true
+          },
+          "BUNDLE_VERSION": {
+            "@type": "VersionRange",
+            "minVersion": "",
+            "maxVersion": "",
+            "isEmpty": true
+          }
+        },
+        "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+        "internalApplicationGroupId": 0,
+        "includeInMatching": true,
+        "softwareDistributorName": null,
+        "accountId": "00000000-0000-0000-0000-000000000000",
+        "childProcess": false,
+        "LinuxChildProcess": 2,
+        "restrictOpenSaveFileDialog": false,
+        "securityTokenId": "00000000-0000-0000-0000-000000000000",
+        "protectInstalledFiles": false,
+        "securityLevel": "LOW"
+      }
+    ],
+    "PolicyType": 16,
+    "Name": "ApplicationGroupMacOS1",
+    "Description": "Application Group Description "
+  }
+}
+
+vars:pre-request {
+  setId: 
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const epmAuth = require('./tools/epmAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings epmAuth.js tools
+  await epmAuth.login();
+  
+  // Sets setIdfor testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('setId', bru.getEnvVar('testEpmSetId'));
+    tools.log('Set Id: ' + bru.getVar('setId'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets epmAPPGroupId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('epmAppGroupId', res.body.Id);
+    tools.log('Application Group Id: ' + bru.getVar('epmAppGroupId'))
+  }
+}
+
+docs {
+  ## Create Application Group
+  This method creates a new application group.
+  
+  ### URL
+  https://{epmServer}.epm.cyberark.com/epm/api/{version}/sets/{setId}/files/aggregations/search
+  
+  > **Note**
+  > - Make sure there are no spaces in the URL. 
+  > - The following characters are not supported in URL parameter values: **+ & %**
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | epmServer | string | yes | EPM Server name (not dispatcher server name) |
+  | epmVersion | string | no | Version number. Format is x.x.x.x (for example, 11.5.0.1) **Default Value:** Latest Version |
+  | setId | GUID | yes | ID of a set that the user has permission to view, generated in the Get sets list API |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | AppGroupDetails | json | JSON with the supported elements of the application group only. | Yes | Supported elements, as listed in Custom application groups. |
+  
+  ##### AppGroupDetails
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | policyType | Integer | The type of policy to handle. | Yes | One of the following: APPLICATION_GROUP_WIN = 14, APPLICATION_GROUP_LINUX = 15, APPLICATION_GROUP_MAC = 16 |
+  | name | String | The name of the application group. | Yes | NA |
+  | description | String | A description of the application group. | No | NA |
+  | policyScope | json | The policy scope is defined in Applications. | No | See Below |
+  
+  ##### PolicyScope 
+  | Parameter | Type | Description | Required | Valid Value |
+  | :-- | :-- | :-- | :-- | :-- |
+  | displayName | String | The displayed name of the application. | No | The display name retrieved by Get policy details. Any value provided by a client won't be saved. **Note:** This is only filled for the application type "group". |
+  | patterns | String | The patterns supported by EPM REST APIs. | No | Refer to public documentation. |
+  | description | String | A description of the application. | No | ^((?!&lt;)(?!&gt;)[®\'\&\\\=\:\+\/\%\w.@\-,;\?*""\{\}\[\]\(\)\s!])*$ **Note:** Maximum Length - 512 |
+  | applicationType | Integer | Type of application to handle. | Yes | Refer to public documentation. |
+  | softwareDistributorName | | | | |
+  | accountId | | | | |
+  | childProcess | Boolean| Whether or not the policy rule is applied to child processes of an executable/script. | | True/False **Note: True - The policy rule is applied to the entire child process hierarchy. False - The policy rule is applied to the process that corresponds to the executable/script" element, but not to its child processes. **Note 2:** This is only applicable for exe or Script App types. | 
+  | linuxChildProcess | Integer | Whether or not to allow executions of other binaries from the original command. **Note:** This is only applicable for Linux command or mac sudo command app types. | No | One of the following: 0 = Deny, 1 = Allow, 2 = Allow and Restrict (If a child process matches any Elevate policy, it is allowed to run elevated. Otherwise, it is denied.) **Default Value:** 2 |
+  | restrictOpenSaveFileDialog | Boolean | Whether the Open/Save As File dialog box opened by an elevated application is restricted. | No | True/False |
+  | securityTokenId | guid | |  | |
+  | protectInstalledFiles | Boolean | Whether files created by installation of an exe app type must be protected. **Note:** This is only applicable for the exe the application type.) | No | True/False |
+  | Applications | json | |  | See Below |
+  
+  #### Example Request Body
+  ```
+  {
+    "Applications": [
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "internalId": 0,
+        "internalIndex": 0,
+        "applicationType": 24,
+        "displayName": "",
+        "description": "",
+        "patterns": {
+          "FILE_NAME": {
+            "@type": "FileName",
+            "content": "word",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": false,
+            "hashAlgorithm": "",
+            "hash": "",
+            "fileSize": 0
+          },
+          "ARGUMENTS": {
+            "@type": "Text",
+            "content": "",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": true
+          },
+          "LOCATION": {
+            "@type": "Location",
+            "content": "",
+            "withSubfolders": true,
+            "caseSensitive": true,
+            "isEmpty": true
+          },
+          "PUBLISHER": {
+            "@type": "Publisher",
+            "content": "",
+            "compareAs": 0,
+            "caseSensitive": true,
+            "onlyEmptyValue": false,
+            "isEmpty": true,
+            "signatureLevel": 1,
+            "separator": ";"
+          },
+          "BUNDLE_ID": {
+            "@type": "Text",
+            "content": "",
+            "compareAs": 3,
+            "caseSensitive": false,
+            "onlyEmptyValue": false,
+            "isEmpty": true
+          },
+          "BUNDLE_VERSION": {
+            "@type": "VersionRange",
+            "minVersion": "",
+            "maxVersion": "",
+            "isEmpty": true
+          }
+        },
+        "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+        "internalApplicationGroupId": 0,
+        "includeInMatching": true,
+        "softwareDistributorName": null,
+        "accountId": "00000000-0000-0000-0000-000000000000",
+        "childProcess": false,
+        "LinuxChildProcess": 2,
+        "restrictOpenSaveFileDialog": false,
+        "securityTokenId": "00000000-0000-0000-0000-000000000000",
+        "protectInstalledFiles": false,
+        "securityLevel": "LOW"
+      }
+    ],
+    "PolicyType": 16,
+    "Name": "ApplicationGroupMacOS1",
+    "Description": "Application Group Description "
+  }
+  ```
+  
+  ### Response
+  This API returns the following:
+  - An ApplicationGroup entity in the body.
+  - A URI with the appGroupId in the header location.
+  
+  ### Example Response (201 Created)
+  ```
+  {
+    "Id": "a250df1b-40bb-4491-9054-9dbe3201f86c",
+    "Name": "ApplicationGroupMacOS1",
+    "PolicyType": 16,
+    "Applications": [
+      {
+        "id": "45b7bbcc-37eb-483f-9122-65bbdb7ab722",
+        "internalId": 0,
+        "applicationType": 24,
+        "displayName": "",
+        "description": "",
+        "patterns": {
+          "FILE_NAME": {
+            "@type": "FileName",
+            "hashAlgorithm": "",
+            "hash": "",
+            "hashSHA256": "",
+            "fileSize": 0,
+            "isEmpty": false,
+            "content": "word",
+            "compareAs": 0,
+            "caseSensitive": true
+          }
+        },
+        "applicationGroupId": "00000000-0000-0000-0000-000000000000",
+        "internalApplicationGroupId": 0,
+        "includeInMatching": true,
+        "accountId": "00000000-0000-0000-0000-000000000000",
+        "childProcess": false,
+        "restrictOpenSaveFileDialog": false,
+        "securityTokenId": "00000000-0000-0000-0000-000000000000",
+        "protectInstalledFiles": false
+      }
+    ],
+    "Description": "Application Group Description ",
+    "LinkedAgentPolicies": [
+      {
+        "Id": "87a3a06e-8490-499e-8168-5b47815f129b",
+        "InternalId": 0,
+        "PolicyType": 1004,
+        "DefaultApplicationGroupId": "76d7a596-9e0c-49ed-977d-e60c2ebf83af"
+      }
+    ]
+  }
+  ```
+}
