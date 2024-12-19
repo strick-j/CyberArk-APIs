@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization/{{id}}/services
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organization/{{id}}/services
   body: json
   auth: none
 }
 
 body:json {
   {
-    "services":["secrets_hub"]
+    "services":["dpa"]
   }
 }
 
@@ -32,12 +32,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets pasSafeMemberName for testing based on environment flag and variables
+  // Sets organization Id for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('id', bru.getEnvVar('testAwsCybrId'));
-    tools.log('Cybr AWS ID: ' + bru.getEnvVar('testAwsCybrId'))
+    bru.setVar('id', bru.getVar('coOrganizationId'));
+    tools.log('Clound Onboarind Organization Id: ' + bru.getVar('id'))
   }
 }
 
@@ -57,4 +57,77 @@ script:post-response {
       tools.log('Description: ' + res.body.description);
     }
   }
+}
+
+docs {
+  ## Add service to AWS Organization
+  This method adds services to an existing organization.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organization/{id}/services
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The organzation ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | services | array of strings | yes |  |
+  | parameters | json object | no | | 
+  
+  #### Request Body
+  ```
+  {
+    "services": [
+      "dpa"
+    ],
+    "parameters": {}
+  }
+  ```
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": "12e7e3ffd9b1234f82a69fa123f3f123",
+    "deploymentRegion": "us-east-1",
+    "downloadTemplateUrl": "https://s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json?AWSAccessKeyId=AKIA4V5JEXAMPLEAJQ5W&Signature=aStwQJ2PaABxlzKaZEZuZqmABbk%3D&Expires=1734639827",
+    "urlExpirationTime": "2024-12-19T20:23:47.757+00:00",
+    "downloadTemplateUrlExpirationTime": "2024-12-26T19:23:47.757+00:00",
+    "cfLinkUrl": "https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=cyberark-onboarding-f76yerir&templateURL=https%3A//s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json%3FAWSAccessKeyId%3DAKIA4V5J4ABABABAJQ5W%26Signature%3DaStwAB1CPaXSxlzKaACDuZqmLGbk%253D%26Expires%3D1734639827"
+  }
+  ```
+  
+  #### Example Response (400 Bad Request)
+  ```
+  {
+    "code": "400",
+    "message": "Bad Request",
+    "description": "input parameters failed validation"
+  }
+  ```
+  
+  #### Example Response (404 Not Found)
+  ```
+  {
+    "code": "404",
+    "message": "Not Found",
+    "description": "The organization Organization with the onboarding id c37da71d9f684a9c92ec17d6584633ce was not found."
+  }
+  ```
 }

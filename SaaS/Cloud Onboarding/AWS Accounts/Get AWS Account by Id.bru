@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/account/{{id}}
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/account/{{id}}
   body: none
   auth: none
 }
@@ -35,12 +35,30 @@ script:pre-request {
   }
 }
 
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
 docs {
   ## Get AWS Account by Id
   This method returns the details of a single AWS account.
   
   ### URL
-  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/aws/accounts/{id}
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts/{id}
   
   ### Resource Information
   | HTTP Method | GET |
@@ -57,7 +75,7 @@ docs {
   #### Request Header Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
   
   #### Request Body Parameters
   None

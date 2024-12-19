@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organizations
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organizations
   body: none
   auth: none
 }
@@ -20,4 +20,136 @@ script:pre-request {
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Organization Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('coOrganizationId', res.body.organizations[0].id);
+    tools.log('Cloud Onboarding Organzation Id: ' + bru.getVar('coOrganizationId'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get AWS Organizations
+  Retrieve onboarded Organizations
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organizations
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "organizations": [
+      {
+        "id": "230f9c6b773a4bafbbdd123456bf3aa7",
+        "organizationId": "o-abl2abcdef",
+        "displayName": "o-abl2abcdef",
+        "region": "us-east-1",
+        "status": "Completely onboarded",
+        "workspaces": [
+          {
+            "id": "7d12345678c2472c9fa52ebae0e3ee8d",
+            "platformId": "r-abcd",
+            "displayName": "Root",
+            "type": "aws_root",
+            "platformType": "AWS",
+            "path": "7d12345678c2472c9fa52ebae0e3ee8d",
+            "children": [
+              {
+                "id": "c4ddc42e8ec348099a38e972607a0afe",
+                "platformId": "123456756123",
+                "displayName": "example.app",
+                "type": "aws_account",
+                "platformType": "AWS",
+                "path": "7d88432079c2472c9fa52ebae0e3ee8d.c4ddc42e8ec348099a38e972607a0afe",
+                "status": "Completely onboarded",
+                "services": [
+                  {
+                    "name": "dpa",
+                    "version": "0.0.1",
+                    "serviceStatus": "Completely onboarded",
+                    "suspended": false
+                  },
+                  {
+                    "name": "secrets_hub",
+                    "version": "0.0.2",
+                    "serviceStatus": "Completely onboarded",
+                    "servicesErrors": [],
+                    "suspended": false
+                  }
+                ]
+              },
+              {
+                "id": "f80212345678f4b59b4aac5c5bafed11a",
+                "platformId": "127911234260",
+                "displayName": "Example Example",
+                "type": "aws_account",
+                "platformType": "AWS",
+                "path": "7d88432079c2472c9fa52ebae0e3ee8d.f8021620882f4b59b4aac5c5bafed11a",
+                "status": "Completely onboarded",
+                "services": [
+                  {
+                    "name": "dpa",
+                    "version": "0.0.1",
+                    "serviceStatus": "Completely onboarded",
+                    "suspended": false
+                  },
+                  {
+                    "name": "secrets_hub",
+                    "version": "0.0.2",
+                    "serviceStatus": "Completely onboarded",
+                    "servicesErrors": [],
+                    "suspended": false
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "creationDate": "2024-10-08T18:52:42.058+00:00"
+      }
+    ]
+  }
+  ```
 }

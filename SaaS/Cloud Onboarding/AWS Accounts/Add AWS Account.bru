@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/account
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/account
   body: json
   auth: none
 }
@@ -21,7 +21,7 @@ body:json {
 
 assert {
   res.body: isJson
-  res.status: eq 200
+  res.status: eq 201
 }
 
 script:pre-request {
@@ -41,6 +41,19 @@ script:post-response {
     bru.setVar('coAccountId', res.body.id);
     tools.log('Cloud Onboarding Account Id: ' + bru.getVar('coAccountId'))
   }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
 }
 
 docs {
@@ -48,7 +61,7 @@ docs {
   This method adds a single AWS account.
   
   ### URL
-  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/aws/accounts
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts
   
   ### Resource Information
   | HTTP Method | POST |
@@ -63,7 +76,7 @@ docs {
   #### Request Header Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
   
   #### Request Body Parameters
   | Name | Type | Required | Description |

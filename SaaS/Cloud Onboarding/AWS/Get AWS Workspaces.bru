@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/ui/aws/workspaces
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/ui/aws/workspaces
   body: none
   auth: none
 }
@@ -34,7 +34,7 @@ docs {
   This method returns a page with a list of workspaces on the tenant. If filters are applied, the API will return only the account workspaces that match the specified filters, along with their parent workspaces.
   
   ### URL
-  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/ui/aws/workspaces
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/ui/aws/workspaces
   
   ### Resource Information
   | HTTP Method | GET |
@@ -54,7 +54,7 @@ docs {
   #### Request Header Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
   
   #### Request Body Parameters
   None

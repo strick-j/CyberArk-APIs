@@ -5,7 +5,7 @@ meta {
 }
 
 delete {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/account/{{id}}/services?services_names=dpa
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/account/{{id}}/services?services_names=dpa
   body: json
   auth: none
 }
@@ -39,12 +39,30 @@ script:pre-request {
   }
 }
 
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
 docs {
   ## Delete services from existing AWS single account
   This method removes services to an existing AWS single account.
   
   ### URL
-  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/aws/accounts/{id}/services
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts/{id}/services
   
   ### Resource Information
   | HTTP Method | POST |
@@ -58,12 +76,12 @@ docs {
   #### Request Query Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | service_names | string | yes | The name of the service to remove(e.g. dpa) |
+  | services_names | string | yes | The name of the service to remove(e.g. dpa) |
   
   #### Request Header Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
   
   #### Request Body Parameters
   None

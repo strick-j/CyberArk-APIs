@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization/{{id}}
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organization/{{id}}
   body: none
   auth: none
 }
@@ -16,7 +16,111 @@ vars:pre-request {
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets organization Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coOrganizationId'));
+    tools.log('Clound Onboarind Organization Id: ' + bru.getVar('id'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get AWS Organization Details
+  This method returns the details of an organization.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organization/{id}
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The organzation ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": "230f9c6b773a4bafbbdd123452bf3aa7",
+    "organizationRootId": "r-abcd",
+    "managementAccountId": "123456751234",
+    "organizationId": "o-abl2abcdef",
+    "region": "us-east-1",
+    "services": [
+      "dpa",
+      "secrets_hub"
+    ],
+    "servicesData": [
+      {
+        "name": "secrets_hub",
+        "status": "Completely onboarded",
+        "errors": [],
+        "properties": [],
+        "suspended": false
+      },
+      {
+        "name": "dpa",
+        "status": "Completely onboarded",
+        "errors": [],
+        "properties": [],
+        "suspended": false
+      }
+    ],
+    "displayName": "o-abl2abcdef",
+    "parameters": {
+      "dpa": {
+        "TenantId": "12345795-2bad-4468-8eb7-026a12345adf",
+        "dpaServiceAccountId": "123123212123"
+      },
+      "secrets_hub": {
+        "SecretsManagerRegions": "us-east-2,us-east-1,us-west-1,us-west-2",
+        "PolicyName": "TEST",
+        "CyberArkSecretsHubRoleARN": "arn:aws:iam::123413889123:role/SecretsHub-Role-12345795-2bad-4468-8eb7-026a12345adf-7B7FEDBE"
+      }
+    },
+    "status": "Completely onboarded"
+  }
+  ```
 }

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/action-items
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/action-items
   body: none
   auth: none
 }
@@ -27,7 +27,7 @@ docs {
   This method returns a list of AWS organizations and single accounts that are waiting for the user to perform an action.
   
   ### URL
-  https://{identityTenantName}-cloud_onboarding.cyberark.com/api/ui/aws/action-items
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/ui/aws/action-items
   
   ### Resource Information
   | HTTP Method | GET |
@@ -42,7 +42,7 @@ docs {
   #### Request Header Parameters
   | Name | Type | Required | Description |
   | :-- | :-- | :-- | :-- |
-  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
   
   #### Request Body Parameters
   None

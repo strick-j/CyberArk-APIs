@@ -1,29 +1,29 @@
 meta {
   name: Add AWS Organization
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
-  url: https://{{identityTenantName}}-cloud_onboarding.cyberark.cloud/api/aws/organization
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organization
   body: json
   auth: none
 }
 
 body:json {
   {
-    "organizationRootId":"r-zjhf",
-    "organizationId":"o-apl4ofpkaq",
-    "managementAccountId":"969656756524",
+    "organizationRootId":"r-abcd",
+    "organizationId":"o-abl2abcdef",
+    "managementAccountId":"969123456789",
     "services":["dpa"],
-    "accountDisplayName":"PIN - AWS - IC - COB",
-    "description": "Pineapple AWS via Cloud Onboarding"
+    "accountDisplayName":"TEST - COB",
+    "description": "TEST AWS via Cloud Onboarding"
   }
 }
 
 assert {
   res.body: isJson
-  res.status: eq 200
+  res.status: eq 201
 }
 
 script:pre-request {
@@ -31,4 +31,88 @@ script:pre-request {
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Organization Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('coOrganizationId', res.body.id);
+    tools.log('Cloud Onboarding Organzation Id: ' + bru.getVar('coOrganizationId'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Add New AWS Organization
+  This method adds an AWS organization.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organization
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+   
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | organizationRootId | string | yes | AWS Root Account Id in the format "r-abcd" |
+  | organizationId | string | yes | AWS Organization Id in the format "o-1b12abcdef" |
+  | managementAccountId | string | yes | AWS Management Account Id in the format "1234567891" |
+  | services | Array of strings | yes | Array of Strings e.g. ["dpa"] |
+  | accountDisplayName | string | yes | Display name for the organization |
+  | description | string | yes  | Description for the organization |
+  
+  #### Request Body
+  ```
+  {
+    "organizationRootId":"r-abcd",
+    "organizationId":"o-abl2abcdef",
+    "managementAccountId":"969123456789",
+    "services":["dpa"],
+    "accountDisplayName":"TEST - COB",
+    "description": "TEST AWS via Cloud Onboarding"
+  }
+  ```
+  
+  ### Response
+  
+  #### Example Response (201 Created)
+  ```
+  {
+    "id": "12e7e3ffd9b1234f82a69fa123f3f123",
+    "deploymentRegion": "us-east-1",
+    "downloadTemplateUrl": "https://s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json?AWSAccessKeyId=AKIA4V5JEXAMPLEAJQ5W&Signature=aStwQJ2PaABxlzKaZEZuZqmABbk%3D&Expires=1734639827",
+    "urlExpirationTime": "2024-12-19T20:23:47.757+00:00",
+    "downloadTemplateUrlExpirationTime": "2024-12-26T19:23:47.757+00:00",
+    "cfLinkUrl": "https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=cyberark-onboarding-f76yerir&templateURL=https%3A//s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json%3FAWSAccessKeyId%3DAKIA4V5J4ABABABAJQ5W%26Signature%3DaStwAB1CPaXSxlzKaACDuZqmLGbk%253D%26Expires%3D1734639827"
+  }
+  ```
 }
