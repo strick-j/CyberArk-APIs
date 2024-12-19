@@ -1,6 +1,10 @@
 # dependencies
 node_modules
 
+# Unfinished 
+SaaS/Identity
+Self\ Hosted/PAM
+
 # testing
 coverage
 
