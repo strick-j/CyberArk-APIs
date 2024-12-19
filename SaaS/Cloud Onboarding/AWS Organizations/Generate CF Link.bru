@@ -1,0 +1,110 @@
+meta {
+  name: Generate CF Link
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organization/{{id}}/generate-link
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "organizationRootId":"r-zjhf",
+    "organizationId":"o-apl4ofpkaq",
+    "managementAccountId":"969656756524",
+    "services":["dpa"],
+    "accountDisplayName":"PIN - AWS - IC - COB",
+    "description": "Pineapple AWS via Cloud Onboarding"
+  }
+}
+
+vars:pre-request {
+  id: 230f9c6b773example2bf3aa7
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets organization Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coOrganizationId'));
+    tools.log('Clound Onboarind Organization Id: ' + bru.getVar('id'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Generate CloudFormation template link AWS Organization
+  This method generates a CloudFormation template link for an AWS organization.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organization/{id}/generate-link
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The organzation ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | Token generated in the EPM authentication or SAML authentication API. **Valid Value:** basic <token> |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (201 Created)
+  ```
+  {
+    "id": "12e7e3ffd9b1234f82a69fa123f3f123",
+    "deploymentRegion": "us-east-1",
+    "downloadTemplateUrl": "https://s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json?AWSAccessKeyId=AKIA4V5JEXAMPLEAJQ5W&Signature=aStwQJ2PaABxlzKaZEZuZqmABbk%3D&Expires=1734639827",
+    "urlExpirationTime": "2024-12-19T20:23:47.757+00:00",
+    "downloadTemplateUrlExpirationTime": "2024-12-26T19:23:47.757+00:00",
+    "cfLinkUrl": "https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=cyberark-onboarding-f76yerir&templateURL=https%3A//s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/o-abl2abcdef/CyberArk-Onboarding-501mcj0n.json%3FAWSAccessKeyId%3DAKIA4V5J4ABABABAJQ5W%26Signature%3DaStwAB1CPaXSxlzKaACDuZqmLGbk%253D%26Expires%3D1734639827"
+  }
+  ```
+}

@@ -1,0 +1,201 @@
+meta {
+  name: Get AWS Workspaces
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/ui/aws/workspaces
+  body: none
+  auth: none
+}
+
+query {
+  ~page: 
+  ~page_size: 
+  ~services: 
+  ~workspace_status: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get AWS Organizations and Single Accounts
+  This method returns a page with a list of workspaces on the tenant. If filters are applied, the API will return only the account workspaces that match the specified filters, along with their parent workspaces.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/ui/aws/workspaces
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | page | string | no | The page number to fetch. **Default Value:** 1 |
+  | page_size | string | no | The number of items per page. **Default Value:** 1000 |
+  | services | string | no | Use this filter to retrieve only workspaces that are deployed to these services |
+  | workspace_status | string | no | Use this filter to retrieve workspaces that are in the required statuses |
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "page": {
+      "pageNumber": 1,
+      "pageSize": 1000,
+      "isLastPage": true,
+      "totalRecords": 5
+    },
+    "workspaces": [
+      {
+        "key": "1123452eb7de464a409aa64fd7d9dc2ab4",
+        "data": {
+          "platformId": "4816612345678",
+          "name": "4816612345678",
+          "type": "aws_account",
+          "status": "Completely onboarded",
+          "services": [
+            {
+              "name": "dpa",
+              "version": "0.0.1",
+              "status": "Completely onboarded",
+              "properties": []
+            }
+          ],
+          "creationDate": "1728486163294",
+          "onboardingType": "standard",
+          "deploymentProject": false
+        },
+        "leaf": true,
+        "parentId": ""
+      },
+      {
+        "key": "123f1c6b773a4bafbbdd498892bf3aa7",
+        "data": {
+          "platformId": "o-example",
+          "name": "o-example",
+          "type": "aws_organization",
+          "status": "Completely onboarded",
+          "services": [
+            {
+              "name": "secrets_hub",
+              "version": "0.0.2",
+              "status": "Completely onboarded",
+              "properties": []
+            },
+            {
+              "name": "dpa",
+              "version": "0.0.1",
+              "status": "Completely onboarded",
+              "properties": []
+            }
+          ],
+          "creationDate": "1728413562058",
+          "onboardingType": "standard",
+          "deploymentProject": false,
+          "organizationId": "o-example"
+        },
+        "leaf": false,
+        "parentId": ""
+      },
+      {
+        "key": "7d12332079c2472c9fa52ebae0e3ee8d",
+        "data": {
+          "platformId": "r-zjhf",
+          "name": "Root",
+          "type": "aws_root",
+          "deploymentProject": false,
+          "organizationId": "o-example"
+        },
+        "leaf": false,
+        "path": "230f9c6b773a4bafbbdd412345bf3aa7.7d2345079c2472c9fa52ebae0e3ee8d",
+        "parentId": "230f9c6b773a4bafbbdd124324592bf3aa7"
+      },
+      {
+        "key": "c4ddc42e8ec312324a38e972607a0afe",
+        "data": {
+          "platformId": "123456756524",
+          "name": "example.com",
+          "type": "aws_account",
+          "status": "Completely onboarded",
+          "services": [
+            {
+              "name": "secrets_hub",
+              "version": "0.0.2",
+              "status": "Completely onboarded",
+              "properties": []
+            },
+            {
+              "name": "dpa",
+              "version": "0.0.1",
+              "status": "Completely onboarded",
+              "properties": []
+            }
+          ],
+          "deploymentProject": true,
+          "organizationId": "o-example"
+        },
+        "leaf": true,
+        "path": "230f9c6b773a4badfbdd498892bf3aa7.7d88432079c2472c12a52ebae0e3ee8d.c4dad4212ec348099a38e972607a0afe",
+        "parentId": "7d81243079c2472c9fa52ebae0e3ee8d"
+      },
+      {
+        "key": "f8012320881f4b59b4aac5c5bafed11a",
+        "data": {
+          "platformId": "297915674260",
+          "name": "Pineapple Production",
+          "type": "aws_account",
+          "status": "Completely onboarded",
+          "services": [
+            {
+              "name": "secrets_hub",
+              "version": "0.0.2",
+              "status": "Completely onboarded",
+              "properties": []
+            },
+            {
+              "name": "dpa",
+              "version": "0.0.1",
+              "status": "Completely onboarded",
+              "properties": []
+            }
+          ],
+          "deploymentProject": false,
+          "organizationId": "o-apl4ofpkaq"
+        },
+        "leaf": true,
+        "path": "230f9c6b773a4bafbbdd412342bf3aa7.7d88412349c2472c9fa52ebae0e3ee8d.f8021612342f4b59b4aac5c5bafed11a",
+        "parentId": "7d81234079c2472c9fa52ebae0e3ee8d"
+      }
+    ],
+    "lastSuccessfulScan": "2024-10-10T13:08:32.543+00:00"
+  }
+  ```
+}

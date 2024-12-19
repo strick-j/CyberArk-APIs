@@ -1,0 +1,104 @@
+meta {
+  name: Get AWS Accounts
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/accounts
+  body: none
+  auth: none
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets Account Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('coAccountId', res.body.accounts[0].id);
+    tools.log('Cloud Onboarding Account Id: ' + bru.getVar('coAccountId'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get AWS Accounts
+  Retrieve onboarded accounts
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "accounts": [
+      {
+        "id": "11342eb7de464a409ff64fd7d9dc2ab4",
+        "displayName": "481661123425",
+        "platformId": "481661123425",
+        "platformType": "AWS",
+        "status": "Completely onboarded",
+        "creationDate": "2024-10-09T15:02:43.294+00:00",
+        "region": "us-east-1",
+        "services": [
+          {
+            "name": "dpa",
+            "version": "0.0.1",
+            "serviceStatus": "Completely onboarded",
+            "suspended": false
+          }
+        ]
+      }
+    ]
+  }
+  ```
+}

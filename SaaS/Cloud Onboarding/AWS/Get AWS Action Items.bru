@@ -1,0 +1,70 @@
+meta {
+  name: Get AWS Action Items
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/action-items
+  body: none
+  auth: none
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get AWS Action Items
+  This method returns a list of AWS organizations and single accounts that are waiting for the user to perform an action.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/ui/aws/action-items
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "items": [
+      {
+        "workspaceId": "string",
+        "platformId": "string",
+        "name": "string",
+        "organizationId": "string",
+        "organizationName": "string",
+        "type": "deploy"
+      }
+    ]
+  }
+  ```
+}

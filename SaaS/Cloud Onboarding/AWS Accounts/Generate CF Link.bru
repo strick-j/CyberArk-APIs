@@ -1,0 +1,108 @@
+meta {
+  name: Generate CF Link
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/account/{{id}}/generate-link
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  id: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets account Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coAccountId'));
+    tools.log('Clound Onboarind Account Id: ' + bru.getVar('id'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Generate CloudFormation Template link for AWS single account
+  This method generates a CloudFormation template link for a single AWS account.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts/{id}/generate-link
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The account ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "id": "5b120b8bcee345fa82a2017246c1d6b1",
+    "deploymentRegion": "us-east-1",
+    "downloadTemplateUrl": "https://s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/823467896521/CyberArk-Onboarding-bupt1sqm.json?AWSAccessKeyId=AKIAEXAMPLE5W&Signature=bagrTwxaYQup4LLSrEXAMPLEires=1734562534",
+    "urlExpirationTime": "2024-12-18T22:55:34.962+00:00",
+    "downloadTemplateUrlExpirationTime": "2024-12-25T21:55:34.962+00:00",
+    "cfLinkUrl": "https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=cyberark-onboarding-ks67nbss&templateURL=https%3A//s3.us-east-1.amazonaws.com/cyberark-customer-templates-us-east-1/28515795-2bad-4468-8eb7-026a68520adf/AWS/823467896521/CyberArk-Onboarding-bupt1sqm.json%3FAWSAccessKeyId%3EXAMPLENJQ5W%26Signature%3DbagrTwxaYQEXMAPLERZI%253D%26Expires%3D1734562534"
+  }
+  ```
+  
+  #### Example Response (409 Conflict)
+  ```
+  {
+    "code": "409",
+    "message": "Conflict",
+    "description": "The (823467896521) single account has already been added."
+  }
+  ```
+}

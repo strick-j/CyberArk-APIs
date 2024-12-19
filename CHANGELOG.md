@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.5
+### Added or Changed
+- Added CyberArk Cloud Onboarding Endpoints
+
 ## v1.0.4
 
 ### Added or Changed

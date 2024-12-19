@@ -1,0 +1,98 @@
+meta {
+  name: Remove Organization
+  type: http
+  seq: 8
+}
+
+delete {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organization/{{id}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "services":["secrets_hub"]
+  }
+}
+
+vars:pre-request {
+  awsOrgId: 
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets organization Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coOrganizationId'));
+    tools.log('Clound Onboarind Organization Id: ' + bru.getVar('id'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## RemoveAWS Organization
+  This method removes an AWS organization.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organization/{id}
+  
+  ### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+   
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "success": true
+  }
+  ```
+}

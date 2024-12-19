@@ -1,0 +1,87 @@
+meta {
+  name: Scan
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/organizations/scan
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "organizationRootId":"r-zjhf",
+    "organizationId":"o-apl4ofpkaq",
+    "managementAccountId":"969656756524",
+    "services":["dpa"],
+    "accountDisplayName":"PIN - AWS - IC - COB",
+    "description": "Pineapple AWS via Cloud Onboarding"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## AWS Organization Discovery Scan
+  This method triggers a scan for AWS organizations. You can trigger a scan as long as no other AWS scan of the tenant is in progress.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/organizations/scan
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  None
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  ""
+  ```
+}

@@ -1,0 +1,94 @@
+meta {
+  name: Delete AWS Account
+  type: http
+  seq: 7
+}
+
+delete {
+  url: https://{{identityTenantName}}.cloudonboarding.cyberark.cloud/api/aws/account/{{id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  id: 1339d34c9db34a19a601653b9d086f61
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets account Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('id', bru.getVar('coAccountId'));
+    tools.log('Clound Onboarind Account Id: ' + bru.getVar('id'))
+  }
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Delete AWS Account by Id
+  This method deletes a single AWS account.
+  
+  ### URL
+  https://{identityTenantName}.cloudonboarding.cyberark.com/api/aws/accounts/{id}
+  
+  ### Resource Information
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### Request Path arameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | id | string | yes | The account ID. |
+  
+  #### Request Query Parameters
+  None
+  
+  #### Request Header Parameters
+  | Name | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | Authorization | string | yes | The token that identifies the session, encoded in BASE 64. |
+  
+  #### Request Body Parameters
+  None
+  
+  #### Request Body
+  None
+  
+  ### Response
+  
+  #### Example Response (200 OK)
+  ```
+  {
+    "success": true
+  }
+  ```
+}
