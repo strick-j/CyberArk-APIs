@@ -1,0 +1,72 @@
+meta {
+  name: Get MFA Key
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/ssh/sso/key
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get SIA SSH MFA Key
+  
+  Get MFA key. To run this API, you must have the JitUser role.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/ssh/sso/key
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  NA
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |500|Internal Server Error|
+}
