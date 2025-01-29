@@ -1,0 +1,58 @@
+meta {
+  name: Set tenant configuration
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/SetTenantConfig?key=SingleAuthenticationMechanismEnabled&value=true
+  body: none
+  auth: none
+}
+
+query {
+  key: SingleAuthenticationMechanismEnabled
+  value: true
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Set tenant configuration
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/SetTenantConfig
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Query Parameters
+  | Name | Type | Description |
+  | :-- | :-- | :-- |
+  | key | string | The tenant configuration key to delete. |
+  | value | string | The tenant configuration value. |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/SetTenantConfig
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  
+}

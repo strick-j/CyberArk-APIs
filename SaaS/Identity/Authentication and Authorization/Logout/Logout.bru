@@ -1,0 +1,72 @@
+meta {
+  name: Logout
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Security/Logout
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+      "TenantId": "{{identityTenantId}}",
+      "Version": "1.0",
+      "User": "{{identityUserName}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+  }
+  
+  // Log on 200 response where success equals false
+  if (res.body.success == false) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.MessageID) {
+      tools.log('MessageID: ' + res.body.MessageID);
+    }
+      if (res.body.Exception) {
+      tools.log('Exception: ' + res.body.Exception);
+    }
+      if (res.body.ErrorID) {
+      tools.log('ErrorID: ' + res.body.ErrorID);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('ErrorCode: ' + res.body.ErrorCode);
+    }
+    if (res.body.InnerException) {
+      // Add logic for innerexception
+    }
+  }
+}
+
+docs {
+  CyberArk Identity uses OAuth 2.0 access tokens to authenticate API requests. You acquire access tokens on behalf of CyberArk Identity users by calling /Security/StartAuthentication. Clients requiring access to resources outside of a specific user's context should use the client credentials flow instead. To identify the user being authenticated, CyberArk Identity needs their User identifier and TenantId.
+}

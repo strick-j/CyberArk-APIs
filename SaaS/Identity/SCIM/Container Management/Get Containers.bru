@@ -1,0 +1,68 @@
+meta {
+  name: Get Containers
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/containers
+  body: none
+  auth: none
+}
+
+query {
+  ~sortBy: displayName
+  ~sortOrder: descending
+  ~startIndex: 28
+  ~count: 5
+  ~attributes: displayName
+  ~filter: displayName eq "Privilege Cloud Users Lite"
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}
+
+docs {
+  This endpoint allows you to obtain information relating to all groups in Vault. Group names, users involved in the group, and group specifications are outlined in the response.
+  Permissions Required
+  User Rights
+  Audit Users
+  
+  
+  Query Parameters
+  Index:
+  Returns resources specified by an index. Useful when there are large number of returned resources to control pagination.
+  startIndex: initial starting offset for returned resources.
+  count: total count of returned resources. (NOTE: Pagination is currently not working for Groups)
+  
+  Example: Return users 10 through 13 using index.
+  GET https://myTenantUrl/scim/v2/Groups?startIndex=10&count=5
+  
+  
+  Sort:
+  Returns all resources sorted either ascending (default) or descending based on a resource attribute.
+  sortBy: resource attribute to sort by.
+  sortOrder: ascending (default) or descending.
+  
+  Example: Return Groups sorted by displayName in ascending order.
+  GET https://myTenantUrl/scim/v2/Groups?sortBy=displayName&sortOrder=ascending
+  
+  
+  Filter:
+  Returns a single resource specified by the filter in the response.
+  Example: Return a single Group based on the displayName filter.
+  GET https://myTenantUrl/scim/v2/Groups?filter=displayName eq "myGroupName"
+  
+  
+  Attributes:
+  Returns only the specified attributes in the JSON response.
+  Example: Return all Groups with only the displayName attribute.
+  GET https://myTenantUrl/scim/v2/Groups&attributes=displayName
+}

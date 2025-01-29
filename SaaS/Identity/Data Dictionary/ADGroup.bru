@@ -1,0 +1,32 @@
+meta {
+  name: ADGroup
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Redrock/query
+  body: json
+  auth: none
+}
+
+body:json {
+  //{
+  // "Script": "Select * FROM ADOU ORDER BY Description COLLATE NOCASE"
+  //}
+  
+  {
+    "Script": "Select * from ADGroup ORDER BY Name COLLATE NOCASE"
+  }
+}
+
+body:text {
+  {Script: "Select * From ADOU ORDER BY Description COLLATE NOCASE"}
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}

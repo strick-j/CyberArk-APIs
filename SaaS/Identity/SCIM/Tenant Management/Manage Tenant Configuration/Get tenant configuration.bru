@@ -1,0 +1,64 @@
+meta {
+  name: Get tenant configuration
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/GetTenantConfig?key=SingleAuthenticationMechanismEnabled&dflt=all
+  body: none
+  auth: none
+}
+
+query {
+  key: SingleAuthenticationMechanismEnabled
+  dflt: all
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get tenant custom configuration
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/GetTenantConfig
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Request Query Parameters
+  | Name | Type | Description |
+  | :-- | :-- | :-- |
+  | dflt| string | The return if the config doesn't contain the requested key. |
+  | key | string | What key you want from the tenants config. |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/GetTenantConfig
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  
+  ```
+  
+  
+}

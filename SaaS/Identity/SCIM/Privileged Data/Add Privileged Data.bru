@@ -1,0 +1,49 @@
+meta {
+  name: Add Privileged Data
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/scim/v2/privilegeddata/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "myPrivilegeData",
+    "type": "password",
+    "schemas": [
+      "urn:ietf:params:scim:schemas:pam:1.0:PrivilegedData",
+      "urn:ietf:params:scim:schemas:cyberark:1.0:PrivilegedData"
+    ],
+    "urn:ietf:params:scim:schemas:cyberark:1.0:PrivilegedData": {
+      "safe": "myContainer",
+      "properties": [
+        {
+          "key": "username",
+          "value": "user1"
+        },
+        {
+          "key": "address",
+          "value": "192.0.2.1"
+        },
+        {
+          "key": "platformId",
+          "value": "WinDesktopLocal"
+        },
+        {
+          "key": "secret",
+          "value": "123456"
+        }
+      ]
+    }
+  }
+}
+
+script:pre-request {
+  // Perform authentication usings scimAuth.js tools
+  const scimAuth = require('./tools/scimAuth');
+  await scimAuth.login();
+}

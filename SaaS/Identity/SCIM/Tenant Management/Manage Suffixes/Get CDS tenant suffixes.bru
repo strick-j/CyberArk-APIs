@@ -1,0 +1,145 @@
+meta {
+  name: Get CDS tenant suffixes
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/GetCdsAliasesForTenant
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get CDS tenant suffixes
+  - Gets the tenant suffixes.
+  - You need System Administrator Role or any role with the following Administrative Rights:
+  - Admin portal Login and User Management
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/GetCdsAliasesForTenant
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/GetCdsAliasesForTenant
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "IsAggregate": false,
+      "Count": 2,
+      "Columns": [
+        {
+          "Name": "ID",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ID",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "ReplaceDomain",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "ReplaceDomain",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 12,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        },
+        {
+          "Name": "CdsAlias",
+          "IsHidden": false,
+          "DDName": null,
+          "Title": "CdsAlias",
+          "DDTitle": null,
+          "Description": null,
+          "Type": 16,
+          "Format": null,
+          "Width": 0,
+          "TableKey": null,
+          "ForeignKey": null,
+          "TableName": null
+        }
+      ],
+      "FullCount": 11,
+      "Results": [
+        {
+          "Entities": [
+            {
+              "Type": "TenantAlias",
+              "Key": "abc1234",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ID": "abc1234",
+            "CdsAlias": true,
+            "ReplaceDomain": "abc1234"
+          }
+        },
+        {
+          "Entities": [
+            {
+              "Type": "TenantAlias",
+              "Key": "cyberark.cloud.1234",
+              "IsForeignKey": false
+            }
+          ],
+          "Row": {
+            "ID": "cyberark.cloud.3558",
+            "CdsAlias": true,
+            "ReplaceDomain": "cyberark.cloud.1234"
+          }
+        }
+      ],
+      "ReturnID": ""
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}

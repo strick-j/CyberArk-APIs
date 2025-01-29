@@ -1,0 +1,43 @@
+meta {
+  name: Authorize
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/OAuth2/Authorize/JoePKCETest?response_type=code&client_id=e33c3508-dc7e-4cb1-8dfd-2bee3f930e0d&redirect_uri=https://pineapple.secretsmgr.cyberark.cloud/api/authn-jwt/inf-generic-jwt/conjur/authenticate&code_challenge=GQPaDNu-hEVzfHiNdIi9hQrwyiyl_TI2cmgxBjideEA&code_challenge_method=S256&nonce={{uuid}}
+  body: none
+  auth: none
+}
+
+query {
+  response_type: code
+  client_id: e33c3508-dc7e-4cb1-8dfd-2bee3f930e0d
+  redirect_uri: https://pineapple.secretsmgr.cyberark.cloud/api/authn-jwt/inf-generic-jwt/conjur/authenticate
+  code_challenge: GQPaDNu-hEVzfHiNdIi9hQrwyiyl_TI2cmgxBjideEA
+  code_challenge_method: S256
+  nonce: {{uuid}}
+  ~scope: authn-jwt
+  ~state: abc
+}
+
+body:form-urlencoded {
+  ~grant_type: authorization_code
+  ~scope: authn-jwt
+  ~client_id: svc_rest_api@cyberark.cloud.3558
+  ~response_type: code
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  bru.setVar('uuid', require("uuid").v4());
+  
+  req.setMaxRedirects(0);
+}
+
+docs {
+  CyberArk Identity uses OAuth 2.0 access tokens to authenticate API requests. You acquire access tokens on behalf of CyberArk Identity users by calling /Security/StartAuthentication. Clients requiring access to resources outside of a specific user's context should use the client credentials flow instead. To identify the user being authenticated, CyberArk Identity needs their User identifier and TenantId.
+}

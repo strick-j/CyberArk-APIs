@@ -1,0 +1,79 @@
+meta {
+  name: Create tenant suffix
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Core/StoreAlias?alias=bruno_example&cdsAlias=true&domain=bruno_example.com
+  body: none
+  auth: none
+}
+
+query {
+  alias: bruno_example
+  cdsAlias: true
+  domain: bruno_example.com
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Create tenant suffix
+  - Create or update tenant alias
+  - You need ManageAlias Execute permission.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/Core/StoreAlias
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/Core/StoreAlias
+  
+  #### Request Body
+  None
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+      "State": 0
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  > **NOTE**
+  > - Result.State = 0 is a success
+  > - Result.State = 1 is a duplication
+  
+}

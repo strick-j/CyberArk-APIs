@@ -1,0 +1,96 @@
+meta {
+  name: Get User's Latest Event Risk
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantId}}-my.analytics.idaptive.app/analytics/services/v1.0/getUserLatestEventRisk/{{user_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  user_id: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', bru.getEnvVar('testIdentityUserId'));
+    tools.log('User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Check permission
+  User Behavior Analytics (UBA) generates the risk score for events resulting from user actions. This API retrieves the risk score of the most recent event generated, but not the aggregated risk score as seen in the Identity Administration portal for users. Along with the risk score, the API also fetches the risk level, the reason for the risk, event type, event ID, and the event time.
+  
+  UBA generates a risk score for the following events:
+  - Cloud.Core.MfaSummary
+  - Cloud.Saas.Application.AppLaunch
+  - Cloud.Core.AdaptiveMfa.RiskCheck
+  
+  To invoke this API, create an API token in the CyberArk Identity User Behavior Analytics portal. Go to Settings > API, then click New to create the API token.
+  
+  ### URL
+  https://<subdomain>.cyberark.com/analytics/services/v1.0/getUserLatestEventRisk/{user_id}
+  ### Resource Information
+  
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET /analytics/services/v1.0/getUserLatestEventRisk/{user_id}
+  
+  #### Example URI Parameters
+  | Parameter | Type | Mandatory | Description |
+  | :-- | :-- | :-- | :-- |
+  | user_id| string | yes | The user's unique identifier for which the latest risk score is being requested. |
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Invalid Parameter. Check the following: The user_id is not null or an empty string. The data type for the user_id is a string.|
+  | 401 | Not authorized. You may be using an invalid, corrupted, or expired bearer token to access the endpoint. | 
+  | 403 | Forbidden access. The user may not have sufficient privileges to access the API. Make sure that the scope of the token contains the Analytics Token. |
+  | 404 | Not found. Check the following: The user Id exists in the tenant. The user has signed in to CyberArk Identity. |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "user_id": "string",
+    "user_name": "string",
+    "event_id": "string",
+    "event_type": "string",
+    "event_time": "2019-08-24T14:15:22Z",
+    "risk_score": "string",
+    "risk_level": "string",
+    "risk_reason": "string"
+  }
+  ```
+  
+  ### 400 Invalid Parameter
+  ```
+  {
+    "error_code": 0,
+    "error_type": "string",
+    "error_message": "string"
+  }
+  ```
+}

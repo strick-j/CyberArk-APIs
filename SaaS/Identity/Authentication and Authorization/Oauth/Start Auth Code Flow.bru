@@ -1,0 +1,59 @@
+meta {
+  name: Start Auth Code Flow
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/oauth2/token/JoePKCETest3
+  body: formUrlEncoded
+  auth: none
+}
+
+query {
+  ~redirect_uri: https://pineapple.secretsmgr.cyberark.cloud/api/authn-jwt/inf-generic-jwt/conjur/authenticate
+  ~response_type: code
+  ~code_challenge: GQPaDNu-hEVzfHiNdIi9hQrwyiyl_TI2cmgxBjideEA
+  ~code_callenge_method: S256
+  ~scope: openid
+  ~client_id: svc_rest_api@cyberark.cloud.3558
+}
+
+body:form-urlencoded {
+  grant_type: authorization_code
+  scope: authn-jwt
+  client_id: svc_rest_api@cyberark.cloud.3558
+  response_type: code
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('Error Code: ' + res.body.ErrorCode);
+    }
+    if (res.body.ErrorMessage) {
+      tools.log('Error Message: ' + res.body.ErrorMessage);
+    }
+    if (res.body.Details) {
+      tools.log('Details Error Code: ' + res.body.Details[0].ErrorCode);
+      tools.log('Details Error Message: ' + res.body.Details[0].ErrorMessage);
+      tools.log('Details Parameter Name: ' + res.body.Details[0].ParameterName);
+    }
+  }
+}
+
+docs {
+  CyberArk Identity uses OAuth 2.0 access tokens to authenticate API requests. You acquire access tokens on behalf of CyberArk Identity users by calling /Security/StartAuthentication. Clients requiring access to resources outside of a specific user's context should use the client credentials flow instead. To identify the user being authenticated, CyberArk Identity needs their User identifier and TenantId.
+}

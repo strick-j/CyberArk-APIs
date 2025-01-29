@@ -1,0 +1,61 @@
+meta {
+  name: Forgot Username
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/Security/ForgotUsername
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "SearchKey": "{{identityUserName}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    
+  }
+  
+  // Log on 200 response where success equals false
+  if (res.body.success == false) {
+    if (res.body.Message) {
+      tools.log('Message: ' + res.body.Message);
+    }
+    if (res.body.MessageID) {
+      tools.log('MessageID: ' + res.body.MessageID);
+    }
+      if (res.body.Exception) {
+      tools.log('Exception: ' + res.body.Exception);
+    }
+      if (res.body.ErrorID) {
+      tools.log('ErrorID: ' + res.body.ErrorID);
+    }
+    if (res.body.ErrorCode) {
+      tools.log('ErrorCode: ' + res.body.ErrorCode);
+    }
+    if (res.body.InnerException) {
+      // Add logic for innerexception
+    }
+  }
+}
+
+docs {
+  This method adds a new Safe to the Vault.
+  
+  The user who runs this web service requires Add Safes permissions in the Vault.
+  
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Introspect
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/OAuth2/introspect/JoePKCETest3
+  body: formUrlEncoded
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwdWJsaWMiLCJuYW1lIjoic3ZjX3Jlc3RfYXBpQGN5YmVyYXJrLmNsb3VkLjM1NTgiLCJpYXQiOjE1MTYyMzkwMjJ9.rjlZWtRcksRUJfaoFPOtRlHqiXwKlaGKA5Fm8wHxLKU
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  CyberArk Identity uses OAuth 2.0 access tokens to authenticate API requests. You acquire access tokens on behalf of CyberArk Identity users by calling /Security/StartAuthentication. Clients requiring access to resources outside of a specific user's context should use the client credentials flow instead. To identify the user being authenticated, CyberArk Identity needs their User identifier and TenantId.
+}

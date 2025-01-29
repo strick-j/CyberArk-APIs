@@ -1,0 +1,85 @@
+meta {
+  name: Register tenant URL
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantId}}.id.cyberark.cloud/TenantCnames/Register?cnamePrefix=bruno-test
+  body: none
+  auth: none
+}
+
+query {
+  cnamePrefix: bruno-test
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Register tenant URL
+  If the cname is the only user created, it is set as preferred cname.
+  
+  ### URL
+  https://<tenantShortId>.id.cyberark.com/TenantCnames/Register
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.id.cyberark.com/TenantCnames/Register?customCname=api-test
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "success": true,
+    "Result": {
+  
+    },
+    "Message": null,
+    "MessageID": null,
+    "Exception": null,
+    "ErrorID": null,
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  #### 200 OK - Error
+  ```
+  {
+    "success": false,
+    "Result": null,
+    "Message": "Operation is not valid due to the current state of the object.",
+    "MessageID": "_I18N_System.InvalidOperationException",
+    "Exception": "System.InvalidOperationException: Operation is not valid due to the current state of the object.\r\n   at CyberArkIdentity.Cloud.Core.TenantCnames.TenantCnamesController.<>c__DisplayClass7_0.<Register>b__0()\r\n   at CyberArkIdentity.Cloud.Core.RestHelpers.JsonRest.StandardJsonResult(Func`1 action)",
+    "ErrorID": "30bb5ff7-6eee-49e3-86a9-d0dae1781a51:c75618df52c14d63abddbe910a93f342",
+    "ErrorCode": null,
+    "IsSoftError": false,
+    "InnerExceptions": null
+  }
+  ```
+  
+  
+}
