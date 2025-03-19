@@ -1,0 +1,158 @@
+meta {
+  name: Add Target Sets Bulk
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/targetsets/bulk
+  body: json
+  auth: none
+}
+
+params:query {
+  ~b64StartKey: 
+  ~name: 
+  ~strongAccountId: 
+}
+
+body:json {
+  {
+    "target_sets_mapping": [
+      {
+        "strong_account_id": "{{strong_account_id}}",
+        "target_sets":  [
+          {
+            "name": "example.example.com",
+            "provision_format": "<user>-<session-guid>",
+            "description": "Example for Bruno",
+            "enable_certificate_validation": true,
+            "secret_type": "PCloudAccount",
+            "secret_id": "{{strong_account_id}}",
+            "type": "Target"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  strong_account_id: abcd1234-1234-abcd-1234-d898abcd1234
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  await platformTokenAuth.login();
+  
+  // Sets accountId for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('strong_account_id', bru.getEnvVar('testSiaStrongAccountId'));
+    tools.log('Strong Account Id: ' + bru.getVar('strong_account_id'))
+  }
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## ADD SIA Target Sets - Bulk
+  
+  Adds a bulk of target sets to the SIA service. The bulk also includes the appropriate strong account IDs.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/targetsets/bulk
+  ```
+  
+  ### Method
+  POST
+  
+  ### Example Reqeust Body
+  ```
+  {
+    "target_sets_mapping": [
+      {
+        "strong_account_id": "string",
+        "target_sets": [
+          {
+            "name": "string",
+            "description": "string",
+            "provision_format": "string",
+            "enable_certificate_validation": true,
+            "secret_type": "IdentityUser",
+            "secret_id": "string",
+            "type": "Domain"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  
+  ### Example Response Body - 207 Success
+  ```
+  {
+    "results": [
+      {
+        "strong_account_id": "abcd1234-1234-abcd-1234-d898abcd1234",
+        "target_set_name": "example.example.com",
+        "success": true
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  #### 207 Error Example
+  ```
+  {
+    "results": [
+      {
+        "strong_account_id": "{{process.env.TEST_SIA_STRONG_ACCT_ID}}",
+        "target_set_name": "example.example.com",
+        "success": false
+      }
+    ]
+  }
+  ```
+  
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |207|Error or Success - Review Success Field|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

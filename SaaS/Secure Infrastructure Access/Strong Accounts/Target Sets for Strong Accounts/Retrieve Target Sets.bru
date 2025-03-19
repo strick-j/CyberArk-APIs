@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/discovery/targetsets
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/targetsets
   body: none
   auth: none
 }
 
-query {
+params:query {
   ~b64StartKey: 
   ~name: 
   ~strongAccountId: 
@@ -59,7 +59,7 @@ docs {
   
   ### Endpoint
   ```
-  https://subdomain-jit.cyberark.cloud/api/discovery/targetsets
+  https://subdomain-jit.cyberark.cloud/api/targetsets
   ```
   
   ### Method
