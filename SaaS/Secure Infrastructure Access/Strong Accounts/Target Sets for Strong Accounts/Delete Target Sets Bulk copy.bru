@@ -1,0 +1,103 @@
+meta {
+  name: Delete Target Sets Bulk copy
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/targetsets/bulk
+  body: json
+  auth: none
+}
+
+params:query {
+  ~b64StartKey: 
+  ~name: 
+  ~strongAccountId: 
+}
+
+body:json {
+  ["example.example.com"]
+}
+
+vars:pre-request {
+  target_set_name: example.example.com
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Delete SIA Target Sets - Bulk
+  
+  Deletes a bulk of target sets from the SIA service. The request body should contain a list of strings representing the target set names to deleted.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/targetsets/bulk
+  ```
+  
+  ### Method
+  DELETE
+  
+  ### Example Reqeust Body
+  ```
+  ["string","string"]
+  ```
+  Note: The string should be the "target_set_name"
+  
+  ### Example Response Body - 207 Success
+  ```
+  {
+    "results": [
+      {
+        "strong_account_id": null,
+        "target_set_name": "example.example.com",
+        "success": true
+      }
+    ]
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |207|Error or Success - Review Success Field|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}
