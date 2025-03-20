@@ -1,5 +1,5 @@
 meta {
-  name: Strong Accounts
+  name: Strong Accounts v1
   type: http
   seq: 1
 }
@@ -10,11 +10,11 @@ get {
   auth: none
 }
 
-query {
+params:query {
+  ~secret_details: 
   ~offset: 4
   ~count: 2
   ~any_details: 
-  ~secret_details: 
   ~secret_name: 
   ~secret_type: 
 }
@@ -32,14 +32,6 @@ script:pre-request {
 
 script:post-response {
   const tools = require('./tools/tools');
-  
-  // Sets strong Account ID for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    tools.log('Setting Variables');
-    bru.setVar('strong_account_id', res.body[0].secret_id);
-    tools.log('Strong Account Id: ' + bru.getVar('strong_account_id'))
-  }
   
   // Log on error
   if (res.status != 200) {

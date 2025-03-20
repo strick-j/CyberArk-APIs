@@ -1,0 +1,122 @@
+meta {
+  name: Delete Strong Account
+  type: http
+  seq: 6
+}
+
+delete {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1/{{secret_id}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  secret_id: 49cf0093-9780-4cc5-bdcd-82c743ee6377
+}
+
+assert {
+  res.status: eq 204
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets Secret Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('secret_id', bru.getVar('siaSecretId'));
+    tools.log('Secret Id: ' + bru.getVar('secret_id'))
+  }
+  
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Delete SIA Strong Account
+  
+  Deletes an existing strong account from the DPA database. This renders invalid any stored data such as a target set belonging to the strong account with the given ID. Therefore, all target sets for this strong account should be deleted first. To delete all the linked target sets, first, list all target sets for the strong account ID to get the names by running GET /api/discovery/targetsets?strongAccountId={strong_account_id}. Then bulk delete them using DELETE /api/discovery/targetsets/bulk with a list of the target sets’ names. Once this is done you can safely delete the strong account.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1/{{secret_id}}
+  ```
+  ### Method
+  DELETE
+  
+  ### Example Request Body
+  NA
+  
+  ### Example Response Body - 204 No Response
+  ```
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  #### Error Example - 400 Bad Request
+  ```
+  {
+    "error": "Failed to parse secret to add",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  #### Error Example - 403 Forbidden
+  ```
+  {
+    "message": "Invalid key=value pair (missing equal-sign) in Authorization header (hashed with SHA-256 and encoded with Base64): 'R1bsoN6znZ6FHle/5WgWMk/nLmCmKzqnEqtSot/HEqM='."
+  }
+  ```
+  
+  #### Error Example - 404 Not Found
+  ```
+  {
+    "error": "Failed to retrieve secret from secret store",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  #### Error Example - 500 Internal Server Error
+  ```
+  {
+    "error": "Failed to add secret",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

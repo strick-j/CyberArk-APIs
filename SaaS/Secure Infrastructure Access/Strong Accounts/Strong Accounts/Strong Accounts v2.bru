@@ -1,0 +1,85 @@
+meta {
+  name: Strong Accounts v2
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v2
+  body: none
+  auth: none
+}
+
+params:query {
+  ~any_details: 
+  ~secret_details: 
+  ~secret_name: 
+  ~secret_type: 
+  ~b64StartKey: 
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## SIA Strong Accounts
+  
+  Retrieves a page displaying a list of strong accounts, along with a key to the next page, if available.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v2
+  ```
+  
+  ### Method
+  GET
+  
+  ### Example Response Body
+  ```
+  {
+    "secrets": [],
+    "b64_last_evaluated_key": "eyJ0ZW5hEXAMPLEMmIyMTFlIn19"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}

@@ -1,17 +1,17 @@
 meta {
   name: Strong Accounts by Id
   type: http
-  seq: 2
+  seq: 4
 }
 
 get {
-  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1/{{strong_account_id}}
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1/{{secret_id}}
   body: none
   auth: none
 }
 
 vars:pre-request {
-  strong_account_id: ea85ebb6-4b23-49d7-968b-ee03cbb1d1c3
+  secret_id: ea85ebb6-4b23-49d7-968b-ee03cbb1d1c3
 }
 
 assert {
@@ -21,9 +21,19 @@ assert {
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets Account Id, Safe Name, and Secret Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('secret_id', bru.getVar('siaSecretId'));
+    tools.log('Secret Id: ' + bru.getVar('secret_id'));
+  }
+  
 }
 
 docs {
@@ -33,7 +43,7 @@ docs {
   
   ### Endpoint
   ```
-  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1/{strong_account_id}
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1/{secret_id}
   ```
   
   ### Method
@@ -59,7 +69,7 @@ docs {
     "is_rotatable": false,
     "creation_time": "2023-12-12T20:15:15",
     "last_modified": "2024-08-22T18:37:03",
-    "secret_name": "EX-WIN-LOC-ADM_Operating System-EX-WIN-SERVER-LOCAL-A-ccp.example.com-Administrator"
+    "secret_name": "example-example-example.com"
   }
   ```
   

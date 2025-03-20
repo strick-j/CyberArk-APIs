@@ -1,0 +1,176 @@
+meta {
+  name: Create Strong Account
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "is_active": true,
+    "secret": {
+      "secret_data": {
+        "account_name": "{{privilegeCloudAccountId}}",
+        "safe": "{{privilegeCloudSafe}}"
+      }
+    },
+    "secret_details": {
+      "account_domain": "local",
+      "certFileName": "",
+      "domain": "",
+      "domains": []
+    },
+    "secret_name": "{{privilegeCloudAccountId}}",
+    "secret_type": "PCloudAccount"
+  }
+}
+
+vars:pre-request {
+  privilegeCloudAccountId: exampe-example-example.com
+  privilegeCloudSafe: example
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets Safe Name and Account ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('privilegeCloudAccountId', bru.getEnvVar('testSisStrongAccountPCloudId'));
+    tools.log('Account Id: ' + bru.getVar('privilegeCloudAccountId'))
+    bru.setVar('privilegeCloudSafe', bru.getEnvVar('testSiaStrongAccountPCloudSafe'));
+    tools.log('Safe Name: ' + bru.getVar('privilegeCloudAccountSafe'))
+  }
+  
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Sets strong Account ID for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('siaSecretId', res.body.secret_id);
+    tools.log('Secret Id: ' + bru.getVar('siaSecretId'))
+  }
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Create SIA Strong Account
+  
+  Adds a new strong account to the DPA database. This strong account contains secret data based on the type and will be encrypted upon storage. Upon completion, a strong account ID is returned which should be used to add a target set for the specific strong account.
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1
+  ```
+  
+  ### Method
+  POST
+  
+  ### Example Request Body
+  ```
+  {
+    "is_active": true,
+    "secret": {
+      "secret_data": {
+        "account_name": "example-example-example.com",
+        "safe": "example"
+      }
+    },
+    "secret_details": {
+      "account_domain": "local",
+      "certFileName": "",
+      "domain": "",
+      "domains": []
+    },
+    "secret_name": "example",
+    "secret_type": "PCloudAccount"
+  }
+  ```
+  
+  ### Example Response Body - 201 Created
+  ```
+  {
+    "secret_id": "87123484-1234-1234-1234-11012ff51234",
+    "tenant_id": "28123495-1234-1234-1234-026a68521234",
+    "secret": {
+      "secret_data": "AQICAHiEXAMPLEZvAAABIjCCAR4GCSqGSIb3DQEHBqCCAQ8wggELAgEAMIIBBAYEXAMPLExX05hn1hFOS3Qs+wfVGkl1sz5MUFYeE88LIFAsLZrfs6ZQqj",
+      "tenant_encrypted": true
+    },
+    "secret_type": "PCloudAccount",
+    "secret_details": {
+      "account_domain": "local",
+      "certFileName": "",
+      "domain": "",
+      "domains": []
+    },
+    "is_active": true,
+    "is_rotatable": false,
+    "creation_time": "2025-03-20T16:08:36+0000",
+    "last_modified": "2025-03-20T16:08:36+0000",
+    "secret_name": "example-example-example.com"
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  #### Error Example - 400 Bad Request
+  ```
+  {
+    "error": "Failed to parse secret to add",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  #### Error Example - 500 Internal Server Error
+  ```
+  {
+    "error": "Failed to add secret",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}
