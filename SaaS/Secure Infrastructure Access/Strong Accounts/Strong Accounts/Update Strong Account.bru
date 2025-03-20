@@ -1,0 +1,154 @@
+meta {
+  name: Update Strong Account
+  type: http
+  seq: 5
+}
+
+put {
+  url: https://{{identityTenantName}}-jit.cyberark.cloud/api/secrets/public/v1/{{secret_id}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "is_active": true,
+    "secret": {
+      "secret_data": {
+        "account_name": "{{privilegeCloudAccountId}}",
+        "safe": "{{privilegeCloudSafe}}"
+      }
+    },
+    "secret_details": {
+      "account_domain": "local",
+      "certFileName": "",
+      "domain": "example",
+      "domains": []
+    },
+    "secret_name": "{{privilegeCloudAccountId}}",
+    "secret_type": "PCloudAccount"
+  }
+}
+
+vars:pre-request {
+  secret_id: ea85ebb6-4b23-49d7-968b-ee03cbb1d1c3
+  privilegeCloudAccountId: exampe-example-example.com
+  privilegeCloudSafe: example
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets Account Id, Safe Name, and Secret Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('secret_id', bru.getVar('siaSecretId'));
+    tools.log('Secret Id: ' + bru.getVar('secret_id'))
+    bru.setVar('privilegeCloudAccountId', bru.getEnvVar('testSisStrongAccountPCloudId'));
+    tools.log('Account Id: ' + bru.getVar('privilegeCloudAccountId'))
+    bru.setVar('privilegeCloudSafe', bru.getEnvVar('testSiaStrongAccountPCloudSafe'));
+    tools.log('Safe Name: ' + bru.getVar('privilegeCloudAccountSafe'))
+  }
+  
+  
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Update SIA Strong Account
+  
+  Changes an existing strong account on the DPA database. This strong account contains secret data based on the type and is encrypted upon storage.
+  
+  ### Endpoint
+  ```
+  https://subdomain-jit.cyberark.cloud/api/secrets/public/v1/{secret_id}
+  ```
+  
+  ### Method
+  POST
+  
+  ### Example Request Body
+  ```
+  {
+    "is_active": true,
+    "secret": {
+      "secret_data": {
+        "account_name": "example-example-example.com",
+        "safe": "example"
+      }
+    },
+    "secret_details": {
+      "account_domain": "local",
+      "certFileName": "",
+      "domain": "example.com",
+      "domains": []
+    },
+    "secret_name": "example",
+    "secret_type": "PCloudAccount"
+  }
+  ```
+  
+  ### Example Response Body - 200 OK
+  ```
+  {}
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "DPA_INVALID_VALUE",
+    "message": "error message",
+    "description": "error description"
+  }
+  ```
+  
+  #### Error Example - 400 Bad Request
+  ```
+  {
+    "error": "Failed to parse secret to add",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  #### Error Example - 500 Internal Server Error
+  ```
+  {
+    "error": "Failed to add secret",
+    "stack": null,
+    "status_code": null
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Success|
+  |400|Invalid Request|
+  |500|Internal Server Error|
+}
