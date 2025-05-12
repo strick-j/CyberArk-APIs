@@ -1,23 +1,29 @@
 meta {
-  name: Configure BYOK
+  name: BYOK Status v2
   type: http
-  seq: 2
+  seq: 1
 }
 
-post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/byok/configure
+get {
+  url: https://{{identityTenantName}}.ekp.cyberark.cloud/api/byok
   body: none
   auth: none
 }
 
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
 docs {
-  ## Configure BYOK
-  This API configures your KMS key in the Privilege Cloud BYOK service. In response, Privilege Cloud verifies access to your key.
+  ## BYOK Status
+  This API retrieves the BYOK status of the system, access policy, current key in use, and customer details.
   
-  The result indicates if Privilege Cloud successfully accessed your key, and that it can be used for data encryption within Privilege Cloud.
-  
-  > ***CAUTION***
-  > - Before running the Configure BYOK API, ensure that you there is no encryption key change in progress. This means that you have not run the Enable BYOK or Disable BYOK APIs in the last 20 minutes.
+  | Call # | Retrieved Details |
+  | :-- | :-- |
+  | First Time Call | The policy to be used for the BYOK service in the encryption key. To be copied into your KMS key. Integration status with your key. The key currently in use for encryption: Your key or CyberArk KMS Key |
+  | Subsequent Calls | As in the initial response, with the addition of your customer details |
   
   > ***IMPORTANT***
   > - Customers that configured BYOK using Gen1 KMS policy (prior to May 2024)
@@ -26,34 +32,29 @@ docs {
   
   ### Required User Permissions
   To run this API, the user must be assigned to one of the following roles:
+  - Identity Administration - System Administrator
   - Privilege Cloud Administrator
   - Privilege Cloud Administrator Basic
   - Privilege Cloud Administrator Lite
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok/configure
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok
   
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | POST | application/json |
+  | GET | application/json |
   
-  #### Request Body Parameters
-  | Parameter | Type | Description |
-  | :-- | :-- | :-- |
-  | kms_arn | string | The arn of your KMS as copied from AWS KMS. |
+  #### Request URL Parameters
+  None
   
   ### Example Request Body
-  ```
-  {
-    "kms_arn": "arn:string"
-  }
-  ```
+  None
   
   #### Example Response
   ```
   {
-    "message":"Customer key is verified and set successfully.",
+    "message":"BYOK details.",
     "status":"BYOK OFF",
     "customer_key_details":{
       "key_arn":"<customer_key_arn>",

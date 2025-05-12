@@ -1,0 +1,108 @@
+meta {
+  name: BYOK Get key policy statement v2
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://{{identityTenantName}}.ekp.cyberark.cloud/api/byok/key-policy-statement
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  // Perform authentication usings platformToken.js tools
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## BYOK Get key policy statement
+  This API retrieves the AWS policy statements that allow CyberArk BYOK service to access the AWS key.
+  
+  ### Required User Permissions
+  To run this API, the user must be assigned to one of the following roles:
+  - Identity Administration - System Administrator
+  - Privilege Cloud Administrator
+  - Privilege Cloud Administrator Basic
+  - Privilege Cloud Administrator Lite
+  
+  ### Request URL
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/byok
+  
+  #### Request Resource Information
+  | HTTP Method | Content Type |
+  | :-- | :-- |
+  | GET | application/json |
+  
+  #### Request URL Parameters
+  None
+  
+  ### Example Request Body
+  None
+  
+  #### Example Response
+  ```
+  {
+    "instructions": "Please copy all policy statements into your KMS policy, without the surrounding markers. Ensure that the Sid 'Allow Encryption of customer data by CyberArk' and the Sid 'Allow Decryption of customer data by CyberArk' are present.",
+    "statement": [
+      ">>> COPY AND PASTE THE STATEMENTS BELOW THIS LINE. THIS LINE MUST NOT BE INCLUDED. <<<",
+      {
+        "Sid": "Allow Encryption of customer data by CyberArk",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::091234567899:root"   },
+        "Condition": {
+          "ArnEquals": {
+            "aws:PrincipalArn": [
+              "arn:aws:iam::091234567899:role/EKP-[AWS_region]-AssumedCmkEncSecRL",
+              "arn:aws:iam::091234567899:role/EKP-[AWS_region]-AssumedCmkEncPiiRL"
+            ]
+          }
+        },    "Action": [
+          "kms:Encrypt",
+          "kms:GenerateDataKey",
+          "kms:DescribeKey",
+          "kms:ReEncrypt*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow Decryption of customer data by CyberArk",
+        "Effect": "Allow",
+        "Principal": {    "AWS": "arn:aws:iam::091234567899:root"
+        },
+        "Condition": {
+          "ArnEquals": {
+            "aws:PrincipalArn": [
+              "arn:aws:iam::091234567899:role/EKP-[AWS_region]-AssumedCmkDecSecRL",
+              "arn:aws:iam::091234567899:role/EKP-[AWS_region]-AssumedCmkDecPiiRL"
+            ]
+          }
+        },"Action": [
+          "kms:DescribeKey",
+          "kms:Decrypt"
+        ],
+        "Resource": "*"
+      },
+      ">>> END OF THE STATEMENTS TO BE COPIED. THIS LINE MUST NOT BE INCLUDED. <<<"
+    ]
+  }
+  ```
+  
+  ### Response Codes
+  | Return Code | Code Number | Description |
+  | --- | --- | :-- |
+  | Success | 200 | The request succeeded. The actual response will depend on the request method used. |
+  | Created | 201 | The request was fulfilled and resulted in a new resource being created. |
+  | Accepted | 202 | The request has been accepted for processing. |
+  | No Content | 204 | The server successfully processed the request and is not returning any content (no response body). This code is typically returned by DELETE requests. |
+  | Bad Request | 400 | The request could not be understood by the server due to incorrect syntax. |
+  | Unauthorized | 401 | The request requires user authentication. |
+  | Forbidden | 403 | The server received and understood the request, but will not fulfill it. Authorization will not help and the request MUST NOT be repeated. |
+  | Not Found | 404 | The server did not find anything that matches the Request-URI. No indication is given of whether the condition is temporary or permanent. |
+  | Conflict | 409 | The request could not be completed due to a conflict with the current state of the resource. |
+  | Too Many Requests | 429 | The user has sent too many requests in a given amount of time ("rate limiting"). |
+  | Internal Server Error | 500 | The server encountered an unexpected condition which prevented it from fulfilling the request. |
+  | Not Implemented | 501 | The server does not support this operation due to version incompatibility. |
+}
