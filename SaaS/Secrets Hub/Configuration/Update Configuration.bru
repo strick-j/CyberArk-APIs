@@ -1,0 +1,94 @@
+meta {
+  name: Update Configuration
+  type: http
+  seq: 2
+}
+
+patch {
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/configuration
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "syncSettings": {
+      "secretValidity": 300
+    }
+  }
+}
+
+vars:pre-request {
+  storeId: store-406cfa83-80e7-44ac-abb2-53f0fe5da753
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Update Configuration
+  
+  Update Secrets Hub configuration, for example Azure secrets expiration.
+  
+  ### Endpoint
+  ```
+  https://subdomain.secretshub.cyberark.cloud/api/configuration
+  ```
+  
+  ### Method
+  PATCH
+  
+  ### Example Request Body
+  ```
+  {
+    "syncSettings": {
+      "secretValidity": 300
+    }
+  }
+  ```
+  
+  ### Example Response Body (204 OK)
+  ```
+  {
+    "syncSettings": {
+      "secretValidity": 300
+    }
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |204|OK|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |403|Forbidden|
+  |404|Not Found|
+  |500|Internal Server Error|
+}

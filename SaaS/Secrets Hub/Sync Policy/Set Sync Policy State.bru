@@ -1,13 +1,19 @@
 meta {
-  name: Get Sync Policy
+  name: Set Sync Policy State
   type: http
-  seq: 4
+  seq: 3
 }
 
-get {
-  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies/{{policyId}}
-  body: none
+put {
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies/{{policyId}}/state
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "action":"disable"
+  }
 }
 
 vars:pre-request {
@@ -15,7 +21,6 @@ vars:pre-request {
 }
 
 assert {
-  res.body: isJson
   res.status: eq 200
 }
 
@@ -53,44 +58,27 @@ script:post-response {
 }
 
 docs {
-  ## Get Sync Policy
+  ## Set Sync Policy State
   
-  Get a policy by its unique identifier.
+  Enable or disable a sync policy.
   
   ### Endpoint
   ```
-  https://subdomain.secretshub.cyberark.cloud/api/policies/{policyId}
+  https://subdomain.secretshub.cyberark.cloud/api/policies/{policyId}/state
   ```
   
   ### Method
-  GET
+  PUT
+  
+  ### Example Request Body
+  ```
+  {
+    "action":"disable"
+  }
+  ```
   
   ### Example Response Body
   ```
-  {
-    "id": "policy-62d19762-85d0-4cc0-ba44-9e0156a5c9c6",
-    "name": "Dev Team1 Policy",
-    "description": "This policy is syncing from PAM Self Hosted to us-east-1",
-    "createdAt": "2023-07-03T14:03:25.146000",
-    "updatedAt": "2023-07-03T14:03:25.146000",
-    "createdBy": "user@example.com",
-    "updatedBy": "user@example.com",
-    "source": {
-      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "target": {
-      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "filter": {
-      "id": "filter-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "transformation": {
-      "id": "trns-password-only-plaintext-aws-pam-pcloud"
-    },
-    "state": {
-      "current": "ENABLED"
-    }
-  }
   ```
   
   ### Error Response Body

@@ -1,0 +1,147 @@
+meta {
+  name: Create Sync Policy
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Test API Policy Creation",
+    "description": "Test API Creation of Policies",
+    "source": {
+      "id": "store-406cfa83-80e7-44ac-abb2-53f0fe5da753"
+    },
+    "target": {
+      "id": "store-5cb50fe2-7f41-4ceb-87b0-3150623201bf"
+    },
+    "filter": {
+      "data": {
+        "safeName": "BRU-API-TEST-SAFE"
+      },
+      "type": "PAM_SAFE"
+    }
+  }
+}
+
+assert {
+  res.body: isJson
+  res.status: eq 201
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+  
+  // Test settings
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    // Save policyId
+    if (res.body.id) {
+      bru.setVar('policyId', res.body.id);
+    }
+  }
+}
+
+docs {
+  ## Create Sync Policy
+  
+  A sync policy defines which secrets to sync from from the source secret store (PAM) to the target secret store ( AWS Secrets Manager, Azure Key Vault or GCP Secret Manager).
+  
+  ### Endpoint
+  ```
+  https://subdomain.secretshub.cyberark.cloud/api/policies
+  ```
+  
+  ### Method
+  POST
+  
+  ### Example Request Body
+  ```
+  {
+    "name": "Dev Team1 Policy",
+    "description": "This policy is syncing from PAM Self Hosted to us-east-1",
+    "source": {
+      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
+    },
+    "target": {
+      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
+    },
+    "filter": {
+      "data": {
+        "safeName": "safe-name-example"
+      },
+      "type": "PAM_SAFE"
+    },
+    "transformation": {
+      "predefined": "default"
+    }
+  }
+  ```
+  
+  ### Example Response Body (201 Created)
+  ```
+  {
+    "id": "policy-c248bccb-c30d-490e-a531-debad3880c62",
+    "name": "Test API Policy Creation",
+    "description": "Testing API Creation of Policies",
+    "createdAt": "2025-05-13T19:03:02.547000+00:00",
+    "updatedAt": "2025-05-13T19:03:02.547000+00:00",
+    "createdBy": "svc_rest_api@example.com",
+    "updatedBy": "svc_rest_api@example.com",
+    "source": {
+      "id": "store-406cfa83-80e7-44ac-abb2-53f0fe5da753"
+    },
+    "target": {
+      "id": "store-5cb50fe2-7f41-4ceb-87b0-3150623201bf"
+    },
+    "filter": {
+      "id": "filter-71517956-2745-4380-a9df-27f3e1fe3710"
+    },
+    "state": {
+      "current": "ENABLED"
+    }
+  }
+  ```
+  
+  ### Error Response Body
+  ```
+  {
+    "code": "GNRL0001E",
+    "message": "Forbidden",
+    "description": "Verify you are a member of the Secrets Hub role via Identity Administration"
+  }
+  ```
+  
+  ### Response Codes
+  |code|Description|
+  |-----|:---------------|
+  |201|Created|
+  |401|Unauthorized|
+  |403|Forbidden|
+  |500|Internal Server Error|
+}

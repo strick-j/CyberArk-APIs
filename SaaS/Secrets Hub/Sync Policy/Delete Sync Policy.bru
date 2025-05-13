@@ -1,17 +1,17 @@
 meta {
-  name: Get Sync Policy
+  name: Delete Sync Policy
   type: http
-  seq: 4
+  seq: 5
 }
 
-get {
+delete {
   url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies/{{policyId}}
-  body: none
+  body: json
   auth: none
 }
 
 vars:pre-request {
-  policyId: policy-23637733-bb28-4c25-97e7-15ea9d2320f4
+  policyId: policy-c248bccb-c30d-490e-a531-debad3880c62
 }
 
 assert {
@@ -53,9 +53,11 @@ script:post-response {
 }
 
 docs {
-  ## Get Sync Policy
+  ## Delete Sync Policy
   
-  Get a policy by its unique identifier.
+  Request to delete the referenced policy.
+  
+  Note: Delete the filer of the policy after deleting the policy.
   
   ### Endpoint
   ```
@@ -63,42 +65,30 @@ docs {
   ```
   
   ### Method
-  GET
+  DELETE
   
   ### Example Response Body
   ```
   {
-    "id": "policy-62d19762-85d0-4cc0-ba44-9e0156a5c9c6",
-    "name": "Dev Team1 Policy",
-    "description": "This policy is syncing from PAM Self Hosted to us-east-1",
-    "createdAt": "2023-07-03T14:03:25.146000",
-    "updatedAt": "2023-07-03T14:03:25.146000",
-    "createdBy": "user@example.com",
-    "updatedBy": "user@example.com",
-    "source": {
-      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "target": {
-      "id": "store-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "filter": {
-      "id": "filter-5a05468b-fa58-4bcf-84e9-62ede8af55f4"
-    },
-    "transformation": {
-      "id": "trns-password-only-plaintext-aws-pam-pcloud"
-    },
-    "state": {
-      "current": "ENABLED"
-    }
+    "message": "Sync policy and linked filter deleted successfully"
   }
   ```
   
-  ### Error Response Body
+  ### Error Response Body (400 Bad Request)
   ```
   {
-    "code": "GNRL0001E",
-    "message": "Forbidden",
-    "description": "Verify you are a member of the Secrets Hub role via Identity Administration"
+    "code": "PLCY0002E",
+    "message": "Bad Request",
+    "description": "Invalid input. Ensure all required fields are included and values are correctly formatted according to the Secrets Hub API documentation."
+  }
+  ```
+  
+  ### Error Response Body (409 Conflict)
+  ```
+  {
+    "code": "PLCY0006E",
+    "message": "Conflict with current policy state",
+    "description": "To delete a policy, it must be disabled"
   }
   ```
   
