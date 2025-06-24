@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies/{{policyId}}
+  url: https://{{identityTenantName}}.secretshub.cyberark.cloud/api/policies/{{policyId}}?projection=EXTEND
   body: none
   auth: none
+}
+
+params:query {
+  projection: EXTEND
 }
 
 vars:pre-request {
