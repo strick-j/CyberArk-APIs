@@ -233,6 +233,8 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
   - [x] Cloud Onboarding
   - [x] Secure Web Sessions
   - [x] Remote Access
+  - [x] Unified Access Policies
+  - [ ] Risk Management
 - [x] Add Changelog
 - [ ] Add more examples
 - [ ] Add development documentation
@@ -250,6 +252,8 @@ The second variable, TEST_LOG_VERBOSE, will enable verbose logging for the API. 
     - [x] Secure Infrastructure Access
     - [x] Secure Web Sessions
     - [x] Remote Access
+    - [x] Unified Access Policies
+    - [ ] Risk Management
   - [ ] Self Hosted
     - [ ] PAM
 
