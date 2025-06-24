@@ -1,0 +1,232 @@
+meta {
+  name: Create a Policy
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "metadata": {
+      "name": "Example - Create AWS IAM policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "policyTags": [
+        "testiam"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "08:00:00",
+        "toHour": "09:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:iam::123456789123:role/examplerole",
+          "workspaceId": "123456789123"
+        }
+      ]
+    },
+    "principals": [
+      {
+        "id": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
+        "name": "John@cyberark.cloud.28905",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "95B8A9B0-6DE8-465F-AB03-65766D33B05U",
+        "type": "USER"
+      }
+    ],
+    "delegation_classification": "Unrestricted"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.link) {
+      tools.log('Link: ' + res.body.link)
+    }
+  }
+}
+
+docs {
+  ## Create a policy
+  
+  ### URL
+  https://<tenantShortId>.uap.cyberark.cloud/api/policies
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://abc1234.uap.cyberark.cloud/api/policies
+  
+  
+  #### Request Body Example
+  ```
+  {
+    "metadata": {
+      "name": "Example - Create AWS IAM policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "policyTags": [
+        "testiam"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "08:00:00",
+        "toHour": "09:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:iam::123456789123:role/examplerole",
+          "workspaceId": "123456789123"
+        }
+      ]
+    },
+    "principals": [
+      {
+        "id": "c2c7bcc6-9560-44e0-8dff-5be221cd37ee",
+        "name": "John@cyberark.cloud.28905",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "95B8A9B0-6DE8-465F-AB03-65766D33B05U",
+        "type": "USER"
+      }
+    ],
+    "delegation_classification": "Unrestricted"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "policyId": "fg55dvba-4d5f-5712-8fda-da03cedvab10"
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+}

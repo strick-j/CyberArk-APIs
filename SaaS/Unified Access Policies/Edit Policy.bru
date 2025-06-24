@@ -1,0 +1,253 @@
+meta {
+  name: Edit Policy
+  type: http
+  seq: 4
+}
+
+put {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies/{{policyId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "metadata": {
+      "policyId": "aws_sso_3d4f67be-d149-4751-9197-a92007c6f340",
+      "name": "Example - Edit AWS IAM Identity Center policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "policyTags": [
+        "test",
+        "test2"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "10:00:00",
+        "toHour": "11:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "123456789123",
+          "orgId": "202555555555"
+        },
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "987654321987",
+          "orgId": "202555555555"
+        }
+      ]
+    },
+    "principals": [
+      {
+        "id": "bb1234fc-69d2-49e6-ab57-49b285ab2ehh",
+        "name": "John@cyberark.cloud.27859",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "61cc29ab-c50d-c555-abcd-c92491c592ab",
+        "type": "USER"
+      }
+    ],
+    "delegation_classification": "Unrestricted"
+  }
+}
+
+vars:pre-request {
+  policyId: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.link) {
+      tools.log('Link: ' + res.body.link)
+    }
+  }
+}
+
+docs {
+  ## Edit a Policy
+  
+  ### URL
+  https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | PUT |
+  | :-- | :-- |
+  
+  #### Example URI
+  > PUT https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  #### Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | yes | The Unique Id of the policy to edit - e.g. 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
+  
+  #### Request Body Example
+  ```
+  {
+    "metadata": {
+      "policyId": "aws_sso_3d4f67be-d149-4751-9197-a92007c6f340",
+      "name": "Example - Edit AWS IAM Identity Center policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "policyTags": [
+        "test",
+        "test2"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "10:00:00",
+        "toHour": "11:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "123456789123",
+          "orgId": "202555555555"
+        },
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "987654321987",
+          "orgId": "202555555555"
+        }
+      ]
+    },
+    "principals": [
+      {
+        "id": "bb1234fc-69d2-49e6-ab57-49b285ab2ehh",
+        "name": "John@cyberark.cloud.27859",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "61cc29ab-c50d-c555-abcd-c92491c592ab",
+        "type": "USER"
+      }
+    ],
+    "delegation_classification": "Unrestricted"
+  }
+  ```
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  No Response Body
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  
+}

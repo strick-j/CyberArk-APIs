@@ -1,0 +1,142 @@
+meta {
+  name: Get Policies
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.link) {
+      tools.log('Link: ' + res.body.link)
+    }
+  }
+}
+
+docs {
+  ## Get Policies
+  
+  ### URL
+  https://{tenant_subdomain}.uap.cyberark.cloud/api/policies
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://{tenant_subdomain}.uap.cyberark.cloud/api/policies
+  
+  #### Request Body
+  No Request Body
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "results": [
+      {
+        "metadata": {
+          "policyId": "fg55dvba-4d5f-5712-8fda-da03cedvab10",
+          "name": "Access Policy for Cosmos DB",
+          "description": "string",
+          "status": {
+            "status": "Active",
+            "statusCode": "string",
+            "statusDescription": "string",
+            "link": "string"
+          },
+          "policyTags": [
+            "string"
+          ],
+          "timeFrame": {
+            "fromTime": "2023-07-05T12:34:56",
+            "toTime": "2023-07-06T12:34:56"
+          },
+          "timeZone": "string",
+          "createdBy": {
+            "user": "string",
+            "time": "2019-08-24T14:15:22Z"
+          },
+          "updatedBy": {
+            "user": "string",
+            "time": "2019-08-24T14:15:22Z"
+          },
+          "policyEntitlement": {
+            "targetCategory": "Cloud Console",
+            "locationType": "AWS",
+            "policyType": "Recurring"
+          }
+        },
+        "principals": [
+          {
+            "id": "string",
+            "name": "string",
+            "sourceDirectoryName": "string",
+            "sourceDirectoryId": "string",
+            "type": "USER"
+          }
+        ],
+        "delegationClassification": "Restricted",
+        "conditions": {
+          "accessWindow": {
+            "daysOfTheWeek": [
+              null
+            ],
+            "fromHour": "string",
+            "toHour": "string"
+          },
+          "maxSessionDuration": 1
+        }
+      }
+    ],
+    "nextToken": "string",
+    "total": -2147483648
+  }
+  ```
+  
+  
+}

@@ -1,0 +1,175 @@
+meta {
+  name: Validate Policy
+  type: http
+  seq: 6
+}
+
+put {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies/{{policyId}}/validate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "metadata": {
+      "policyId": "aws_sso_3d4f67be-d149-4751-9197-a92007c6f340",
+      "name": "Example - Edit AWS IAM Identity Center policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "policyTags": [
+        "test",
+        "test2"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "10:00:00",
+        "toHour": "11:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "123456789123",
+          "orgId": "202555555555"
+        },
+        {
+          "roleId": "arn:aws:sso:::permissionSet/ssoins-123456cf01234b990/ps-5ada000000dbc26b",
+          "workspaceId": "987654321987",
+          "orgId": "202555555555"
+        }
+      ]
+    },
+    "principals": [
+      {
+        "id": "bb1234fc-69d2-49e6-ab57-49b285ab2ehh",
+        "name": "John@cyberark.cloud.27859",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "61cc29ab-c50d-c555-abcd-c92491c592ab",
+        "type": "USER"
+      }
+    ],
+    "delegation_classification": "Unrestricted"
+  }
+}
+
+vars:pre-request {
+  policyId: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', bru.getEnvVar('testIdentityUserId'));
+    tools.log('User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Validate a Policy
+  
+  ### URL
+  https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}/validate
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  #### Example URI
+  > POST https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}/validate
+  
+  #### Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | yes | The Unique Id of the policy to validate - e.g. 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "status": "VALIDATING"
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  
+}

@@ -1,0 +1,180 @@
+meta {
+  name: Get Policy
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies/{{policyId}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+vars:pre-request {
+  policyId: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+  // Sets user_id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('user_id', bru.getEnvVar('testIdentityUserId'));
+    tools.log('User Id: ' + bru.getVar('user_id'))
+  }
+}
+
+docs {
+  ## Get a Policy
+  
+  ### URL
+  https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  #### Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | yes | The Unique Id of the policy to retrieve - e.g. 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "metadata": {
+      "policyId": "aws_d123e53b-151e-123b-8f07-9ea55888abc5",
+      "name": "Example - Get AWS IAM policy",
+      "description": "Example policy",
+      "status": {
+        "status": "Active",
+        "statusCode": "",
+        "statusDescription": "",
+        "link": ""
+      },
+      "timeFrame": {
+        "fromTime": "2023-07-05T12:34:56",
+        "toTime": "2023-07-06T12:34:56"
+      },
+      "policyEntitlement": {
+        "targetCategory": "Cloud console",
+        "locationType": "AWS",
+        "policyType": "Recurring"
+      },
+      "createdBy": {
+        "user": "John",
+        "time": "2024-04-17T07:53:00.444004+00:00"
+      },
+      "updatedOn": {
+        "user": "John",
+        "time": "2024-04-17T07:53:00.444010+00:00"
+      },
+      "policyTags": [
+        "testaws"
+      ],
+      "timeZone": "Asia/Calcutta"
+    },
+    "conditions": {
+      "accessWindow": {
+        "daysOfTheWeek": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "fromHour": "08:00:00",
+        "toHour": "09:00:00"
+      },
+      "maxSessionDuration": 1
+    },
+    "principals": [
+      {
+        "id": "c2c7bcc6-1230-11e0-8dff-5be221cd37ff",
+        "name": "John@cyberark.cloud.26111",
+        "sourceDirectoryName": "CyberArk Cloud Directory",
+        "sourceDirectoryId": "09B9A9B0-6CE8-123F-AB03-65766D33B05U",
+        "type": "USER"
+      }
+    ],
+    "delegationClassification": "Unrestricted",
+    "targets": {
+      "targets": [
+        {
+          "roleId": "arn:aws:iam::123456789123:role/ExampleReadrole1",
+          "workspaceId": "123456789123",
+          "roleName": "ExampleReadrole1",
+          "workspaceName": "dev"
+        }
+      ]
+    }
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  
+}

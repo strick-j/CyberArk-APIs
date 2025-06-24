@@ -1,0 +1,119 @@
+meta {
+  name: Delete Policy
+  type: http
+  seq: 3
+}
+
+delete {
+  url: https://{{identityTenantName}}.uap.cyberark.cloud/api/policies/{{policyId}}
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+vars:pre-request {
+  policyId: 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+  
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+    if (res.body.link) {
+      tools.log('Link: ' + res.body.link)
+    }
+  }
+}
+
+docs {
+  ## Delete policy
+  
+  ### URL
+  https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | DELETE |
+  | :-- | :-- |
+  
+  #### Example URI
+  > DELETE https://{tenant_subdomain}.uap.cyberark.cloud/api/policies/{policyId}
+  
+  #### Path Parameters
+  | Parameter | Type | Required | Description |
+  | :-- | :-- | :-- | :-- |
+  | policyId | string | yes | The Unique Id of the policy to delete - e.g. 3639c48b-9b0c-4017-ba10-bf5fb70cfb3d |
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  No Response
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "UAP9999",
+    "message": "General Error",
+    "description": "General Error",
+    "link": "string"
+  }
+  ```
+  
+}
