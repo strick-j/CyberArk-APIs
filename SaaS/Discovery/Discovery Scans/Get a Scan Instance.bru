@@ -1,21 +1,22 @@
 meta {
-  name: Delete a Discovery Rule Set
+  name: Get a Scan Instance
   type: http
-  seq: 5
+  seq: 7
 }
 
-delete {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{set-id}}
+get {
+  url: https://{{identityTenantName}}.discoverymgmt.cyberark.cloud/api/scan-instances/{{scanInstanceId}}
   body: none
   auth: none
 }
 
 vars:pre-request {
-  set-id: 
+  scanInstanceId: 
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 200
+  res.body: isJson
 }
 
 script:pre-request {
@@ -25,12 +26,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets Rule Set Id for testing based on environment flag and variables
+  // Sets Scan Instance Id for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('set-id', bru.getVar('pasRuleSetId'));
-    tools.log('Rule Set Id: ' + bru.getVar('set-id'))
+    bru.setVar('scanInstanceId', bru.getVar('pasScanInstanceId'));
+    tools.log('Scan Definition Id: ' + bru.getVar('scanInstanceId'))
   }
 }
 
@@ -39,7 +40,7 @@ script:post-response {
   const tools = require('./tools/tools');
   
   // Log on error
-  if (res.status != 204) {
+  if (res.status != 200) {
     if (res.body.Message) {
       tools.log('Message: ' + res.body.Message);
     }
@@ -58,17 +59,16 @@ script:post-response {
 }
 
 docs {
-  ## Delete a discovery rule set
-  This method deletes one of the discovery rule sets.
+  ## Get a Scan Instance 
+  This method retrieves details about a specific scan.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{set-id}
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-instances/{scanInstanceId}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -78,18 +78,54 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | DELETE | application/json |
+  | GET | application/json |
   
-  #### Request URL Parameters
+  #### Request Query Parameters
   None
   
   #### Example Request Body
-  None 
+  None
   
   ### Response
-  #### Example Response (204 OK)
+  #### Example Response
   ```
-  ""
+  {
+    "id": "02f7334e-dc87-4ca0-bf7b-49dcd5386d30",
+    "scanDefinitionId": "1f848b42-895f-46f0-9f82-4a39a8350da6",
+    "credentials": [
+      {
+        "name": "domain admin",
+        "type": "account",
+        "properties": {
+          "account_id": "63_5"
+        }
+      }
+    ],
+    "type": "windows_domain",
+    "properties": {
+      "ou": "",
+      "domain": "example.local"
+    },
+    "creationTime": "2024-06-03T20:42:24Z",
+    "updateTime": "2024-06-03T20:50:03Z",
+    "status": "COMPLETED",
+    "result": {
+      "scanID": "02f7334e-dc87-4ca0-bf7b-49dcd5386d30",
+      "scanResult": "Success",
+      "scanStartTime": "2024-03-6--20-43-02",
+      "engineVersion": "1.0.0.0",
+      "totalScanDuration": "0:3:8",
+      "totalDiscoveredAccounts": 54,
+      "totalMachinesRequested": 5,
+      "machinesScannedSuccessfully": 5,
+      "machinesScannedWithErrors": 0
+    },
+    "reason": "Success",
+    "tags": [],
+    "networkId": null,
+    "connectorId": null,
+    "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
+  }
   ```
   
   ### Response Codes

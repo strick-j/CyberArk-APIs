@@ -1,77 +1,59 @@
 meta {
-  name: Edit a Scan Scan Definition
+  name: Define a Scan Resource
   type: http
-  seq: 2
+  seq: 11
 }
 
-put {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-definitions/{{scanDefinitionId}}
+post {
+  url: https://{{identityTenantName}}.discoverymgmt.cyberark.cloud/api/discovery-scans/resources
   body: json
   auth: none
 }
 
 body:json {
   {
-    "name": "Bru Demo Scan Updated",
-    "type": "WIN_NIX_DOMAIN",
-    "properties": {
-      "ou": "DC=example,DC=local",
-      "domain": "example.local"
-    },
-    "recurrenceType": "recurring",
-    "recurrenceData": {
-      "repeatPattern": "DAILY",
-      "date": "{{startDate}}",
-      "daysOfWeek": ["SUNDAY"],
-      "times": ["12:30"],
-      "timeZone":"America/Chicago"
-    },
-    "credentials": [
-      {
-        "name": "domain admin",
-        "type": "account",
-        "properties": {
-          "account_id": "63_5"
+    "type":"WIN_NIX_LIST",
+    "name":"list_scan_sample.csv",
+    "content": {
+      "machineList": [
+        {
+          "Address":"sampleaddress.com",
+           "Tags": ["sampleTag"]
         }
-      }
-    ],
-    "tags": []
+      ]
+    }
   }
 }
 
 vars:pre-request {
   scanDefinitionId: 
-  startDate: 
 }
 
 assert {
-  res.status: eq 202
+  res.status: eq 201
   res.body: isJson
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
-  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
-  
-  // Sets Scan Definition Id for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    tools.log('Setting Variables');
-    var currentTime = new Date()
-    bru.setVar('scanDefinitionId', bru.getVar('pasScanDefinitionId'));
-    // Scan will be scheduled to start one year from now.
-    bru.setVar('startDate', (currentTime.getFullYear() + 1) + '-' + (currentTime.getMonth() + 1) + '-01')
-    tools.log('Scan Definition Id: ' + bru.getVar('scanDefinitionId'))
-    tools.log('Current Year: ' + bru.getVar('startDate'))
-  }
 }
 
 script:post-response {
   // Log on error
   const tools = require('./tools/tools');
+  
+  // Sets Scan Definition Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.id) {
+      tools.log('Setting Variables');
+      bru.setVar('pasScanDefinitionId', res.body.id);
+      tools.log('Scan Definition Id: ' + bru.getVar('pasScanDefinitionId'))
+    }
+  }
   
   // Log on error
   if (res.status != 200) {
@@ -93,8 +75,8 @@ script:post-response {
 }
 
 docs {
-  ## Edit a Scan definition
-  This method updates an existing scan definition to discover accounts in target machines.
+  ## Define a scan resource
+  
   
   > ***IMPORTANT***
   > - You can define up to 500 scan definitions.
@@ -106,7 +88,7 @@ docs {
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-definitions/{scanDefinitionId}
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-definitions
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -127,79 +109,38 @@ docs {
   #### Request Body Parameters
   | Parameter | Type | Required | Description
   | :-- | :-- | :-- | :-- | 
-  | name | string | yes |  |
-  | type | string | yes |  |
-  | properties | key-value list | yes |  |
-  | credentials | string or string list (key value dictionary) | yes | |
-  | networkId | string | no | |
-  | tags | string | no |  |
+  | name | string | yes | The name of the scan definition. **Valid Values:** Up to 100 alphanumeric characters including spaces and underscore, dash, period, and at signs (_ - . @). Must begin and end with a valid character and not a space. Any spaces at the beginning or end of the name are removed. |
+  | type | string | yes | The scan type to use for this scan definition. **Valid Values:** WIN_NIX_LIST, WIN_NIX_DOMAIN |
+  | properties | key-value list | yes | A list of properties that define the scan. |
+  | credentials | string or string list (key value dictionary) | yes | The credentials used to run the scan and access the target(s). |
+  | networkId | string | no | The network selected by the customer. The network must be defined in Connector Management and must be assigned to a connector pool with at least one connector. You can retrieve the list of networks that are defined in Connector Management using the List Networks API. ***NOTE:*** Required when using **List** scan type |
+  | tags | string | no | User-defined tags that are added to accounts discovered in this scan. ags are defined in separate sections per scan type:  one for domain scan and one for machine list scan. For domain scan: Up to 20 tags per scan definition, separated by comma. For list scan: 10 tags defined in the machine list + 10 tags in the domain scan definition. Combined these reach the maximum allowed number of tags per scan. |
   | recurrenceType | string | yes | Determines the recurrence policy of the scan. **Valid Values:** Immediate, Scheduled, Recurring |
   
   #### Example Request Body
   ```
   {
-    "name": "Bru Demo Scan Updated",
-    "type": "WIN_NIX_DOMAIN",
-    "properties": {
-      "ou": "DC=example,DC=local",
-      "domain": "example.local"
-    },
-    "recurrenceType": "recurring",
-    "recurrenceData": {
-      "repeatPattern": "DAILY",
-      "date": "2024-10-31",
-      "daysOfWeek": ["SUNDAY"],
-      "times": ["12:30"],
-      "timeZone":"America/Chicago"
-    },
-    "credentials": [
-      {
-        "name": "domain admin",
-        "type": "account",
-        "properties": {
-          "account_id": "63_5"
+    "type":"WIN_NIX_LIST",
+    "name":"list_scan_sample.csv",
+    "content": {
+      "machineList": [
+        {
+          "Address":"sampleaddress.com",
+           "Tags": ["sampleTag"]
         }
-      }
-    ],
-    "tags": []
+      ]
+    }
   }
   ```
   
   ### Response
-  #### Example Response (202 Accepted)
+  #### Example Response (201 Created)
   ```
   {
-    "id": "e0130277-0537-423d-9c3c-ddf1453b5d4a",
-    "name": "Bru Demo Scan Updated",
-    "type": "WIN_NIX_DOMAIN",
-    "properties": {
-      "domain": "example.local",
-      "ou": "DC=example,DC=local"
-    },
-    "recurrenceType": "RECURRING",
-    "recurrenceData": {
-      "date": "2024-10-31",
-      "timeZone": "America/Chicago",
-      "times": [
-        "12:30"
-      ],
-      "repeatPattern": "DAILY",
-      "daysOfWeek": [
-        "SUNDAY"
-      ]
-    },
-    "credentials": [
-      {
-        "name": "domain admin",
-        "type": "account",
-        "properties": {
-          "account_id": "63_5"
-        }
-      }
-    ],
-    "creationTime": "2024-10-30T19:21:08Z",
-    "updateTime": "2024-10-30T19:31:11Z",
-    "tags": []
+    "id": "89f44d4c-e3f2-44df-8015-25d80f1c25cf",
+    "type": "WIN_NIX_LIST",
+    "name": "list_scan_sample.csv",
+    "createdAt": "2025-07-18T18:58:04Z"
   }
   ```
   

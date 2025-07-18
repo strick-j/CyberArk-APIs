@@ -1,43 +1,49 @@
 meta {
-  name: Get a Discovery Rule Sets
+  name: Get All Scan Definitions
   type: http
-  seq: 2
+  seq: 4
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{set-id}}
+  url: https://{{identityTenantName}}.discoverymgmt.cyberark.cloud/api/scan-definitions?extendedDetails=false
   body: none
   auth: none
 }
 
-vars:pre-request {
-  set-id: 
+params:query {
+  extendedDetails: false
+  ~offset: 0
+  ~limit: 50
+  ~sort: id - asc
+  ~search: example
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
+  res.body.totalCount: isNumber
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
-  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
-  
-  // Set set-id for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    tools.log('Setting Variables');
-    bru.setVar('set-id', bru.getVar('pasRuleSetId'));
-    tools.log('Rule Set Id: ' + bru.getVar('set-id'))
-  }
 }
 
 script:post-response {
   // Log on error
   const tools = require('./tools/tools');
+  
+  // Sets Scan Definition Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    if (res.body.items[0].id) {
+      tools.log('Setting Variables');
+      bru.setVar('pasScanDefinitionId', res.body.items[0].id);
+      tools.log('Scan Definition Id: ' + bru.getVar('pasScanDefinitionId'))
+    }
+  }
   
   // Log on error
   if (res.status != 200) {
@@ -59,17 +65,16 @@ script:post-response {
 }
 
 docs {
-  ## Get a discovery rule set
-  This method returns information about a specific discovery rule set.
+  ## Get all scan definitions
+  This method returns information about all the defined discovery rule sets.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{set-id}
+  https://<subdomain>.discoverymgmt.cyberark.cloud/api/scan-definitions?extendedDetails=false
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -81,10 +86,13 @@ docs {
   | :-- | :-- |
   | GET | application/json |
   
-  #### Request URL Parameters
+  #### Request Query Parameters
   | Parameter | Type | Required | Description
   | :-- | :-- | :-- | :-- | 
-  | set-id | string | yes | The unique ID of the requested rule set. |
+  | search | string | no | Searches the name and properties of scan definitions. If **PerformeSearchOnAllFields** is set to **true**, searches in customProperties as well. |
+  | filter | string | no | Filter the scan definition list. If the **extendedDetails** parameter is set to **false**, you can sort according to the following properties: type, recurrenceType. If the **extendedDetails** parameter is set to **true**, you can sort according to the above properties and the following additional properties: lastInstancestatus |
+  | sort | string | no | Sort the returned list of scan definitions. Add **asc** (default) or **desc** to control sort direction. If the **extendedDetails** parameter is set to **false**, you can sort according to the following properties: creationTime (default), updateTime, name, type, recurrenceType. If the **extendedDetails** parameter is set to **true**, you can sort according to the above properties and the following additional properties: lastInstanceStatus, lastInstanceCreationTime |
+  | extendedDetails | string | no | Requests details about the last scan that was run with this scan definition. |
   
   #### Example Request Body
   None
@@ -93,91 +101,53 @@ docs {
   #### Example Response
   ```
   {
-    "name": "Example Local Windows Server Accounts",
-    "trigger": {
-      "type": "ACCOUNT_DISCOVERED",
-      "conditions": [
-        {
-          "property": "type",
-          "propertyType": "STRING",
-          "operator": "EQUALS",
-          "value": "windows"
-        },
-        {
-          "property": "subType",
-          "propertyType": "STRING",
-          "operator": "EQUALS",
-          "value": "local"
-        },
-        {
-          "property": "source",
-          "propertyType": "STRING",
-          "operator": "EQUALS",
-          "value": "discovery-scans"
-        },
-        {
-          "property": "Domain",
-          "propertyType": "STRING",
-          "operator": "EQUALS",
-          "value": "example.local"
-        }
-      ]
-    },
-    "rules": [
+    "items": [
       {
-        "name": "Non Privileged Disabled Accounts",
-        "conditions": [
+        "id": "12ec6ab2-fffc-4683-903d-070ef3337c2b",
+        "name": "Dev Demo Scan",
+        "type": "windows_domain",
+        "properties": {
+          "ou": "OU=DemoScan,OU=Windows,OU=Servers,DC=example, DC=local",
+          "domain": "example.local"
+        },
+        "recurrenceType": "immediate",
+        "credentials": [
           {
-            "property": "isPrivileged",
-            "propertyType": "BOOLEAN",
-            "operator": "EQUALS",
-            "value": "false"
-          },
-          {
-            "property": "Enabled",
-            "propertyType": "STRING",
-            "operator": "EQUALS",
-            "value": "False"
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
           }
         ],
-        "action": {
-          "type": "ONBOARD",
-          "parameters": {
-            "platformId": "WIN-SERVER-LOCAL-DIS",
-            "safeName": "WIN-SRV-DIS"
-          },
-          "subActions": []
-        }
+        "creationTime": "2024-06-03T20:10:53Z",
+        "updateTime": "2024-06-03T20:10:53Z",
+        "tags": []
       },
       {
-        "name": "Privileged Disabled Accounts",
-        "conditions": [
+        "id": "1f848b42-895f-46f0-9f82-4a39a8350da6",
+        "name": "Dev Scan",
+        "type": "windows_domain",
+        "properties": {
+          "ou": "",
+          "domain": "example.local"
+        },
+        "recurrenceType": "immediate",
+        "credentials": [
           {
-            "property": "isPrivileged",
-            "propertyType": "BOOLEAN",
-            "operator": "EQUALS",
-            "value": "true"
-          },
-          {
-            "property": "Enabled",
-            "propertyType": "STRING",
-            "operator": "EQUALS",
-            "value": "False"
+            "name": "domain admin",
+            "type": "account",
+            "properties": {
+              "account_id": "63_5"
+            }
           }
         ],
-        "action": {
-          "type": "ONBOARD",
-          "parameters": {
-            "platformId": "WIN-SERVER-LOCAL-DIS",
-            "safeName": "WIN-SRV-ADM-DIS"
-          },
-          "subActions": []
-        }
+        "creationTime": "2024-06-03T18:24:58Z",
+        "updateTime": "2024-06-03T18:24:58Z",
+        "tags": []
       }
     ],
-    "status": "INACTIVE",
-    "id": "4a201ef2-e823-46c8-8ddd-3520715f7b8c",
-    "lastModificationTime": "2024-06-03T20:54:30"
+    "totalCount": 2
   }
   ```
   
