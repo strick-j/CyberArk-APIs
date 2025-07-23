@@ -1,41 +1,49 @@
 meta {
-  name: Get All Scan Instances
+  name: Add a New Scan Instance
   type: http
-  seq: 6
+  seq: 10
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-instances
-  body: none
+post {
+  url: https://{{identityTenantName}}.discoverymgmt.cyberark.cloud/api/scan-instances
+  body: json
   auth: none
 }
 
+body:json {
+  {
+    "scanDefinitionId": "{{scanDefintionId}}"
+  }
+}
+
+vars:pre-request {
+  scanInstanceId: 
+}
+
 assert {
-  res.status: eq 200
+  res.status: eq 201
   res.body: isJson
-  res.body.totalCount: isNumber
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Sets Scan Definition Id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('scanDefinitionId', bru.getVar('pasScanDefinitionId'));
+    tools.log('Scan Definition Id: ' + bru.getVar('scanDefinitionId'))
+  }
 }
 
 script:post-response {
   // Log on error
   const tools = require('./tools/tools');
-  
-  // Sets Scan Instance Id for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    if (res.body.items[11].id) {
-      tools.log('Setting Variables');
-      bru.setVar('pasScanInstanceId', res.body.items[0].id);
-      tools.log('Scan Instance Id: ' + bru.getVar('pasScanInstanceId'))
-    }
-  }
   
   // Log on error
   if (res.status != 200) {
@@ -57,8 +65,8 @@ script:post-response {
 }
 
 docs {
-  ## Get all scan definitions
-  This method retrieves details about all scans that have been run for all scan definitions.
+  ## Add a New Scan Instance 
+  This method starts a scan, based on a scan definition ID.
   
   **Considerations for running this REST API**
   | Consideration | Description |
@@ -66,7 +74,7 @@ docs {
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-instances
+  https://<subdomain>.discoverymgmt.cyberark.cloud/api/scan-instances/{scanInstanceId}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -76,95 +84,45 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | POST | application/json |
   
   #### Request Query Parameters
   None
   
   #### Example Request Body
-  None
+  | Parameter | Type | Required | Description
+  | :-- | :-- | :-- | :-- | 
+  | scanDefinitionID | string | yes | The unique ID of the scan definition to run. **Note:** Only one scan definition can run at a time. |
   
   ### Response
-  #### Example Response
+  #### Example Response (201 Created)
   ```
   {
-    "items": [
+    "id": "8a0fe94c-809e-43b0-b95e-8d9d68177dea",
+    "scanDefinitionId": "12ec6ab2-fffc-4683-903d-070ef3337c2b",
+    "credentials": [
       {
-        "id": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
-        "scanDefinitionId": "6f9f2a9c-c495-449d-8a53-e10418eb17f3",
-        "credentials": [
-          {
-            "name": "domain admin",
-            "type": "account",
-            "properties": {
-              "account_id": "63_5"
-            }
-          }
-        ],
-        "type": "windows_domain",
+        "name": "domain admin",
+        "type": "account",
         "properties": {
-          "ou": "OU=Servers,DC=example,DC=local",
-          "domain": "example.local"
-        },
-        "creationTime": "2024-06-03T20:04:22Z",
-        "updateTime": "2024-06-03T20:12:01Z",
-        "status": "COMPLETED",
-        "result": {
-          "scanID": "9788fe9d-4ddc-4d53-93e9-d73bce28a4bc",
-          "scanResult": "Success",
-          "scanStartTime": "2024-03-6--20-05-05",
-          "engineVersion": "1.0.0.0",
-          "totalScanDuration": "0:2:45",
-          "totalDiscoveredAccounts": 54,
-          "totalMachinesRequested": 4,
-          "machinesScannedSuccessfully": 4,
-          "machinesScannedWithErrors": 0
-        },
-        "reason": "Success",
-        "tags": [],
-        "networkId": null,
-        "connectorId": null,
-        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
-      },
-      {
-        "id": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
-        "scanDefinitionId": "12ec6ab2-fffc-4683-903d-070ef3337c2b",
-        "credentials": [
-          {
-            "name": "domain admin",
-            "type": "account",
-            "properties": {
-              "account_id": "63_5"
-            }
-          }
-        ],
-        "type": "windows_domain",
-        "properties": {
-          "ou": "OU=DemoScan,OU=Windows,OU=Servers,DC=example,DC=local",
-          "domain": "example.local"
-        },
-        "creationTime": "2024-06-03T20:10:54Z",
-        "updateTime": "2024-06-03T20:12:16Z",
-        "status": "COMPLETED",
-        "result": {
-          "scanID": "b8bf2f66-01e1-40c7-ae22-78ef84eff5e9",
-          "scanResult": "Success",
-          "scanStartTime": "2024-03-6--20-11-18",
-          "engineVersion": "1.0.0.0",
-          "totalScanDuration": "0:0:17",
-          "totalDiscoveredAccounts": 19,
-          "totalMachinesRequested": 1,
-          "machinesScannedSuccessfully": 1,
-          "machinesScannedWithErrors": 0
-        },
-        "reason": "Success",
-        "tags": [],
-        "networkId": null,
-        "connectorId": null,
-        "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
+          "account_id": "63_5"
+        }
       }
     ],
-    "totalCount": 2
+    "type": "windows_domain",
+    "properties": {
+      "ou": "OU=DemoScan,OU=Windows,OU=Servers,DC=example,DC=local",
+      "domain": "example.local"
+    },
+    "creationTime": "2024-10-30T21:10:21Z",
+    "updateTime": "2024-10-30T21:10:21Z",
+    "status": "CREATED",
+    "result": {},
+    "reason": "",
+    "tags": [],
+    "networkId": null,
+    "connectorId": null,
+    "connectorPoolId": ""
   }
   ```
   

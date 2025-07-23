@@ -1,0 +1,137 @@
+meta {
+  name: Get Discovered Accounts Summary
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}-intelligence.cyberark.cloud/api/risk-posture/secure-standing-privilege/discovery
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get discovered accounts summary
+  Returns your risk posture for securing standing privileges. This includes discovered accounts, their types, and their classification (privileged, non-privileged, unknown)
+  
+  ### URL
+  https://{tenant}/api/risk-posture/secure-standing-privilege/discovery
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://{tenant}/api/risk-posture/secure-standing-privilege/discovery
+  
+  #### Request Body
+  No Request Body
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "accounts": {
+      "domainAdmins": {
+        "privileged": 0,
+        "unknown": 0,
+        "nonPrivileged": 0
+      },
+      "windowsAccounts": {
+        "privileged": 0,
+        "unknown": 0,
+        "nonPrivileged": 0
+      },
+      "macOsAccounts": {
+        "privileged": 0,
+        "unknown": 0,
+        "nonPrivileged": 0
+      },
+      "unixAccounts": {
+        "privileged": 0,
+        "unknown": 0,
+        "nonPrivileged": 0
+      },
+      "total": {
+        "privileged": 0,
+        "unknown": 0,
+        "nonPrivileged": 0
+      }
+    }
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+}

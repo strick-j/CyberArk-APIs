@@ -1,0 +1,106 @@
+meta {
+  name: Elevate Access
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/access/elevate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "organizationId": "96961234564",
+    "csp": "AWS",
+    "targets": [
+      {
+        "workspaceId": "2971234560",
+        "roleid": "arn:aws:sso:::permissionSet/ssoins-6684a323232329628/ps-08f1d232242528e",
+        "roleName": "Example"
+      }
+    ]
+  }
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Elevate Access
+  Initiates access elevation to one or more targets. Each target defines the workspace and role for which elevated access is requested.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/access/elevate
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  None
+  
+  ### Request Body
+  ```
+  {
+    "organizationId": "string",
+    "csp": "AWS",
+    "targets": [
+      {
+        "workspaceId": "string",
+        "roleid": "string",
+        "roleName": "string"
+      }
+    ]
+  }
+  ```
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "response": {
+      "organizationId": "string",
+      "csp": "AWS",
+      "results": [
+        {
+          "workspaceId": "string",
+          "roleId": "string",
+          "sessionId": "string",
+          "accessCredentials": "string",
+          "errorInfo": {
+            "code": "string",
+            "message": "string",
+            "description": "string",
+            "link": "string"
+          }
+        }
+      ]
+    }
+  }
+  ```
+  #### 500 Internal Server Error
+  ```
+  {
+    "faultCode": "1001",
+    "headerMessage": "Oops! Something went wrong",
+    "bodyMessage": "Please try again in a few minutes. If that doesn't work, contact CyberArk support.",
+    "correlationId": "47f66d88-41e7-40b2-9006-d5461a91463c",
+    "uiType": 3,
+    "innerError": "User not found"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}

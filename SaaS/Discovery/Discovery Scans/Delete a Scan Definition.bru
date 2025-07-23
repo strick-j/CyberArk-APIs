@@ -5,7 +5,7 @@ meta {
 }
 
 delete {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-definitions/{{scanDefinitionId}}
+  url: https://{{identityTenantName}}.discoverymgmt.cyberark.cloud/api/scan-definitions/{{scanDefinitionId}}
   body: json
   auth: none
 }
@@ -93,7 +93,7 @@ docs {
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-definitions
+  https://<subdomain>.discoverymgmt.cyberark.cloud/api/scan-definitions
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.

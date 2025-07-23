@@ -1,0 +1,80 @@
+meta {
+  name: Revoke Access
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/access/sessions/revoke
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "sessionIds": [
+      "2Ez7QCzG_2HxIWnE-PTjfJj-Eanlq2ROikykrqGiaes1"
+    ]
+  }
+  
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Revoke Access
+  Revokes one or more sessions by their session IDs.
+  
+  Note: Only users with the CS Admin role can revoke sessions for any user. If you don't have the CS Admin role, you can revoke your own sessions only.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/access/sessions/revoke
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  None
+  
+  ### Request Body
+  ```
+  {
+    "sessionIds": [
+      "string"
+    ]
+  }
+  ```
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "response": [
+      {
+        "sessionId": "2Ez7QCzEXAMPLErqGiaes1",
+        "revocationStatus": "REVOCATION_IN_PROGRESS"
+      }
+    ]
+  }
+  ```
+  #### 400 Bad Request
+  ```
+  {
+    "message": "string"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}

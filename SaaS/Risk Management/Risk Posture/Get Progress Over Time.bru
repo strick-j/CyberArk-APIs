@@ -1,0 +1,126 @@
+meta {
+  name: Get Progress Over Time
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}-intelligence.cyberark.cloud/api/risk-posture/secure-standing-privilege/progress
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## Get discovered accounts summary
+  A view of the total number of onboarded accounts compared to the number of discovered accounts over a specified period.
+  
+  ### URL
+  https://{tenant}/api/risk-posture/secure-standing-privilege/progress
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://{tenant}/api/risk-posture/secure-standing-privilege/progress
+  
+  #### Request Body
+  No Request Body
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "totalOnboardedThroughDiscoveryCurrent": 0,
+    "totalOnboardedCurrent": 0,
+    "progress": [
+      {
+        "dateAt": "2019-08-24",
+        "totalOnboarded": 1,
+        "totalDiscovered": 1
+      }
+    ]
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  ### 403 Forbidden
+  ```
+  {
+    "message": "Invalid key=value pair (missing equal-sign) in Authorization header (hashed with SHA-256 and encoded with Base64): 'SckkENy6V8eHYbRTGPiBoJHUymvu97Ca0fTXIY7hAWY='."
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+}

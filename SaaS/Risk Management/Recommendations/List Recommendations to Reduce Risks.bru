@@ -1,0 +1,126 @@
+meta {
+  name: List Recommendations to Reduce Risks
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.cyberark.cloud/api/recommendations
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "ID": "{{user_id}}"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+script:post-response {
+  // Log on error
+  const tools = require('./tools/tools');
+  
+  // Log on error
+  if (res.status != 200) {
+    if (res.body.message) {
+      tools.log('Message: ' + res.body.message);
+    }
+    if (res.body.code) {
+      tools.log('Code: ' + res.body.code);
+    }
+    if (res.body.description) {
+      tools.log('Description: ' + res.body.description);
+    }
+  }
+}
+
+docs {
+  ## List recommendations to reduce risks
+  
+  Returns recommendations for reducing your organization's security risks, based on the CyberArk Blueprint. You can filter the recommendations based on their severity.
+  
+  ### URL
+  https://{tenant}/api/recommendations
+  
+  ### Request Details
+  #### Request Method
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  #### Example URI
+  > GET https://{tenant}/api/recommendations
+  
+  #### Request Body
+  No Request Body
+  
+  ### Response Details
+  #### Status Codes 
+  | Code | Description |
+  | :-- | :-- |
+  | 200 | Success |
+  | 400 | Bad Request |
+  | 401 | Unauthorized |
+  | 403 | Internal Server Error |
+  
+  ### Example Responses
+  #### 200 OK
+  ```
+  {
+    "recommendations": [
+      {
+        "recommendationType": "string",
+        "value": 0,
+        "severity": "LOW",
+        "updatedTimeAt": "2019-08-24T14:15:22Z",
+        "controlFamily": "ENDPOINT_PRIVILEGE_SECURITY",
+        "tags": [
+          {
+            "tagName": "string",
+            "tagValue": "string"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+  
+  #### 400 Bad Request
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  #### 401 Unauthorized
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "code": "string",
+    "message": "string",
+    "description": "string"
+  }
+  ```
+}

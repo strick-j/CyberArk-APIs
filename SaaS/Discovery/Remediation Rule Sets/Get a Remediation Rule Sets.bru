@@ -1,48 +1,43 @@
 meta {
-  name: Get All Discovery Rule Sets
+  name: Get a Remediation Rule Sets
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{set-id}}
   body: none
   auth: none
 }
 
-query {
-  ~offset: 0
-  ~limit: 50
-  ~sort: id - asc
-  ~search: example
+vars:pre-request {
+  set-id: 
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
-  res.body.totalCount: isNumber
 }
 
 script:pre-request {
   const platformTokenAuth = require('./tools/platformTokenAuth');
+  const tools = require('./tools/tools');
   
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
+  
+  // Set set-id for testing based on environment flag and variables
+  var flag = bru.getEnvVar('testFlag')
+  if (flag == 'true') {
+    tools.log('Setting Variables');
+    bru.setVar('set-id', bru.getVar('pasRuleSetId'));
+    tools.log('Rule Set Id: ' + bru.getVar('set-id'))
+  }
 }
 
 script:post-response {
   // Log on error
   const tools = require('./tools/tools');
-  
-  // Sets Discovered Rule Set for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    if (res.body.items[0].id) {
-      tools.log('Setting Variables');
-      bru.setVar('pasRuleSetId', res.body.items[0].id);
-      tools.log('Rule Set Id: ' + bru.getVar('pasRuleSetId'))
-    }
-  }
   
   // Log on error
   if (res.status != 200) {
@@ -64,17 +59,17 @@ script:post-response {
 }
 
 docs {
-  ## Get all discovery rule sets
-  This method returns information about all the defined discovery rule sets.
+  ## Get a Remediationrule set
+  This method returns information about a specific discovery rule set.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Supported Accounts | Remediation rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows, Domain, Local, Loosely connected devices, Mac loosely connected devices, Unix, Loosely connected devices, Password, AWS Password, Azure Password, GCP Password |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{set-id}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -89,10 +84,7 @@ docs {
   #### Request URL Parameters
   | Parameter | Type | Required | Description
   | :-- | :-- | :-- | :-- | 
-  | search | string | no | Search in the name and the content of the rule set. **Example:** search=admin |
-  | offset | integer  | no | Offset of the first rule set that is returned in the collection of results. **Default Value:** 0 |
-  | limit | integer | no | The maximum number of rule sets that are returned. **Default Value:** 50 |
-  | sort | string | no | Sort according to one of the following properties followed by asc or desc to control the sort direction. **Valid Values:** id, name, status, rulesCount, actionsPerformed, lastModificationTime **Default Value:** id - ascending|
+  | set-id | string | yes | The unique ID of the requested rule set. |
   
   #### Example Request Body
   None
@@ -101,31 +93,91 @@ docs {
   #### Example Response
   ```
   {
-    "items": [
-      {
-        "id": "4a201ef2-e823-46c8-8ddd-3520715f7b8c",
-        "name": "Example Local Windows Server Accounts",
-        "status": "INACTIVE",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
+    "name": "Example Local Windows Server Accounts",
+    "trigger": {
+      "type": "ACCOUNT_DISCOVERED",
+      "conditions": [
+        {
+          "property": "type",
+          "propertyType": "STRING",
+          "operator": "EQUALS",
+          "value": "windows"
         },
-        "lastModificationTime": "2024-06-03T20:54:30"
+        {
+          "property": "subType",
+          "propertyType": "STRING",
+          "operator": "EQUALS",
+          "value": "local"
+        },
+        {
+          "property": "source",
+          "propertyType": "STRING",
+          "operator": "EQUALS",
+          "value": "discovery-scans"
+        },
+        {
+          "property": "Domain",
+          "propertyType": "STRING",
+          "operator": "EQUALS",
+          "value": "example.local"
+        }
+      ]
+    },
+    "rules": [
+      {
+        "name": "Non Privileged Disabled Accounts",
+        "conditions": [
+          {
+            "property": "isPrivileged",
+            "propertyType": "BOOLEAN",
+            "operator": "EQUALS",
+            "value": "false"
+          },
+          {
+            "property": "Enabled",
+            "propertyType": "STRING",
+            "operator": "EQUALS",
+            "value": "False"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "WIN-SERVER-LOCAL-DIS",
+            "safeName": "WIN-SRV-DIS"
+          },
+          "subActions": []
+        }
       },
       {
-        "id": "d8fca8b3-1129-4cb8-b8c4-5099336a370b",
-        "name": "Bru Rule Set Example",
-        "status": "DRAFT",
-        "rulesCount": 2,
-        "actionsPerformed": {
-          "ONBOARD": 0
-        },
-        "lastModificationTime": "2024-04-11T18:19:06"
+        "name": "Privileged Disabled Accounts",
+        "conditions": [
+          {
+            "property": "isPrivileged",
+            "propertyType": "BOOLEAN",
+            "operator": "EQUALS",
+            "value": "true"
+          },
+          {
+            "property": "Enabled",
+            "propertyType": "STRING",
+            "operator": "EQUALS",
+            "value": "False"
+          }
+        ],
+        "action": {
+          "type": "ONBOARD",
+          "parameters": {
+            "platformId": "WIN-SERVER-LOCAL-DIS",
+            "safeName": "WIN-SRV-ADM-DIS"
+          },
+          "subActions": []
+        }
       }
     ],
-    "totalCount": 2,
-    "nextCursor": "",
-    "prevCursor": ""
+    "status": "INACTIVE",
+    "id": "4a201ef2-e823-46c8-8ddd-3520715f7b8c",
+    "lastModificationTime": "2024-06-03T20:54:30"
   }
   ```
   

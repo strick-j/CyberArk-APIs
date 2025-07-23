@@ -1,11 +1,11 @@
 meta {
-  name: Add a Discovery Rule Set
+  name: Edit a Remediation Rule Set
   type: http
-  seq: 3
+  seq: 4
 }
 
-post {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets
+put {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{set-id}}
   body: json
   auth: none
 }
@@ -24,7 +24,7 @@ body:json {
         {
           "property": "hostname",
           "operator": "STARTS_WITH",
-          "value": "bru"
+          "value": "brunew"
         }
       ]
     },
@@ -90,10 +90,11 @@ body:json {
 vars:pre-request {
   pasPlatformName: example-platform
   pasSafeName: example-safe
+  set-id: 
 }
 
 assert {
-  res.status: eq 201
+  res.status: eq 200
   res.body: isJson
 }
 
@@ -110,8 +111,10 @@ script:pre-request {
     tools.log('Setting Variables');
     bru.setVar('pasSafeName', bru.getEnvVar('testSafeName'));
     bru.setVar('pasPlatformName', bru.getEnvVar('testPlatformName'));
+    bru.setVar('set-id', bru.getVar('pasRuleSetId'));
     tools.log('Safe Name: ' + bru.getVar('pasSafeName'))
     tools.log('Platform Name: ' + bru.getVar('pasPlatformName'))
+    tools.log('Rule Set Id: ' + bru.getVar('set-id'))
   }
 }
 
@@ -119,18 +122,8 @@ script:post-response {
   // Log on error
   const tools = require('./tools/tools');
   
-  // Sets Discovered Rule Set for testing based on environment flag and variables
-  var flag = bru.getEnvVar('testFlag')
-  if (flag == 'true') {
-    if (res.body.id) {
-      tools.log('Setting Variables');
-      bru.setVar('pasRuleSetId', res.body.id);
-      tools.log('Rule Set Id: ' + bru.getVar('pasRuleSetId'))
-    }
-  }
-  
   // Log on error
-  if (res.status != 201) {
+  if (res.status != 200) {
     if (res.body.Message) {
       tools.log('Message: ' + res.body.Message);
     }
@@ -149,21 +142,17 @@ script:post-response {
 }
 
 docs {
-  ## Add a discovery rule set
-  This method adds a new discovery rule set that defines an action for specific discovered accounts.
-  
-  Any account that matches the rule set conditions is automatically handled according to the action that is defined in the rule set.
-  
-  Currently, the rule set onboards the matched account. At the time of onboarding, the matching accounts are added to the defined safe and platform.
+  ## Edit a remediation rule set
+  This method updates an existing discovery rule set.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
-  | Supported Accounts | Discovery rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows loosely connected devices, Mac loosely connected devices, Linux loosely connected devices |
+  | Supported Accounts | Remediation rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows, Domain, Local, Loosely connected devices, Mac loosely connected devices, Unix, Loosely connected devices, Password, AWS Password, Azure Password, GCP Password |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{set-id}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -173,7 +162,7 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | POST | application/json |
+  | PUT | application/json |
   
   #### Request URL Parameters
   None
@@ -257,7 +246,7 @@ docs {
   ```
   
   ### Response
-  #### Example Response (201 Created)
+  #### Example Response (200 OK)
   ```
   {
     "name": "Bru Rule Set Example",
@@ -274,7 +263,7 @@ docs {
           "property": "hostname",
           "property_type": "STRING",
           "operator": "STARTS_WITH",
-          "value": "bru"
+          "value": "brunew"
         }
       ]
     },
@@ -339,7 +328,7 @@ docs {
     ],
     "status": "DRAFT",
     "id": "8b18a75c-a173-41bd-8538-a8f9605dd88e",
-    "lastModificationTime": "2024-10-30T16:28:35"
+    "lastModificationTime": "2024-10-30T16:30:47"
   }
   ```
   

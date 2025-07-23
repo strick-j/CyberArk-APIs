@@ -1,22 +1,21 @@
 meta {
-  name: Get Scan Instance Logs
+  name: Delete a Remediation Rule Set
   type: http
-  seq: 8
+  seq: 5
 }
 
-get {
-  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/scan-instances/{{scanInstanceId}}/logs/
+delete {
+  url: https://{{identityTenantName}}.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{{set-id}}
   body: none
   auth: none
 }
 
 vars:pre-request {
-  scanInstanceId: 
+  set-id: 
 }
 
 assert {
-  res.status: eq 200
-  res.body: isJson
+  res.status: eq 204
 }
 
 script:pre-request {
@@ -26,12 +25,12 @@ script:pre-request {
   // Perform authentication usings platformToken.js tools
   await platformTokenAuth.login();
   
-  // Sets Scan Instance Id for testing based on environment flag and variables
+  // Sets Rule Set Id for testing based on environment flag and variables
   var flag = bru.getEnvVar('testFlag')
   if (flag == 'true') {
     tools.log('Setting Variables');
-    bru.setVar('scanInstanceId', bru.getVar('pasScanInstanceId'));
-    tools.log('Scan Instance Id: ' + bru.getVar('scanInstanceId'))
+    bru.setVar('set-id', bru.getVar('pasRuleSetId'));
+    tools.log('Rule Set Id: ' + bru.getVar('set-id'))
   }
 }
 
@@ -40,7 +39,7 @@ script:post-response {
   const tools = require('./tools/tools');
   
   // Log on error
-  if (res.status != 200) {
+  if (res.status != 204) {
     if (res.body.Message) {
       tools.log('Message: ' + res.body.Message);
     }
@@ -59,16 +58,17 @@ script:post-response {
 }
 
 docs {
-  ## Get Scan INstance Logs
-  This method retrieves details about a specific scan.
+  ## Delete a Remediation rule set
+  This method deletes one of the redmediation rule sets.
   
   **Considerations for running this REST API**
   | Consideration | Description |
   | --- | :-- |
+  | Supported Accounts | Remediation rule sets currently apply only to the following accounts that are discovered by the EPM scanning of endpoints, including loosely connected devices: Windows, Domain, Local, Loosely connected devices, Mac loosely connected devices, Unix, Loosely connected devices, Password, AWS Password, Azure Password, GCP Password |
   | Required Permissions | To run this API, the user must be assigned to one of the following roles: Privilege Cloud Administrator, Privilege Cloud Basic Administrator, Privilege Cloud Lite Administrator |
   
   ### Request URL
-  https://<subdomain>.privilegecloud.cyberark.cloud/api/scan-instances/{scanInstanceId}
+  https://<subdomain>.privilegecloud.cyberark.cloud/api/discovery-rule-sets/{set-id}
   
   > **URL NOTES**
   > - Make sure there are no spaces in the URL.
@@ -78,54 +78,18 @@ docs {
   #### Request Resource Information
   | HTTP Method | Content Type |
   | :-- | :-- |
-  | GET | application/json |
+  | DELETE | application/json |
   
-  #### Request Query Parameters
+  #### Request URL Parameters
   None
   
   #### Example Request Body
-  None
+  None 
   
   ### Response
-  #### Example Response
+  #### Example Response (204 OK)
   ```
-  {
-    "id": "02f7334e-dc87-4ca0-bf7b-49dcd5386d30",
-    "scanDefinitionId": "1f848b42-895f-46f0-9f82-4a39a8350da6",
-    "credentials": [
-      {
-        "name": "domain admin",
-        "type": "account",
-        "properties": {
-          "account_id": "63_5"
-        }
-      }
-    ],
-    "type": "windows_domain",
-    "properties": {
-      "ou": "",
-      "domain": "example.local"
-    },
-    "creationTime": "2024-06-03T20:42:24Z",
-    "updateTime": "2024-06-03T20:50:03Z",
-    "status": "COMPLETED",
-    "result": {
-      "scanID": "02f7334e-dc87-4ca0-bf7b-49dcd5386d30",
-      "scanResult": "Success",
-      "scanStartTime": "2024-03-6--20-43-02",
-      "engineVersion": "1.0.0.0",
-      "totalScanDuration": "0:3:8",
-      "totalDiscoveredAccounts": 54,
-      "totalMachinesRequested": 5,
-      "machinesScannedSuccessfully": 5,
-      "machinesScannedWithErrors": 0
-    },
-    "reason": "Success",
-    "tags": [],
-    "networkId": null,
-    "connectorId": null,
-    "connectorPoolId": "28515795-2bad-4468-8eb7-026a68520adf"
-  }
+  ""
   ```
   
   ### Response Codes

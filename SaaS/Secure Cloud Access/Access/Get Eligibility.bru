@@ -1,0 +1,83 @@
+meta {
+  name: Get Eligibility
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/access/{{csp}}/eligibility?limit=20
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 20
+  ~nextToken: 
+}
+
+vars:pre-request {
+  csp: AWS
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get Eligibility
+  Returns a list of targets for the specified cloud provider that you're eligible to access.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/access/<csp>/eligibility
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  |Name|Description|
+  |---|---|
+  |limit|The ID of the requested job|
+  |nextToken||
+  
+  ### Request Body
+  No body
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "response": [
+      {
+        "organizationId": "9694242424",
+        "workspaceId": "2924242420",
+        "workspaceName": "Example",
+        "workspaceType": "account",
+        "roleInfo": {
+          "id": "arn:aws:sso:::permissionSet/ssoins-66123141628/ps-08f1d04242424
+          "name": "Example"
+        }
+      }
+    ],
+    "nextToken": null,
+    "total": 1
+  }
+  ```
+  #### 400 Bad Request
+  ```
+  {
+    "message": "string"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}
