@@ -1,0 +1,131 @@
+meta {
+  name: Create Web App
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/onboarding/apps
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "appType": "AWS IAM",
+    "appName": "SA AWS Account 1234567890",
+    "appMetadata": {
+      "workspaceId": "969656756521",
+      "establishAutoTrust": "false"
+    }
+  }
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Create Web App  
+  Creates web app based on JSON Body Contents
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/onboarding/apps
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  None
+  
+  ### Request Body
+  #### AWS IAM
+  ```
+  {
+    "appType": "AWS IAM",
+    "appName": "SA AWS Account 1234567890",
+    "appMetadata": {
+      "workspaceId": "<account ID>",
+      "establishAutoTrust": "<boolean>"
+    }
+  }
+  ```
+  
+  #### AWS IAM IN ORG
+  ```
+  {
+    "appType": "AWS IAM",
+    "appName": "string",
+    "appMetadata": {
+      "workspaceId": "<Management account ID>",
+      "useIdentityAsIdp": "<boolean>"
+    }
+  }
+  ```
+  
+  #### AWS IDC
+  ```
+  {
+    "appType": "AWS IdC",
+    "appName": "AWS IAM Identity Center",
+    "appMetadata": {
+      "workspaceId": "<Management account ID>",
+      "useIdentityAsIdp": "<boolean>"
+    }
+  }
+  ```
+  
+  ### AZURE
+  ```
+  {
+    "appType": "Azure",
+    "appName": "Azure Microsoft Entra ID",
+    "appMetadata": {
+      "workspaceId": "<Directory ID>"
+    }
+  }
+  ```
+  
+  ### GCP
+  ```
+  {
+    "appType": "GCP",
+    "appName": "Google Cloud console",
+    "appMetadata": {
+      "workspaceId": "<Organization ID>",
+      "useIdentityAsIdp": "<boolean>"
+    }
+  }
+  ```
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "job_id": "475e401c-4c00-45a0-ac14-376ed696feaf"
+  }
+  ```
+  
+  #### 500 Internal Server Error
+  ```
+  {
+    "faultCode": "1001",
+    "headerMessage": "Oops! Something went wrong",
+    "bodyMessage": "Please try again in a few minutes. If that doesn't work, contact CyberArk support.",
+    "correlationId": "6dea5c04-9eec-4008-bcc9-e3d5389351b6",
+    "uiType": 3,
+    "innerError": "User not found"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}

@@ -1,0 +1,71 @@
+meta {
+  name: Revoke Access by User
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/access/users/{{userId}}/sessions/revoke
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  userId: first.last@example.com
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Revoke Access for a specified User
+  Revokes all the sessions of the specified user.
+  To revoke your own sessions, use "my" or "actual user id" as the userID parameter.
+  
+  Note: Only users with the CS Admin role can revoke sessions for any user. If you don't have the CS Admin role, you can revoke your own sessions only.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/access/users/<userId>/sessions/revoke
+  
+  ### Resource Information
+  | HTTP Method | POST |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  None
+  
+  ### Request Body
+  None
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "response": []
+  }
+  
+  ```
+  #### 500 Internal Server Error
+  ```
+  {
+    "faultCode": "1001",
+    "headerMessage": "Oops! Something went wrong",
+    "bodyMessage": "Please try again in a few minutes. If that doesn't work, contact CyberArk support.",
+    "correlationId": "6dea5c04-9eec-4008-bcc9-e3d5389351b6",
+    "uiType": 3,
+    "innerError": "User not found"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}

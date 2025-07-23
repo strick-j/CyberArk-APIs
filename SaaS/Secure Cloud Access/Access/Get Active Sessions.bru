@@ -1,0 +1,81 @@
+meta {
+  name: Get Active Sessions
+  type: http
+  seq: 2
+}
+
+get {
+  url: https://{{identityTenantName}}.sca.cyberark.cloud/api/access/sessions?csp=AWS
+  body: none
+  auth: none
+}
+
+params:query {
+  csp: AWS
+  ~limit: 20
+  ~nextToken: 
+}
+
+script:pre-request {
+  const platformTokenAuth = require('./tools/platformTokenAuth');
+  
+  // Perform authentication usings platformToken.js tools
+  await platformTokenAuth.login();
+}
+
+docs {
+  ## Get Active Sessions
+  Returns a list of all active sessions.
+  
+  Note: This operation is available only to users with the CS Admin role.
+  
+  ### URL
+  https://<subdomain>.sca.cyberark.com/api/access/sessions
+  
+  ### Resource Information
+  | HTTP Method | GET |
+  | :-- | :-- |
+  
+  ### Query Parameters
+  |Name|Description|
+  |---|---|
+  |csp|The cloud provider for which to list active sessions. Allowed Values: AWS|
+  |limit|The ID of the requested job|
+  |nextToken|The token from the previous API response.|
+  
+  ### Request Body
+  No body
+  
+  ### Example Responses
+  #### 200 Success
+  ```
+  {
+    "response": [
+      {
+        "sessionId": "string",
+        "userId": "string",
+        "csp": "AWS",
+        "workspaceId": "string",
+        "roleId": "string",
+        "sessionDuration": 3600
+      }
+    ],
+    "total": 0,
+    "nextToken": "string"
+  }
+  ```
+  #### 400 Bad Request
+  ```
+  {
+    "message": "string"
+  }
+  ```
+  
+  ### Error Codes
+  |code|Description|
+  |-----|:---------------|
+  |200|Job status|
+  |400|Bad Request|
+  |401|Unauthorized|
+  |500|Internal Server Error|
+}
