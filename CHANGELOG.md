@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.6
+### Added or Changed
+- Moved Discovery API endpoints to a new package
+- Added new Secure Cloud Access API endpoints
+- Added new Risk Management API endpoints
+
 ## v1.0.5
 ### Added or Changed
 - Added CyberArk Cloud Onboarding Endpoints
